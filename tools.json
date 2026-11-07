@@ -51,7 +51,7 @@
         "Bode"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-      "revision": "ba618c0c99c80dbec9c62ce14f7a9e176a267e2e",
+      "revision": "af2bf20a87401ffc208a0f5c663cbaff98c34f16",
       "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
       "assets": [
         "index.html",
@@ -89,11 +89,12 @@
         "VoltaLab"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Potentialkurven",
-      "revision": "c0e9ffcbbdb4b27ae2eb81a3ef76de51914cae97",
+      "revision": "865f47cca99c56ebe8e8659253fce6650b679bfc",
       "sourceDirectory": "Elektrochemie/Datenauswertung/Potentialkurven",
       "assets": [
         "index.html",
-        "potentialkurven.js"
+        "potentialkurven.js",
+        "svg-context.js"
       ],
       "aliases": [
         "/potentialkurven/",
@@ -121,7 +122,7 @@
         "KeksUndTee"
       ],
       "repository": "FalkBornmann/KeksUndTee",
-      "revision": "fa1c9ab5cf81411bcdc7a8325a8876f0c83eff35",
+      "revision": "d10f7f082ee917db87015bf1f0675c9babf7da9a",
       "sourceDirectory": "Theoretische Spielereien/KeksUndTee",
       "assets": [
         "index.html",
@@ -129,7 +130,8 @@
         "model.js",
         "worker.js",
         "style.css",
-        "profile.js"
+        "profile.js",
+        "svg-context.js"
       ],
       "aliases": [
         "/keks-und-tee/",

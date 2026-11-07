@@ -26,6 +26,14 @@ Zuerst ID, Titel, Beschreibung, Fachgebiete, Tätigkeit, Sammlungen und Schlagw�
 6. Orientierungspfad zur Fachgebietsseite, Projektkennzeichnung und zutreffende Datenverarbeitungs- und Nutzungshinweise ergänzen.
 7. `npm test` und `npm run build` ausführen, Navigation und Tool im Browser prüfen und den vollständigen Build veröffentlichen.
 
+## Grafikexport
+
+Jede erzeugte Grafik erhält PNG- und SVG-Export. SVG enthält Pfade, Flächen und Text statt eingebetteter Rasterbilder. Achsen, Einheiten, Fitlinien, Markierungen und ausgewählte Zeitpunkte müssen dem sichtbaren Zustand entsprechen. Bei Simulationen den aktuellen Zustand für den Export einfrieren.
+
+Vorhandene SVG-Darstellungen direkt serialisieren. Canvas-Zeichenroutinen können einen optionalen Kontext erhalten und für den SVG-Export erneut ausgeführt werden. `templates/svg-context.js` ist die Referenz für die derzeit verwendeten Canvas-Operationen und wird in den unabhängigen Tool-Repositories mitgeführt. Bei neuen Zeichenoperationen den Exportkontext erweitern und prüfen.
+
+SVG-Dateien auf gültiges XML, eigenständige Darstellung, Beschriftungen und fehlende Rastereinbettungen testen. PNG weiterhin prüfen. Neue Exportdateien in die Asset-Liste und gegebenenfalls den eigenständigen Tool-Build aufnehmen.
+
 ## Neue Version veröffentlichen
 
 Änderungen im Tool-Repository committen und pushen. Danach `revision` im Katalog aktualisieren und die gemeinsame Website bauen. So bleibt nachvollziehbar, welche Tool-Version veröffentlicht wird.

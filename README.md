@@ -37,6 +37,12 @@ Der Build verwendet die in tools.json angegebenen Git-Commits. Liegt die lokale 
 
 dist/ über einen lokalen HTTP-Server ansehen. Für Cloudflare Pages den vollständigen Inhalt von dist/ veröffentlichen. Bei Git-Integration lautet der Build-Befehl npm run build, das Ausgabeverzeichnis dist. Der GitHub-Workflow prüft und baut die Website und stellt ein Veröffentlichungsartefakt bereit.
 
+## Grafikexport prüfen
+
+Alle verfügbaren Tools bieten echte SVG-Vektorgrafiken zusätzlich zu PNG. Die SVG-Zeichenkontext-Referenz liegt unter `templates/svg-context.js`. Die Exportvorgaben für weitere Tools stehen in `AGENTS.md` und `docs/TOOLS.md`.
+
+`node scripts/check-exports.cjs` prüft beide Downloadformate in einem isolierten Browser. Dafür werden Playwright, ein Chromium-Browser und die lokale Python-Umgebung des EIS-Tools benötigt. Optional geben `WERKZEUGDECK_PLAYWRIGHT`, `EIS_BROWSER` und `EIS_PYTHON` deren Pfade an. Die Prüfung nutzt synthetische Potentialkurven und die enthaltenen EIS-Beispiele. Prüfdateien liegen anschließend im ignorierten Ordner `Archiv/Export-Pruefung/`.
+
 ## Projekt
 
 Privates Projekt in Entwicklung. Grundlagen, Theorie, Fachquellen, Datenverarbeitung und Grenzen stehen in den einzelnen Anwendungen. Für Beiträge gelten die Vorgaben in AGENTS.md.
