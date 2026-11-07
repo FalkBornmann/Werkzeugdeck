@@ -128,7 +128,8 @@
         "app.js",
         "model.js",
         "worker.js",
-        "style.css"
+        "style.css",
+        "profile.js"
       ],
       "aliases": [
         "/keks-und-tee/",

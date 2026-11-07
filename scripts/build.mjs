@@ -46,6 +46,12 @@ for (const tool of catalog.tools.filter(tool => tool.status === 'available')) {
     }
     writeFileSync(join(destination, asset), content);
   }
+  for (const asset of tool.assets.filter(asset => asset.endsWith('.js'))) {
+    const script = readFileSync(join(destination, asset), 'utf8');
+    for (const match of script.matchAll(/['"]\.\/([\w.-]+\.(?:js|json|css))['"]/g)) {
+      if (!tool.assets.includes(match[1])) throw new Error(`Missing browser dependency in ${tool.id}: ${match[1]} (referenced by ${asset})`);
+    }
+  }
   for (const alias of tool.aliases) {
     redirects.push(`${alias} /tools/${tool.id}/ 301`);
     redirects.push(`${alias}* /tools/${tool.id}/:splat 301`);
