@@ -51,7 +51,7 @@
         "Bode"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-      "revision": "af2bf20a87401ffc208a0f5c663cbaff98c34f16",
+      "revision": "f6f44a5f10e9b903a985c6cba7f830ea9feccaaf",
       "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
       "assets": [
         "index.html",
