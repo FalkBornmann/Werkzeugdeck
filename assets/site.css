@@ -1,0 +1,41 @@
+:root {font: 16px/1.65 system-ui, sans-serif; color: #183d36; background: #f3f5f1; --green: #193e35; --sand: #e5c591; --line: #d5dfd8; --muted: #52695f}
+* {box-sizing: border-box}
+body {margin: 0}
+a {color: #176b56; text-underline-offset: .2em}
+.wrap {max-width: 1160px; margin: auto; padding: 28px}
+header {background: var(--green); color: white; border-bottom: 6px solid var(--sand)}
+header a {color: #f0d7b1}
+.brand {font-size: 1.15rem; font-weight: 750; text-decoration: none}
+.eyebrow {color: var(--sand); letter-spacing: .14em; font-size: .8rem; text-transform: uppercase}
+h1 {font-size: clamp(2.5rem, 7vw, 4.5rem); line-height: 1.12; margin: .3em 0; letter-spacing: -.04em}
+header p {max-width: 740px}
+h2 {font-size: 1.65rem; line-height: 1.3}
+h3 {font-size: 1.25rem; margin: 0 0 10px}
+.intro, .search-panel, .tool-card, .domain-card {background: white; border: 1px solid var(--line); border-radius: 12px; padding: 24px}
+.intro {margin: 0 0 24px}
+.filters, .meta {display: flex; flex-wrap: wrap; gap: 10px}
+.filters {margin: 20px 0}
+.filters a {display: inline-flex; align-items: center; min-height: 44px; border: 1px solid var(--line); border-radius: 24px; background: white; padding: 8px 16px; text-decoration: none; font-weight: 650}
+.filters a[aria-current=true] {background: var(--green); color: white; border-color: var(--green)}
+label {display: block; font-weight: 650}
+input {font: inherit; border: 1px solid #9cb4a5; border-radius: 6px; padding: 10px 12px; width: 100%; max-width: 650px; min-height: 44px; margin-top: 6px}
+.hint, .meta, footer {color: var(--muted); font-size: .9rem}
+.grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px}
+.tool-card {display: flex; flex-direction: column; align-items: flex-start}
+.tool-card p {flex: 1}
+.meta span {background: #edf3ec; border-radius: 16px; padding: 3px 10px; font-size: .78rem}
+.meta .planned {background: #f7ecd9; color: #72501c}
+.open {font-weight: 700; display: inline-block; padding: 8px 0; min-height: 44px}
+.repo {font-size: .85rem}
+.tool-card h4 {font-size: 1.25rem; margin: 16px 0 0}
+.topic {margin: 32px 0}
+.domain-card h3 {margin-top: 0}
+.breadcrumbs {font-size: .9rem}
+footer {border-top: 1px solid var(--line); margin-top: 30px}
+summary {cursor: pointer; font-weight: 650; min-height: 44px; padding: 8px 0}
+details p {max-width: 900px}
+a:focus-visible, input:focus-visible, summary:focus-visible {outline: 3px solid #b88736; outline-offset: 4px}
+.skip {position: absolute; top: -100px; left: 20px; background: white; padding: 12px; z-index: 5}
+.skip:focus {top: 10px}
+[hidden] {display: none !important}
+@media (max-width: 600px) {.wrap {padding: 18px} .intro, .search-panel, .tool-card, .domain-card {padding: 18px}}

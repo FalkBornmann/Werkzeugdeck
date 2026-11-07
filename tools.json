@@ -1,0 +1,159 @@
+{
+  "site": {
+    "title": "Werkzeugdeck",
+    "url": "https://werkzeugdeck.pages.dev",
+    "defaultCollection": "theoretische-spielereien"
+  },
+  "domains": [
+    {
+      "id": "elektrochemie",
+      "title": "Elektrochemie",
+      "description": "Elektrische Messungen verstehen und elektrochemische Daten auswerten."
+    },
+    {
+      "id": "stofftransport",
+      "title": "Stofftransport",
+      "description": "Erkunden, wie Flüssigkeiten und Stoffe sich in Materialien verteilen."
+    },
+    {
+      "id": "beschichtungen",
+      "title": "Beschichtungen",
+      "description": "Eigenschaften von Lacken und Beschichtungen untersuchen und Belastungsfolgen auswerten."
+    }
+  ],
+  "activities": {
+    "datenauswertung": "Datenauswertung",
+    "simulation": "Simulation",
+    "bildanalyse": "Bildanalyse"
+  },
+  "collections": [
+    {
+      "id": "theoretische-spielereien",
+      "title": "Theoretische Spielereien",
+      "description": "Mit Modellen spielen, Parameter verändern und Zusammenhänge entdecken."
+    }
+  ],
+  "tools": [
+    {
+      "id": "eis-fitting",
+      "title": "EIS-Fitting",
+      "status": "available",
+      "description": "Impedanzspektren auswerten, Ersatzschaltbilder vergleichen und eigene Schaltungen fitten.",
+      "domains": [
+        "elektrochemie"
+      ],
+      "activity": "datenauswertung",
+      "collections": [],
+      "tags": [
+        "Impedanz",
+        "Ersatzschaltbild",
+        "Nyquist",
+        "Bode"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
+      "revision": "ba618c0c99c80dbec9c62ce14f7a9e176a267e2e",
+      "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
+      "assets": [
+        "index.html",
+        "fit-worker.js",
+        "circuit-diagram.js",
+        "circuit-editor.js",
+        "graph-editor.js",
+        "projection.js",
+        "spectrum-preview.js",
+        "examples.json",
+        "fitting.py",
+        "circuits.py"
+      ],
+      "browserRuntime": true,
+      "aliases": [
+        "/eis-fitting/",
+        "/Elektrochemie/EIS%20Fitting/",
+        "/Elektrochemie/Datenauswertung/EIS-Fitting/"
+      ]
+    },
+    {
+      "id": "potentialkurven",
+      "title": "Potentialkurven",
+      "status": "available",
+      "description": "Potential- und Polarisationskurven darstellen sowie Drift und Polarisationswiderstand bestimmen.",
+      "domains": [
+        "elektrochemie"
+      ],
+      "activity": "datenauswertung",
+      "collections": [],
+      "tags": [
+        "Potential",
+        "Polarisation",
+        "Korrosion",
+        "VoltaLab"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Potentialkurven",
+      "revision": "c0e9ffcbbdb4b27ae2eb81a3ef76de51914cae97",
+      "sourceDirectory": "Elektrochemie/Datenauswertung/Potentialkurven",
+      "assets": [
+        "index.html",
+        "potentialkurven.js"
+      ],
+      "aliases": [
+        "/potentialkurven/",
+        "/Elektrochemie/Potentialkurven/",
+        "/Elektrochemie/Datenauswertung/Potentialkurven/",
+        "/laborwerkzeuge/elektrochemie/potentialkurven/"
+      ]
+    },
+    {
+      "id": "keks-und-tee",
+      "title": "Keks und Tee",
+      "status": "available",
+      "description": "Flüssigkeitsaufnahme, Aufweichen und vereinfachten Modellbruch beim Eintauchen von Gebäck erkunden.",
+      "domains": [
+        "stofftransport"
+      ],
+      "activity": "simulation",
+      "collections": [
+        "theoretische-spielereien"
+      ],
+      "tags": [
+        "Diffusion",
+        "Kapillarität",
+        "Alltagsphysik",
+        "KeksUndTee"
+      ],
+      "repository": "FalkBornmann/KeksUndTee",
+      "revision": "fa1c9ab5cf81411bcdc7a8325a8876f0c83eff35",
+      "sourceDirectory": "Theoretische Spielereien/KeksUndTee",
+      "assets": [
+        "index.html",
+        "app.js",
+        "model.js",
+        "worker.js",
+        "style.css"
+      ],
+      "aliases": [
+        "/keks-und-tee/",
+        "/Eintunken/",
+        "/KeksUndTee/"
+      ]
+    },
+    {
+      "id": "nss-beschichtungsanalyse",
+      "title": "NSS-Beschichtungsanalyse",
+      "status": "planned",
+      "description": "Geplant: Blasenbildung und Entnetzung an belasteten Lackoberflächen anhand von Fotos erfassen. Auswertungsverfahren und Validierung werden bei der Entwicklung festgelegt.",
+      "domains": [
+        "beschichtungen"
+      ],
+      "activity": "bildanalyse",
+      "collections": [],
+      "tags": [
+        "NSS",
+        "Salzsprühnebel",
+        "Lack",
+        "Foto",
+        "Blasengrad",
+        "Entnetzung"
+      ]
+    }
+  ]
+}

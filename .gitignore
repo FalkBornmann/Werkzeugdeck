@@ -1,0 +1,9 @@
+Archiv/
+.codex-repos/
+Eintunken/
+Elektrochemie/
+Theoretische Spielereien/
+.build-sources/
+dist/
+*.zip
+node_modules/
