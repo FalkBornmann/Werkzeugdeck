@@ -157,6 +157,41 @@
         "Blasengrad",
         "Entnetzung"
       ]
+    },
+    {
+      "id": "winand-diagramm",
+      "title": "Winand-Diagramm",
+      "status": "available",
+      "description": "Elektrokristallisation verstehen: Zustände vergleichen, Elektrolyte und Additive erkunden und Prozesse mit Modell-Schichtwachstum verfolgen.",
+      "domains": [
+        "elektrochemie"
+      ],
+      "activity": "simulation",
+      "collections": [],
+      "tags": [
+        "Winand",
+        "Elektrokristallisation",
+        "Galvanik",
+        "Gefüge",
+        "Komplexbildung",
+        "Additive",
+        "Stofftransport"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Winand-Diagramm",
+      "revision": "c67a88edeefb6bc808b92922a5cbb8538c8e4339",
+      "sourceDirectory": "Elektrochemie/Simulation/Winand-Diagramm",
+      "assets": [
+        "index.html",
+        "style.css",
+        "app.js",
+        "model.js",
+        "render.js"
+      ],
+      "aliases": [
+        "/winand-diagramm/",
+        "/Elektrochemie/Winand-Diagramm/",
+        "/Elektrochemie/Simulation/Winand-Diagramm/"
+      ]
     }
   ]
 }
