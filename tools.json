@@ -185,7 +185,7 @@
         "Stofftransport"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Winand-Diagramm",
-      "revision": "fd2f6647dda210f0a336ffd1e0fe74ae4f9cfb08",
+      "revision": "b0f9a9837b324d1e6514ee3fabbef5962aa31868",
       "sourceDirectory": "Elektrochemie/Simulation/Winand-Diagramm",
       "assets": [
         "index.html",
