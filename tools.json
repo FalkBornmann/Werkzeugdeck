@@ -19,6 +19,11 @@
       "id": "beschichtungen",
       "title": "Beschichtungen",
       "description": "Eigenschaften von Lacken und Beschichtungen untersuchen und Belastungsfolgen auswerten."
+    },
+    {
+      "id": "werkstofftechnik",
+      "title": "Werkstofftechnik",
+      "description": "Gefüge, Wärmebehandlung und Eigenschaften von Werkstoffen verstehen und modellieren."
     }
   ],
   "activities": {
@@ -192,6 +197,47 @@
         "/winand-diagramm/",
         "/Elektrochemie/Winand-Diagramm/",
         "/Elektrochemie/Simulation/Winand-Diagramm/"
+      ]
+    },
+    {
+      "id": "gefuegerechner",
+      "title": "Gefügerechner für Stähle",
+      "status": "available",
+      "description": "Werkstoffe und ZTU-Referenzen auswählen, Wärmebehandlungen einstellen und Temperatur- sowie modellhafte Gefügeentwicklung in Platte und Rundstab erkunden.",
+      "domains": [
+        "werkstofftechnik"
+      ],
+      "activity": "simulation",
+      "collections": [],
+      "tags": [
+        "Stahl",
+        "Wärmebehandlung",
+        "Gefüge",
+        "ZTU",
+        "TTT",
+        "CCT",
+        "Eisen-Kohlenstoff",
+        "Härten",
+        "Anlassen",
+        "Werkstoffnummer",
+        "Platte",
+        "Rundstab"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Gefuegerechner",
+      "revision": "c925927dc2e7c693f2ebc0cb7b51416a4bd9fe3f",
+      "sourceDirectory": "Werkstofftechnik/Simulation/Gefuegerechner",
+      "assets": [
+        "index.html",
+        "style.css",
+        "app.js",
+        "materials.js",
+        "model.js",
+        "render.js",
+        "worker.js",
+        "svg-context.js"
+      ],
+      "aliases": [
+        "/gefuegerechner/"
       ]
     }
   ]

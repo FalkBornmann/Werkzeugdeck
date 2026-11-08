@@ -12,6 +12,7 @@ Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung
 | Elektrochemie | Datenauswertung | Potentialkurven | [Werkzeugdeck-Potentialkurven](https://github.com/FalkBornmann/Werkzeugdeck-Potentialkurven) |
 | Elektrochemie | Simulation | Winand-Diagramm | [Werkzeugdeck-Winand-Diagramm](https://github.com/FalkBornmann/Werkzeugdeck-Winand-Diagramm) |
 | Stofftransport | Simulation | Keks und Tee | [KeksUndTee](https://github.com/FalkBornmann/KeksUndTee) |
+| Werkstofftechnik | Simulation | Gefügerechner für Stähle | [Werkzeugdeck-Gefuegerechner](https://github.com/FalkBornmann/Werkzeugdeck-Gefuegerechner) |
 | Beschichtungen | Bildanalyse | NSS-Beschichtungsanalyse | Geplant |
 
 „Theoretische Spielereien“ ist eine zusätzliche Sammlung und der vorausgewählte Einstieg. Fachgebiete, Aufgaben, Sammlungen und Suchbegriffe werden unabhängig gepflegt. Eine Anwendung kann mehreren Fachgebieten zugeordnet sein und behält ihre Adresse unter /tools/<id>/.
