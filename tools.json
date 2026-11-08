@@ -56,7 +56,7 @@
         "Bode"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-      "revision": "8d5b66cb7b84b3f91d839baeb57e2dcdeb5cfc4b",
+      "revision": "eca70889c2cc4beb9026035e8e675a9def83212b",
       "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
       "assets": [
         "index.html",
@@ -96,7 +96,7 @@
         "VoltaLab"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Potentialkurven",
-      "revision": "36c4472f59bf77749e2ad3fd8b64ef61d9ddfb06",
+      "revision": "646ed4e1a39317a794cdad518a5bab58aa840802",
       "sourceDirectory": "Elektrochemie/Datenauswertung/Potentialkurven",
       "assets": [
         "index.html",
@@ -131,7 +131,7 @@
         "KeksUndTee"
       ],
       "repository": "FalkBornmann/KeksUndTee",
-      "revision": "8e16218899bf5931a8327f2efd780e5dd0f8c78a",
+      "revision": "b313f967f9be6f1a697998e85d2484946c2a6697",
       "sourceDirectory": "Theoretische Spielereien/KeksUndTee",
       "assets": [
         "index.html",
@@ -191,7 +191,7 @@
         "Stofftransport"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Winand-Diagramm",
-      "revision": "cbb7ec58f2de3149478279ed3fd3be46dce25246",
+      "revision": "2c9709e5eeb4ae1a084565d11d75e063f3b1a3c8",
       "sourceDirectory": "Elektrochemie/Simulation/Winand-Diagramm",
       "assets": [
         "index.html",
@@ -236,7 +236,7 @@
         "Rundstab"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Gefuegerechner",
-      "revision": "c095734f901c1b3dcbd2d41ec3146dfb0bbfbd57",
+      "revision": "0b114bfc75054fb3cbcf29b40aae2a5c9368376d",
       "sourceDirectory": "Werkstofftechnik/Simulation/Gefuegerechner",
       "assets": [
         "index.html",

@@ -33,4 +33,8 @@ Der Nutzer hält während der Aufnahme den Tab aktiv. Auf langsamen Geräten kö
 
 ## Prüfen
 
+Jede HTML-Seite besitzt explizite `<head>`-/`</head>`-Tags. Die Datei `tool-theme.css` wird im Kopf als Stylesheet verlinkt und als Asset mitgeliefert. Piktogramme tragen direkt `width="22"`, `height="22"`, `fill="none"` und `stroke="currentColor"`; so werden sie auch bei fehlenden Styles nicht riesig. Der Build validiert diese Einbindung. `node scripts/check-design.cjs` prüft alle verfügbaren Tool-Einstiege in Desktop- und Mobilansicht auf CSS-Ladestatus, Fachfarbe, sichtbare Abmessungen und den Fallback bei blockierter CSS-Datei.
+
+Der GitHub-Workflow führt diese Browserprüfung automatisch nach dem Build aus. Das Website-Artefakt wird erst nach erfolgreicher Prüfung bereitgestellt. Bei einem Fehler werden vorhandene Prüfscreenshots als separates Artefakt gesichert.
+
 `node scripts/check-ui-video.cjs` prüft Theorie-Navigation, alle Exportmenüs, drei tatsächliche Videodateien, wechselnde Videobilder, Abbruch, Wiederherstellung und Browser-Fallback. `node scripts/check-exports.cjs` prüft PNG/SVG über die neuen Menüs. `node scripts/check-timelines.cjs` prüft die mitlaufende Zeitsteuerung. Die Browserprüfungen benötigen Playwright und einen Chromium-Browser. Deren Pfade können über `WERKZEUGDECK_PLAYWRIGHT` und `EIS_BROWSER` angegeben werden.

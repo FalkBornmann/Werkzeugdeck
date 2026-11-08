@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {validateCatalog, renderPage} from './site.mjs';
 import {theory} from '../content/theory.mjs';
 import {validateTheory, renderTheoryPage} from './theory.mjs';
+import {validateToolDocument} from './validate-document.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const catalog = JSON.parse(readFileSync(join(root, 'tools.json'), 'utf8').replace(/^\uFEFF/, ''));
@@ -58,6 +59,7 @@ for (const tool of catalog.tools.filter(tool => tool.status === 'available')) {
       if (!tool.assets.includes(match[1])) throw new Error(`Missing browser dependency in ${tool.id}: ${match[1]} (referenced by ${asset})`);
     }
   }
+  validateToolDocument(readFileSync(join(destination, 'index.html'), 'utf8'), tool.assets, tool.id);
   for (const alias of tool.aliases) {
     redirects.push(`${alias} /tools/${tool.id}/ 301`);
     redirects.push(`${alias}* /tools/${tool.id}/:splat 301`);

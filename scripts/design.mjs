@@ -10,5 +10,5 @@ export function activityIcon(activity) {
     datenauswertung:'<path d="M4 3v17h17M7 15l4-6 4 3 5-7"/><circle cx="11" cy="9" r="1"/>',
     bildanalyse:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="2"/><path d="M4 18l6-5 4 3 4-6 3 4"/>'
   };
-  return `<svg class="wd-icon" viewBox="0 0 24 24" aria-hidden="true">${paths[activity] || paths.datenauswertung}</svg>`;
+  return `<svg class="wd-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">${paths[activity] || paths.datenauswertung}</svg>`;
 }
