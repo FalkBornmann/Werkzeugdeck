@@ -224,7 +224,7 @@
         "Rundstab"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Gefuegerechner",
-      "revision": "c925927dc2e7c693f2ebc0cb7b51416a4bd9fe3f",
+      "revision": "cdd7de0a4fe4bb8cc40d8767fd5423d12ae6da45",
       "sourceDirectory": "Werkstofftechnik/Simulation/Gefuegerechner",
       "assets": [
         "index.html",
@@ -234,7 +234,10 @@
         "model.js",
         "render.js",
         "worker.js",
-        "svg-context.js"
+        "svg-context.js",
+        "figure-style.js",
+        "ztu-render.js",
+        "schematic-render.js"
       ],
       "aliases": [
         "/gefuegerechner/"
