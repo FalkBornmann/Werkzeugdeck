@@ -22,6 +22,20 @@ input {font: inherit; border: 1px solid #9cb4a5; border-radius: 6px; padding: 10
 .hint, .meta, footer {color: var(--muted); font-size: .9rem}
 .grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px}
 .tool-card {display: flex; flex-direction: column; align-items: flex-start}
+.tool-card {border-top:4px solid var(--topic-accent,#24745d)}
+.theory-entry {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px;margin-bottom:28px;background:var(--topic-light,#edf5ee);border:1px solid var(--line);border-left:5px solid var(--topic-accent,#24745d);border-radius:12px}
+.theory-entry .eyebrow {color:var(--topic-dark);font-weight:700}
+.theory-entry h2 {margin:0}
+.theory-entry p {max-width:700px}
+.theory-layout {display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+.theory-toc {position:sticky;top:18px;padding:20px;background:white;border:1px solid var(--line);border-radius:12px}
+.theory-toc h2 {font-size:1.1rem;margin-top:0}
+.theory-toc ol {padding-left:20px}
+.theory-toc li {margin:12px 0}
+.theory-chapter {padding:24px;background:white;border:1px solid var(--line);border-radius:12px;margin-bottom:22px;scroll-margin-top:18px}
+.theory-chapter h2 {margin-top:0}
+.theory-chapter .equation {padding:14px;background:var(--topic-light);font:1.1rem/1.6 Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:850px){.theory-layout{grid-template-columns:1fr}.theory-toc{position:static}.theory-entry{display:block}}
 .tool-card p {flex: 1}
 .meta span {background: #edf3ec; border-radius: 16px; padding: 3px 10px; font-size: .78rem}
 .meta .planned {background: #f7ecd9; color: #72501c}
@@ -30,6 +44,7 @@ input {font: inherit; border: 1px solid #9cb4a5; border-radius: 6px; padding: 10
 .tool-card h4 {font-size: 1.25rem; margin: 16px 0 0}
 .topic {margin: 32px 0}
 .domain-card h3 {margin-top: 0}
+.domain-card {border-top:4px solid var(--topic-accent,#24745d)}
 .breadcrumbs {font-size: .9rem}
 footer {border-top: 1px solid var(--line); margin-top: 30px}
 summary {cursor: pointer; font-weight: 650; min-height: 44px; padding: 8px 0}

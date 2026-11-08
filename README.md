@@ -25,6 +25,8 @@ Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung
 - scripts/build.mjs erstellt dist/ einschließlich Anwendungen und Weiterleitungen.
 - docs/TOOLS.md beschreibt das Einordnen und Veröffentlichen weiterer Tools.
 - docs/MIGRATION.md dokumentiert die Bereinigung der bisherigen Struktur.
+- content/theory.mjs enthält die fachlichen Lernwege. Neue verfügbare Tools benötigen dort eine passende Einordnung; der Build prüft dies.
+- docs/DESIGN.md definiert Fachfarben, Aufgabenpiktogramme, kompakte Exportmenüs und lokale Simulationsvideos.
 
 ## Lokal bauen
 

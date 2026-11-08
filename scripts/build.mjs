@@ -3,15 +3,19 @@ import {resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {validateCatalog, renderPage} from './site.mjs';
+import {theory} from '../content/theory.mjs';
+import {validateTheory, renderTheoryPage} from './theory.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const catalog = JSON.parse(readFileSync(join(root, 'tools.json'), 'utf8').replace(/^\uFEFF/, ''));
 validateCatalog(catalog);
+validateTheory(catalog, theory);
 const output = resolve(root, 'dist');
 if (output !== join(root, 'dist')) throw new Error('Unexpected build output directory');
 rmSync(output, {recursive: true, force: true});
 mkdirSync(join(output, 'assets'), {recursive: true});
 for (const file of ['site.css', 'catalog.js']) copyFileSync(join(root, 'assets', file), join(output, 'assets', file));
+copyFileSync(join(root, 'templates', 'tool-theme.css'), join(output, 'assets', 'tool-theme.css'));
 const home = renderPage(catalog);
 writeFileSync(join(output, 'index.html'), home);
 writeFileSync(join(root, 'index.html'), home);
@@ -19,6 +23,8 @@ for (const domain of catalog.domains) {
   const directory = join(output, 'bereiche', domain.id);
   mkdirSync(directory, {recursive: true});
   writeFileSync(join(directory, 'index.html'), renderPage(catalog, domain));
+  mkdirSync(join(directory, 'theorie'), {recursive: true});
+  writeFileSync(join(directory, 'theorie', 'index.html'), renderTheoryPage(catalog, domain, theory[domain.id]));
 }
 const redirects = [];
 for (const tool of catalog.tools.filter(tool => tool.status === 'available')) {

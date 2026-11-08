@@ -46,8 +46,14 @@ async function ready(url) {
     page.on('pageerror', error => errors.push(error.message));
     const saved = [];
     async function download(id, extension) {
+      let object;
+      if (page.url().includes('8897')) object = id.replace(/^save-/, '').replace(/-svg$/, '');
+      else if (page.url().includes('potentialkurven')) object = 'diagramm';
+      else object = {'png':'scene','scene-svg':'scene','chart-png':'chart','chart-svg':'chart','profile-png':'profile-chart','profile-svg':'profile-chart'}[id];
+      await page.locator('[data-export-object]').selectOption(object);
+      await page.locator('[data-export-format]').selectOption(extension);
       const promise = page.waitForEvent('download');
-      await page.locator('#' + id).click();
+      await page.locator('[data-export-save]').click();
       const item = await promise;
       assert.ok(item.suggestedFilename().endsWith('.' + extension));
       const destination = path.join(output, item.suggestedFilename());

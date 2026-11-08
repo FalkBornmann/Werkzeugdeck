@@ -1,6 +1,8 @@
+import {activityIcon, themes} from './design.mjs';
 export const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 export function validateCatalog(catalog) {
+  for (const domain of catalog.domains) if (!themes[domain.id]) throw new Error(`Choose a domain design theme: ${domain.id}`);
   const domainIds = new Set(catalog.domains.map(domain => domain.id));
   const collectionIds = new Set(catalog.collections.map(collection => collection.id));
   const ids = new Set();
@@ -22,8 +24,8 @@ function card(catalog, tool) {
   const filters = [...tool.domains, ...tool.collections];
   const domain = catalog.domains.find(domain => domain.id === tool.domains[0]);
   const planned = tool.status === 'planned';
-  return `<article class="tool-card" data-tool="${tool.id}" data-filters="${filters.join(' ')}" data-keywords="${e(tool.tags.join(' '))}">
-    <div class="meta"><span>${e(domain.title)}</span><span>${e(catalog.activities[tool.activity])}</span>${planned ? '<span class="planned">Geplant</span>' : ''}</div>
+  return `<article class="tool-card" data-domain="${domain.id}" data-tool="${tool.id}" data-filters="${filters.join(' ')}" data-keywords="${e(tool.tags.join(' '))}">
+    <div class="meta"><span>${e(domain.title)}</span><span class="wd-activity">${activityIcon(tool.activity)}${e(catalog.activities[tool.activity])}</span>${planned ? '<span class="planned">Geplant</span>' : ''}</div>
     <h4>${e(tool.title)}</h4><p>${e(tool.description)}</p>
     ${planned ? '<p class="hint">Noch in Planung</p>' : `<a class="open" href="/tools/${tool.id}/">Werkzeug öffnen →</a><a class="repo" href="https://github.com/${tool.repository}">Quellcode auf GitHub</a>`}
   </article>`;
@@ -37,19 +39,19 @@ export function renderPage(catalog, domain = null) {
     const group = tools.filter(tool => tool.activity === id);
     return group.length ? `<section class="topic" ${domain ? '' : 'data-group'}><h3>${e(name)}</h3><div class="grid">${group.map(tool => card(catalog, tool)).join('')}</div></section>` : '';
   }).join('');
-  const domains = catalog.domains.map(item => `<article class="domain-card"><h3><a href="/bereiche/${item.id}/">${e(item.title)}</a></h3><p>${e(item.description)}</p><p class="hint">${catalog.tools.filter(tool => tool.domains.includes(item.id) && tool.status === 'available').length} verfügbar · ${catalog.tools.filter(tool => tool.domains.includes(item.id) && tool.status === 'planned').length} geplant</p></article>`).join('');
+  const domains = catalog.domains.map(item => `<article class="domain-card" data-domain="${item.id}"><h3><a href="/bereiche/${item.id}/">${e(item.title)}</a></h3><p>${e(item.description)}</p><p class="hint">${catalog.tools.filter(tool => tool.domains.includes(item.id) && tool.status === 'available').length} verfügbar · ${catalog.tools.filter(tool => tool.domains.includes(item.id) && tool.status === 'planned').length} geplant</p><a href="/bereiche/${item.id}/theorie/">Grundlagen & Theorie →</a></article>`).join('');
   return `<!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="de"${domain ? ` data-domain="${domain.id}"` : ''}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${e(title)}${domain ? ' · Werkzeugdeck' : ' · Wissenschaft verstehen und anwenden'}</title>
 <meta name="description" content="${e(domain?.description || 'Interaktive Werkzeuge für Datenauswertung, Simulation und wissenschaftliche Zusammenhänge.')}">
-<link rel="canonical" href="${catalog.site.url}${domain ? `/bereiche/${domain.id}/` : '/'}"><link rel="stylesheet" href="/assets/site.css">
+<link rel="canonical" href="${catalog.site.url}${domain ? `/bereiche/${domain.id}/` : '/'}"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/tool-theme.css">
 ${domain ? '' : '<script type="module" src="/assets/catalog.js"></script>'}</head><body>
 <a class="skip" href="#inhalt">Zum Inhalt</a>
 <header><div class="wrap"><a class="brand" href="/">Werkzeugdeck</a><p class="eyebrow">Wissenschaft verstehen und anwenden</p>
 ${domain ? `<nav class="breadcrumbs" aria-label="Orientierung"><a href="/">Werkzeugdeck</a> › ${e(domain.title)}</nav>` : ''}
 <h1>${e(title)}</h1><p>${e(domain?.description || 'Messdaten auswerten, Modelle ausprobieren und Zusammenhänge entdecken – direkt im Browser.')}</p></div></header>
 <main class="wrap" id="inhalt">
-${domain ? `<section class="intro"><h2>Einsteigen und ausprobieren</h2><p>Wähle ein Werkzeug für deine Frage. Jede Anwendung führt in die Grundlagen ein und erklärt die Auswertung, Annahmen und Grenzen.</p><a href="/#${domain.id}">Im gesamten Katalog ansehen</a></section><h2>Werkzeuge und Vorhaben</h2>${grouped}` : `
+${domain ? `<section class="theory-entry"><div><p class="eyebrow">Verstehen und anwenden</p><h2>Grundlagen & Theorie</h2><p>Vom Einstieg zum Rechenweg: Fachbegriffe, Zusammenhänge, Modellannahmen und eingeordnete Quellen zu ${e(domain.title)}.</p><a class="open" href="/bereiche/${domain.id}/theorie/">Theorie erkunden →</a></div><a href="/#${domain.id}">Alle Werkzeuge dieses Fachgebiets</a></section><h2>Werkzeuge und Vorhaben</h2>${grouped}` : `
 <section aria-labelledby="laborwerkzeuge"><h2 id="laborwerkzeuge">Laborwerkzeuge</h2><p>Entdecke die Sammlung nach Fachgebiet oder starte mit den theoretischen Spielereien.</p>
 <nav class="filters" aria-label="Werkzeuge filtern"><a data-filter="alle" href="#alle">Alle Werkzeuge</a>${catalog.collections.map(item => `<a data-filter="${item.id}" href="#${item.id}">${e(item.title)}</a>`).join('')}${catalog.domains.map(item => `<a data-filter="${item.id}" href="#${item.id}">${e(item.title)}</a>`).join('')}</nav>
 <div class="search-panel"><label for="tool-search">Werkzeug oder Thema suchen</label><input type="search" id="tool-search" placeholder="z. B. Impedanz, Diffusion oder Lack"><p class="hint" id="result-count" role="status" aria-live="polite"></p></div>

@@ -23,6 +23,7 @@ Zuerst ID, Titel, Beschreibung, Fachgebiete, Tätigkeit, Sammlungen und Schlagw�
 3. In `assets` ausschließlich benötigte Browserdateien angeben. Keine privaten Messdateien, virtuellen Umgebungen oder Zugangsdaten veröffentlichen.
 4. Kategorien und Schlagwörter zuordnen. Neue Fachgebiete und Tätigkeiten zuerst in der entsprechenden Liste ergänzen.
 5. Sichtbare Grundlagen, erste Schritte, Ergebnisinterpretation und aufklappbare Theorie mit Verfahren, Annahmen, Grenzen und eingeordneten Fachquellen anbieten.
+   Die Fachtheorie in `content/theory.mjs` um die neuen Zusammenhänge erweitern und das Tool in den passenden Kapiteln verknüpfen. Fachgebietsfarben und Aufgabenpiktogramme gemäß `docs/DESIGN.md` verwenden.
 6. Orientierungspfad zur Fachgebietsseite, Projektkennzeichnung und zutreffende Datenverarbeitungs- und Nutzungshinweise ergänzen.
 7. `npm test` und `npm run build` ausführen, Navigation und Tool im Browser prüfen und den vollständigen Build veröffentlichen.
 
@@ -39,6 +40,8 @@ Mindestens in Desktop- und schmaler Mobilansicht bei jeder Grafik testen: Ist di
 `node scripts/check-timelines.cjs` prüft diese Punkte nach dem gemeinsamen Build in einem isolierten Browser einschließlich Maus, Touch und vergrößerter Ansicht. Playwright lässt sich über `WERKZEUGDECK_PLAYWRIGHT`, der Browser über `EIS_BROWSER` angeben. Screenshots werden unter `Archiv/Timeline-Pruefung/` gespeichert.
 
 ## Grafikexport in den Tools
+
+PNG, SVG und gegebenenfalls Video werden im gemeinsamen Exportmenü ausgewählt. Es gibt eine Auswahl der Darstellung, eine Auswahl des Dateityps und eine Speichern-Schaltfläche. Standard ist eine sinnvolle Übersicht als PNG. Numerische CSV- und Projektexporte bleiben separat. Die Referenz `templates/export-menu.js` unterstützt auch lokale Videos aus Canvas- oder SVG-basierten Simulationen. Für neue Zeitabläufe Videoexport einschließlich Abbrechen, Zustandserhalt und Browser-Fallback ergänzen.
 
 Jede erzeugte Grafik erhält PNG- und SVG-Export. SVG enthält Pfade, Flächen und Text statt eingebetteter Rasterbilder. Achsen, Einheiten, Fitlinien, Markierungen und ausgewählte Zeitpunkte müssen dem sichtbaren Zustand entsprechen. Bei Simulationen den aktuellen Zustand für den Export einfrieren.
 
