@@ -56,12 +56,13 @@
         "Bode"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-      "revision": "dc89df3b480a438efb321734df54cd7913ae4b71",
+      "revision": "18dd0e1b7dfa8d32853901eeaa52abc0c459a1e4",
       "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
       "assets": [
         "index.html",
         "fit-worker.js",
         "circuit-diagram.js",
+        "circuit-presets.js",
         "circuit-editor.js",
         "graph-editor.js",
         "projection.js",
