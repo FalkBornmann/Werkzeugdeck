@@ -47,7 +47,7 @@ export function renderPage(catalog, domain = null) {
 <link rel="canonical" href="${catalog.site.url}${domain ? `/bereiche/${domain.id}/` : '/'}"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/tool-theme.css">
 ${domain ? '' : '<script type="module" src="/assets/catalog.js"></script>'}</head><body>
 <a class="skip" href="#inhalt">Zum Inhalt</a>
-<header><div class="wrap"><a class="brand" href="/">Werkzeugdeck</a><p class="eyebrow">Wissenschaft verstehen und anwenden</p>
+<header><div class="wrap"><a class="brand" href="/">Werkzeugdeck</a><nav class="site-nav" aria-label="Hauptnavigation"><a href="/">Werkzeuge</a><a href="/downloads/">Downloads</a></nav><p class="eyebrow">Wissenschaft verstehen und anwenden</p>
 ${domain ? `<nav class="breadcrumbs" aria-label="Orientierung"><a href="/">Werkzeugdeck</a> › ${e(domain.title)}</nav>` : ''}
 <h1>${e(title)}</h1><p>${e(domain?.description || 'Messdaten auswerten, Modelle ausprobieren und Zusammenhänge entdecken – direkt im Browser.')}</p></div></header>
 <main class="wrap" id="inhalt">
@@ -59,7 +59,7 @@ ${domain ? `<section class="theory-entry"><div><p class="eyebrow">Verstehen und 
 ${grouped}<noscript><p>Die gesamte Sammlung ist sichtbar. Die Themenübersichten funktionieren auch ohne JavaScript.</p></noscript></section>
 <section aria-labelledby="fachgebiete"><h2 id="fachgebiete">Fachgebiete entdecken</h2><div class="grid">${domains}</div></section>
 <section class="intro topic"><h2>So nutzt du Werkzeugdeck</h2><p>Beginne mit der kurzen Einführung im Werkzeug, probiere ein Beispiel oder eigene Daten aus und lies anschließend die Hinweise zur Ergebnisinterpretation. Vertiefende Theorie, Verfahren und Fachquellen findest du im aufklappbaren Abschnitt der jeweiligen Anwendung.</p><a href="https://github.com/FalkBornmann/Werkzeugdeck">Projekt und weitere Entwicklung auf GitHub</a></section>`}
-</main><footer><div class="wrap"><p><strong>Privates Projekt in Entwicklung</strong> · <a href="/">Werkzeugdeck</a> · <a href="https://github.com/FalkBornmann/Werkzeugdeck">GitHub</a></p>
+</main><footer><div class="wrap"><p><strong>Privates Projekt in Entwicklung</strong> · <a href="/">Werkzeugdeck</a> · <a href="/downloads/">Downloads</a> · <a href="https://github.com/FalkBornmann/Werkzeugdeck">GitHub</a></p>
 <details><summary>Projekt, Datenverarbeitung und Nutzungshinweise</summary>
 <h3>Zweck und Grenzen</h3><p>Die Werkzeuge dienen dem Lernen und der explorativen Auswertung. Prüfe Ergebnisse unabhängig, bevor du sie für Berichte, Freigaben oder sicherheitsrelevante Entscheidungen verwendest. Geplante Werkzeuge sind als Vorhaben gekennzeichnet.</p>
 <h3>KI und Verarbeitung</h3><p>Bei der Entwicklung von Code und Texten kommt KI-Unterstützung zum Einsatz. Die aktuell verfügbaren Anwendungen berechnen Auswertungen und Simulationen auf deinem Gerät im Browser. Messdaten und Eingaben werden dabei nicht hochgeladen oder dauerhaft im Browserspeicher abgelegt. Exporte werden auf deinem Gerät erzeugt. Details zu Verfahren und Datenverarbeitung stehen im jeweiligen Werkzeug.</p>

@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {validateCatalog, renderPage} from './site.mjs';
 import {theory} from '../content/theory.mjs';
 import {validateTheory, renderTheoryPage} from './theory.mjs';
+import {prepareDownloads, renderDownloads} from './downloads.mjs';
 import {validateToolDocument} from './validate-document.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -27,6 +28,10 @@ for (const domain of catalog.domains) {
   mkdirSync(join(directory, 'theorie'), {recursive: true});
   writeFileSync(join(directory, 'theorie', 'index.html'), renderTheoryPage(catalog, domain, theory[domain.id]));
 }
+const downloadDirectory = join(output, 'downloads');
+mkdirSync(downloadDirectory, {recursive:true});
+const downloads = prepareDownloads(JSON.parse(readFileSync(join(root,'content','downloads.json'),'utf8')), catalog, join(root,'downloads','files'), downloadDirectory);
+writeFileSync(join(downloadDirectory,'index.html'),renderDownloads(catalog,downloads));
 const redirects = [];
 for (const tool of catalog.tools.filter(tool => tool.status === 'available')) {
   let source = resolve(root, tool.sourceDirectory);

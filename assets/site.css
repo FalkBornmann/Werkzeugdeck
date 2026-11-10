@@ -54,3 +54,12 @@ a:focus-visible, input:focus-visible, summary:focus-visible {outline: 3px solid 
 .skip:focus {top: 10px}
 [hidden] {display: none !important}
 @media (max-width: 600px) {.wrap {padding: 18px} .intro, .search-panel, .tool-card, .domain-card {padding: 18px}}
+.site-nav {display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:12px}
+.site-nav a {display:inline-flex;align-items:center;min-height:44px;font-weight:650}
+.site-nav a[aria-current="page"] {color:white;text-decoration-thickness:3px}
+.download-meta {margin:10px 0;max-width:100%}
+.download-meta dt {font-weight:700}
+.download-meta dd {margin:0 0 10px;overflow-wrap:anywhere}
+.checksum {display:block;overflow-wrap:anywhere;max-width:100%;font-size:.8rem}
+.tool-card h3 {margin-top:16px}
+section[id], nav[id] {scroll-margin-top:20px}

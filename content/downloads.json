@@ -1,0 +1,25 @@
+{
+  "categories": [
+    {
+      "id": "offlineanwendungen",
+      "title": "Offlineanwendungen",
+      "description": "Werkzeuge für die Nutzung ohne Internetverbindung. Voraussetzungen und Installation stehen später beim jeweiligen Paket."
+    },
+    {
+      "id": "anleitungen",
+      "title": "Anleitungen",
+      "description": "Schrittweise Hilfen zum Einstieg, zur Bedienung und zur Auswertung."
+    },
+    {
+      "id": "theorie",
+      "title": "Theorie",
+      "description": "Fachliche Grundlagen und vertiefende Texte zum Nachlesen und Mitnehmen."
+    },
+    {
+      "id": "materialien",
+      "title": "Weitere Materialien",
+      "description": "Platz für Beispieldaten, Vorlagen und ergänzende Arbeitsmaterialien."
+    }
+  ],
+  "items": []
+}

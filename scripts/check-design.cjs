@@ -24,6 +24,16 @@ const root = path.resolve(__dirname, '..');
     browser = await chromium.launch({headless:true,...(process.env.EIS_BROWSER ? {executablePath:process.env.EIS_BROWSER} : {})});
     for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
       const page = await browser.newPage({viewport});
+      await page.goto('http://127.0.0.1:8895/downloads/');
+      await page.waitForSelector('h1');
+      assert.equal(await page.locator('h1').textContent(),'Downloads');
+      assert.equal(await page.locator('a[download]').count(),0,'empty area must not offer packages');
+      assert.equal(await page.locator('nav[aria-label="Downloadkategorien"] a').count(),4);
+      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'download page overflows');
+      await page.getByRole('link',{name:'Anleitungen',exact:true}).click();
+      assert.ok((await page.url()).endsWith('#anleitungen'));
+      await page.screenshot({path:path.join(output,`downloads-${viewport.width}.png`),fullPage:true});
+      console.log(`Downloads ${viewport.width}px: categories, empty state and navigation passed`);
       for (const tool of catalog.tools.filter(tool=>tool.status==='available')) {
         const failures = [];
         const listener = response => { if(response.url().endsWith('tool-theme.css') && (response.status()!==200 || !response.headers()['content-type']?.includes('text/css'))) failures.push(response.status()); };
