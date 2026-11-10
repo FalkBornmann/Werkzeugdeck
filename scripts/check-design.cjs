@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 (async () => {
   const catalog = JSON.parse((await fs.readFile(path.join(root,'tools.json'),'utf8')).replace(/^\uFEFF/,''));
+  const downloads = JSON.parse(await fs.readFile(path.join(root,'content','downloads.json'),'utf8'));
   const {themes} = await import('./design.mjs');
   const output = path.join(root,'Archiv','Design-Pruefung');
   await fs.mkdir(output,{recursive:true});
@@ -27,8 +28,8 @@ const root = path.resolve(__dirname, '..');
       await page.goto('http://127.0.0.1:8895/downloads/');
       await page.waitForSelector('h1');
       assert.equal(await page.locator('h1').textContent(),'Downloads');
-      assert.equal(await page.locator('a[download]').count(),0,'empty area must not offer packages');
-      assert.equal(await page.locator('nav[aria-label="Downloadkategorien"] a').count(),4);
+      assert.equal(await page.locator('a[download]').count(),downloads.items.filter(item=>item.status==='available').length,'only published files get download links');
+      assert.equal(await page.locator('nav[aria-label="Downloadkategorien"] a').count(),downloads.categories.length);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'download page overflows');
       await page.getByRole('link',{name:'Anleitungen',exact:true}).click();
       assert.ok((await page.url()).endsWith('#anleitungen'));

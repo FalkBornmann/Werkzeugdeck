@@ -7,7 +7,7 @@ import {prepareDownloads, renderDownloads} from '../scripts/downloads.mjs';
 const catalog=JSON.parse(readFileSync(new URL('../tools.json',import.meta.url),'utf8'));
 const manifest=JSON.parse(readFileSync(new URL('../content/downloads.json',import.meta.url),'utf8'));
 test('empty download area never invents packages or download links',()=>{
-  const data=prepareDownloads(manifest,catalog,'unused');
+  const data=prepareDownloads({...manifest,items:[]},catalog,'unused');
   const html=renderDownloads(catalog,data);
   assert.equal(data.items.length,0);
   assert.match(html,/noch keine Dateien veröffentlicht/);
