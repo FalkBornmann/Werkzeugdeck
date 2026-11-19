@@ -356,7 +356,7 @@
         "Volumenstrom"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Abluftrechner",
-      "revision": "024db3e4562a4f50757f45ab1384b9f44340fd9c",
+      "revision": "87d7c16384db9a19bdd28becd4cc52dbf09ec1f7",
       "sourceDirectory": "Beschichtungen/Abluftrechner",
       "assets": [
         "index.html",
