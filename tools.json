@@ -308,7 +308,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Gehaltsschnitte, Abkühlverläufe und Phasenanteile für reale Legierungen vergleichen und einen experimentell untersuchten Salzschnitt erkunden.",
+      "description": "Freie Gehaltsschnitte, Liquidus-Isothermen und Phasenanteile für reale Metalllegierungen erkunden. Zwischen mol-% und Masse-% wechseln und Erstarrungsreaktionen vergleichen.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -324,17 +324,21 @@
         "Peritektikum"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "6199b1fcf8c7bf56c9a031bd9a4ee859d5684bc3",
+      "revision": "8f58f56324f2d6518e1fc5d3a570c839dd8a4437",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
-        "app.js",
-        "cooling.js",
         "style.css",
         "tool-theme.css",
-        "bisn.json",
-        "cusn.json",
-        "sac.json"
+        "app.js",
+        "equilibrium.js",
+        "render.js",
+        "worker.js",
+        "salt.js",
+        "export-menu.js",
+        "sac-hulls.json.gz",
+        "bisn-hulls.json.gz",
+        "cusn-hulls.json.gz"
       ],
       "aliases": []
     }
