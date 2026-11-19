@@ -44,7 +44,7 @@ export function drawPlot(svg, model, t, width) {
   const temps=paths.flat().map(p=>p[1]).concat([s.target]);
   const low=Math.floor(Math.min(...temps)/10)*10, high=Math.max(low+10,Math.ceil(Math.max(...temps)/10)*10);
   const x=v=>round(left+(right-left)*v/end), y=v=>round(bottom-(bottom-top)*(v-low)/(high-low));
-  let body=label(4,17,'°C','font-size="13"')+label(right,17,'A ━    B ┄','text-anchor="end" font-size="14" font-weight="bold"');
+  let body=label(4,17,'°C','font-size="13"')+label(left,17,'Versuchszeit '+clock(t)+' min','font-size="12"')+label(right,17,'A ━    B ┄','text-anchor="end" font-size="14" font-weight="bold"');
   for(let v=low;v<=high;v+=high-low>65?20:10) {
     body+='<path d="M'+left+' '+y(v)+'H'+right+'" stroke="#e4ddd7"/>'+label(left-7,y(v)+4,v,'text-anchor="end" font-size="12"');
   }
