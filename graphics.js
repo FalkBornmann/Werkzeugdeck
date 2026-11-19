@@ -20,7 +20,7 @@ function cup(s, curve, t, index, width) {
   const fill = mixed && s.extra !== 'water' ? '#ba8358' : s.base === 'tea' ? '#a65420' : '#563321';
   const ink = colors[index], name = index === 0 ? 'A' : 'B';
   const narrow = width < 230;
-  const x = narrow ? 10 : 17, textX = narrow ? 16 : 111;
+  const x = narrow ? 10 : 17, textX = narrow ? 12 : 133;
   const baseY = narrow ? 128 : 66;
   const isGlass = s.vessel==='glass', isTravel = ['travel','ideal'].includes(s.vessel);
   const shape = isTravel ? 'M19 36 H78 L70 100 H27 Z' : 'M13 36 H79 L74 88 Q72 100 60 100 H33 Q20 100 18 88 Z';
@@ -31,7 +31,7 @@ function cup(s, curve, t, index, width) {
     '<g transform="translate('+x+',0)"><defs><clipPath id="vessel-'+name+'"><path d="'+shape+'"/></clipPath></defs>'+handle+
     '<path d="'+shape+'" fill="#fff9ef" stroke="'+ink+'" stroke-width="3"/><g clip-path="url(#vessel-'+name+')"><rect x="13" y="'+level+'" width="66" height="'+(100-level)+'" fill="'+fill+'"/><ellipse cx="46" cy="'+level+'" rx="34" ry="3" fill="'+(mixed?'#d2aa7b':'#99693e')+'"/></g><path d="'+shape+'" fill="none" stroke="'+ink+'" stroke-width="3"/>'+lid+'</g>'+
     label(textX,baseY,num(curve.at(t))+' °C','font-size="24" font-weight="bold"')+
-    label(textX,baseY+21,volume+' ml · '+(mixed?liquids[s.extra].name:liquids[s.base].name),'font-size="14"')+'</g>';
+    label(textX,baseY+21,volume+' ml · '+(mixed?'mit '+liquids[s.extra].name:liquids[s.base].name),'font-size="13"')+'</g>';
 }
 export function drawScene(svg,model,t,width) {
   const w = (width-8)/2, h = w<230 ? 164 : 120;
