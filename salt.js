@@ -1,3 +1,4 @@
+import { triangleAxes } from './axes.js';
 import {toMass} from './equilibrium.js';
 import {svg,text,line,fmt,trianglePoint,display,pointColors,compositionLabel} from './render.js';
 const curves=[
@@ -11,7 +12,7 @@ export function saltSetup(){return {components:['NaCl','KCl','AlCl₃'],masses:[
 export function saltRender(state,el){
  state.zoom='full';el('zoom').value='full';
  el('endpointA').parentElement.parentElement.hidden=true;
- el('applyCut').hidden=true;el('chooseA').disabled=true;el('chooseB').disabled=true;
+ el('applyCut').hidden=true;
  el('triangleMode').disabled=true;el('zoom').disabled=true;el('interval').disabled=true;el('ties').disabled=true;
  el('special').disabled=true;el('useSpecial').disabled=true;el('temperatureWindow').disabled=true;
  el('exactCompare').disabled=true;el('leftCompare').disabled=true;el('rightCompare').disabled=true;
@@ -25,8 +26,8 @@ export function saltRender(state,el){
   body+=text(55,Y(100+120*i)+4,String(100+120*i),13,'end');
   body+=text(65+790*i/5,436,fmt(max*100*i/5,1),13,'middle');
  }
- state.points=state.lambdas.map(f=>comp(.6*f));
- state.points.forEach((x,i)=>{
+
+ state.points.slice(0,state.lambdas.length).forEach((x,i)=>{
   const px=X(x[1]);body+=line(px,60,px,410,pointColors[i],2)+text(px,50,'X'+(i+1),14,'middle',pointColors[i]);
  });
  body+=text(10,45,'T / °C')+text(460,467,'KCl / '+(state.basis==='mass'?'Masse-%':'mol-%')+' · AlCl₃ konstant 40 mol-%',14,'middle');
@@ -34,10 +35,10 @@ export function saltRender(state,el){
  let triangle=text(65,25,'Salzreferenz · Lage des untersuchten Schnitts',18)+'<path d="M65 425L755 425L410 65Z" fill="#f3eadd" stroke="#5c4937"/>';
  triangle+=line(...trianglePoint(comp(0),state),...trianglePoint(comp(.6),state),'#6d451d',3);
  state.points.forEach((x,i)=>{const p=trianglePoint(x,state);triangle+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="'+pointColors[i]+'"/>'+text(p[0]+7,p[1]-7,'X'+(i+1),13)});
- triangle+=text(65,449,'NaCl',15,'middle')+text(755,449,'KCl',15,'middle')+text(410,54,'AlCl₃',15,'middle')+text(410,478,'Zusammensetzung in '+(state.basis==='mass'?'Masse-%':'mol-%'),13,'middle');
- el('triangle').innerHTML=svg(triangle,820,495,'Lage des Salzschnitts');
+ triangle+=triangleAxes(state);
+ el('triangle').innerHTML=svg(triangle,820,535,'Lage des Salzschnitts');
  el('legend').innerHTML='<span>Grüne Punkte · Versuchswerte</span><span>Rote Linie · abgelesener Liquidus</span><span>Braune Linien · weitere abgelesene Modellgrenzen</span>';
  el('cutDescription').textContent='Referenzschnitt aus ORNL/SPR-2021/2102, Abb. 6. 40 mol-% AlCl₃ und 1 bar. Die verbleibenden 60 mol-% verteilen sich auf NaCl und KCl.';
  el('resolution').textContent='Abgelesene Stützstellen mit linearer Verbindung. Robelin et al. (2004) liefert die Stoffdaten und Parameterquelle. Vollständige Isothermen, Phasenanteile und freie Salzschnitte benötigen noch die Umsetzung und Validierung des quasichemischen Modells.';
- el('snapStatus').textContent=state.points.map((x,i)=>'X'+(i+1)+' · '+compositionLabel(x,state)).join(' | ');
+ el('snapStatus').textContent=state.points.map((x,i)=>(state.labels?.[i]||'X'+(i+1))+' · '+compositionLabel(x,state)).join(' | ');
 }

@@ -1,9 +1,29 @@
+import { boundaryFromSeries, surfaceTemperature } from './boundary.js';
 import { elementSymbol } from './symbols.js';
 import { bandTracks, phaseBands, smoothGraph, ribbonPath } from './geometry.js';
 import { fieldColor, liquidColor, display, fmt, line, text, svg, pointColors } from './render.js';
 
+const prepared=new WeakMap();
+function prepare(state){
+ const cached=prepared.get(state.columns);
+ if(cached?.surface===state.surface)return cached.columns;
+ const columns=state.columns.map(column=>{
+  const bands=phaseBands(column.series),roots={liquidus:boundaryFromSeries(column.series,'liquidus'),solidus:boundaryFromSeries(column.series,'solidus')};
+  if(!state.binary&&state.surface&&roots.liquidus.length===1){
+   const t=surfaceTemperature(state.surface,column.x),root=roots.liquidus[0];
+   if(t!==null&&t>=root.bracket[0]-1e-6&&t<=root.bracket[1]+1e-6){
+    root.temperature=t;
+    for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=t;bands[j+1].lower=t}
+   }
+  }
+  if(roots.liquidus.length===1)for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=roots.liquidus[0].temperature;bands[j+1].lower=roots.liquidus[0].temperature}
+  return {...column,bands,boundaries:roots};
+ });
+ prepared.set(state.columns,{surface:state.surface,columns});return columns;
+}
 export function sectionChart(state) {
-  const { model, columns } = state;
+  const { model } = state;
+  const columns=prepare(state);
   const [low, high] = state.window;
   const X = fraction => 65 + 790 * fraction;
   const Y = temperature => 410 - 350 * (temperature - low) / (high - low);
@@ -61,19 +81,7 @@ export function sectionChart(state) {
   for (const kind of ['liquidus', 'solidus']) {
     const branches = [];
     columns.forEach((column, index) => {
-      const bands = phaseBands(column.series);
-      const candidates = [];
-      for (let j = 0; j < bands.length; j++) {
-        const band = bands[j], liquid = band.signature.split(' + ').includes('L');
-        if (kind === 'liquidus' && band.signature === 'L') {
-          if (j > 0) candidates.push(band.lower);
-          if (j < bands.length - 1) candidates.push(band.upper);
-        }
-        if (kind === 'solidus' && liquid) {
-          if (j > 0 && !bands[j - 1].signature.split(' + ').includes('L')) candidates.push(band.lower);
-          if (j < bands.length - 1 && !bands[j + 1].signature.split(' + ').includes('L')) candidates.push(band.upper);
-        }
-      }
+      const candidates=column.boundaries[kind].map(root=>root.temperature);
       candidates.forEach((temperature, branch) => {
         if (!branches[branch]) branches[branch] = [];
         branches[branch].push([X(index / count), Y(temperature), index]);
@@ -96,7 +104,7 @@ export function sectionChart(state) {
   }
   if (state.supportPoints) {
     columns.forEach((column, i) => {
-      phaseBands(column.series).slice(1).forEach(band => {
+      column.bands.slice(1).forEach(band => {
         body += '<circle cx="' + X(i / count) + '" cy="' + Y(band.lower) + '" r="1.8" fill="#44392d"/>';
       });
     });
@@ -107,10 +115,17 @@ export function sectionChart(state) {
   }
   body += line(65, Y(model.T[state.ti]), 855, Y(model.T[state.ti]), '#252525', 1.5, '5 4');
   state.lambdas.forEach((fraction, i) => {
-    body += line(X(fraction), 60, X(fraction), 410, pointColors[i], i === state.selected ? 3 : 1.5);
-    body += text(X(fraction), 52, 'X' + (i + 1), 14, 'middle', pointColors[i]);
+    body+='<g data-point="'+i+'" style="cursor:ew-resize">';
+    body+=line(X(fraction),60,X(fraction),410,'transparent',18);
+    body+=line(X(fraction),60,X(fraction),410,pointColors[i],i===state.selected?3:1.5);
+    body+=text(X(fraction),52,'X'+(i+1),14,'middle',pointColors[i])+'</g>';
   });
+  for(const [fraction,label,index] of [[0,'S₁',state.lambdas.length],[1,'S₂',state.lambdas.length+1]]){
+    body+=line(X(fraction),60,X(fraction),410,pointColors[index],index===state.selected?4:1.5);
+    body+=text(X(fraction),43,label,14,'middle',pointColors[index]);
+  }
   body += '</g>';
+  state.lambdas.forEach((f,i)=>{body+='<g data-point="'+i+'" style="cursor:ew-resize">'+text(X(f),53,'X'+(i+1),14,'middle',pointColors[i])+'</g>'});
   for (let i = 0; i <= 5; i++) {
     const temperature = low + (high - low) * i / 5;
     body += text(58, Y(temperature) + 4, fmt(temperature, 0), 13, 'end');

@@ -1,7 +1,9 @@
+import { triangleAxes } from './axes.js';
+import { residualPath } from './boundary.js';
 import { joinContours, roundContour, simplifyContour } from './geometry.js';
 import { elementSymbol } from './symbols.js';
 import {toMass,composition,phaseName,contourSegments,thresholds} from './equilibrium.js';
-export const pointColors=['#8c4a12','#354fa0','#9e365b','#126957'];
+export const pointColors=['#8c4a12','#354fa0','#9e365b','#126957','#755ca1','#bd623a'];
 export const fmt=(value,digits=2)=>Number(value.toFixed(digits)).toLocaleString('de-DE');
 export const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 export const text=(x,y,s,size=13,anchor='start',color='#382f25')=>'<text x="'+x+'" y="'+y+'" font-size="'+size+'" text-anchor="'+anchor+'" fill="'+color+'">'+escape(s)+'</text>';
@@ -11,6 +13,7 @@ export function svg(body,width=900,height=500,label='Legierungsatlas'){
 }
 export function fieldColor(name){
  if(!name)return '#ccc';
+ if(name==='L')return '#dcecf7';
  let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))>>>0;
  return 'hsl('+(h%360)+' 36% 85%)';
 }
@@ -34,7 +37,7 @@ export function triangleInverse(px,py,state){
 }
 function path(points){return points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')+'Z'}
 function faceSignature(model,nodes){
- const names=[...new Set(nodes.map(n=>phaseName(model.phases[n[0]])))];
+ const names=[...new Set(nodes.map(n=>phaseName(model.phases[n[0]],model)))];
  return names.sort().join(' + ');
 }
 export function triangleChart(state){
@@ -63,13 +66,13 @@ export function triangleChart(state){
    const names=nodes.map(n=>n.primary).filter(Boolean);
    const name=names.sort((a,b)=>names.filter(v=>v===b).length-names.filter(v=>v===a).length)[0]||'';
    if(name){if(!labels.has(name))labels.set(name,{sumX:0,sumY:0,count:0});const label=labels.get(name),p=nodes.map(n=>trianglePoint(n.x,state));label.sumX+=p.reduce((v,q)=>v+q[0],0)/3;label.sumY+=p.reduce((v,q)=>v+q[1],0)/3;label.count++;}
-   body+='<path d="'+path(nodes.map(n=>trianglePoint(n.x,state)))+'" fill="'+fieldColor(name)+'"/>';
+   body+='<path d="'+path(nodes.map(n=>trianglePoint(n.x,state)))+'" fill="'+fieldColor(name)+'" stroke="'+fieldColor(name)+'" stroke-width=".3"/>';
   }
   const values=surface.nodes.map(n=>n.value).filter(v=>v!==null);
   const interval=Number(state.interval);
   for(let level=Math.ceil(Math.min(...values)/interval)*interval;level<=Math.max(...values);level+=interval){
    const segments=contourSegments(surface.nodes,surface.triangles,level);
-   const joined=joinContours(segments),curves=joined.map(points=>roundContour(simplifyContour(points.map(p=>trianglePoint(p,state)),2)));
+   const joined=joinContours(segments),curves=joined.map(points=>points.map(p=>trianglePoint(p,state)));
    body+='<path data-isotherm="'+level+'" d="'+curves.map(points=>points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')).join('')+'" fill="none" stroke="#665548" stroke-width="1.5"/>';
    if(state.supportPoints)body+=segments.flat().map(p=>{const q=trianglePoint(p,state);return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="1.4" fill="#513821"/>'}).join('');
    if(segments.length){const p=trianglePoint(segments[Math.floor(segments.length*.6)][0],state);body+=text(...p,fmt(level)+'°',12)}
@@ -93,18 +96,18 @@ export function triangleChart(state){
  }
  const a=trianglePoint(state.a,state),b=trianglePoint(state.b,state);
  body+=line(...a,...b,'#654019',3);
- state.points.forEach((x,i)=>{const p=trianglePoint(x,state);body+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="'+pointColors[i]+'"/>'+text(p[0]+6,p[1]+17,'X'+(i+1),13)});
- for(const [p,name] of [[a,'S₁'],[b,'S₂']])body+='<circle data-endpoint="'+name+'" cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="white" stroke="#513821" stroke-width="3"/>'+text(p[0],p[1]-14,name,15,'middle');
+ state.points.slice(0,state.lambdas.length).forEach((x,i)=>{const p=trianglePoint(x,state);body+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="'+pointColors[i]+'"/>'+text(p[0]+6,p[1]+17,'X'+(i+1),13)});
+
  if(state.profiles?.length){
-  const samples=state.profiles[state.selected].slice().reverse().map(s=>s.phases?.find(p=>p.raw==='LIQUID')).filter(Boolean);
+  const samples=residualPath(state.profiles[state.selected]).map(s=>s.phase);
   if(samples.length>1)body+='<path d="'+samples.map((p,i)=>(i?'L':'M')+trianglePoint(p.x,state).join(' ')).join('')+'" stroke="#a22c34" stroke-width="2.5" stroke-dasharray="5 3" fill="none"/>';
+  if(samples.length>1){const p=trianglePoint(samples.at(-1).x,state);body+='<circle data-residual-end cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#a22c34" stroke="white" stroke-width="1"><title>Ende des modellierten Restschmelzpfads</title></circle>';}
  }
  body+='</g><path d="'+path(outline)+'" fill="none" stroke="#5e5144" stroke-width="1.5"/>';
- const names=state.zoom==='tin'?['Sn','10 % Ag','10 % Cu']:model.components.map(elementSymbol);
- body+=text(65,449,names[0],16,'middle')+text(755,449,names[1],16,'middle')+text(410,54,names[2],16,'middle');
- for(let i=1;i<10;i++)body+=text(65+690*i/10,444,fmt(i*(state.zoom==='tin'?1:10),0),11,'middle');
- body+=text(410,478,'Zusammensetzung in '+(state.basis==='mass'?'Masse-%':'mol-%')+' · NIST-Gleichgewichtsmodell',13,'middle');
- return svg(body,820,495,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
+ for(const [p,name] of [[a,'S₁'],[b,'S₂']])body+='<circle data-endpoint="'+name+'" cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="white" stroke="#513821" stroke-width="3"/>'+text(p[0],p[1]-14,name,15,'middle');
+ body+=triangleAxes(state);
+ body+=text(410,516,'NIST-Gleichgewichtsmodell · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
+ return svg(body,820,535,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
 }
 export function curvesChart(state){
  const profiles=state.profiles;
@@ -116,6 +119,7 @@ export function curvesChart(state){
  let body=text(65,25,'Abkühlverläufe · entzogene Enthalpie',18);
  body+='<defs><clipPath id="curveClip"><rect x="65" y="55" width="790" height="340"/></clipPath></defs><g clip-path="url(#curveClip)">';
  profiles.forEach((series,k)=>{
+  if(state.shown&&!state.shown.includes(k))return;
   let d='',connected=false;
   series.forEach(s=>{if(!Number.isFinite(s.enthalpy)){connected=false;return}d+=(connected?'L':'M')+X((maxima[k]-s.enthalpy)/1000)+' '+Y(s.temperature);connected=true});
   body+='<path d="'+d+'" fill="none" stroke="'+pointColors[k]+'" stroke-width="2.5"/>';
@@ -124,6 +128,6 @@ export function curvesChart(state){
  body+=line(65,Y(state.model.T[state.ti]),855,Y(state.model.T[state.ti]),'#555',1,'5 4')+'</g>';
  for(let i=0;i<=5;i++)body+=text(55,Y(minT+(maxT-minT)*i/5)+4,fmt(minT+(maxT-minT)*i/5,0),13,'end')+text(X(span*i/5),425,fmt(span*i/5,0),13,'middle');
  body+=text(10,47,'T / °C')+text(460,452,'Entzogene molare Enthalpie / kJ mol⁻¹',14,'middle');
- state.points.forEach((_,i)=>body+=text(570+65*i,27,'X'+(i+1),15,'middle',pointColors[i]));
+ (state.shown||state.points.map((_,i)=>i)).forEach((i,j)=>body+=text(440+70*j,27,state.labels?.[i]||'X'+(i+1),14,'middle',pointColors[i]));
  return svg(body,900,475,'Energetische Abkühlkurven');
 }

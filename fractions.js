@@ -15,7 +15,7 @@ export function fractionsChart(state) {
   const [low, high] = state.window;
   const X = temperature => 70 + 580 * (high - temperature) / (high - low);
   const Y = fraction => 365 - fraction * 285;
-  let body = text(70, 26, 'X' + (state.selected + 1) + ' · Phasenanteile / ' +
+  let body = text(70, 26, (state.labels?.[state.selected]||('X'+(state.selected+1))) + ' · Phasenanteile / ' +
     (state.basis === 'mass' ? 'Masse-%' : 'mol-%'), 18);
   body += '<defs><clipPath id="fractionClip"><rect x="70" y="80" width="580" height="285"/></clipPath></defs>';
   for (let i = 0; i <= 10; i++) {
@@ -51,13 +51,13 @@ export function fractionsChart(state) {
     body += text(X(temperature), 391, fmt(temperature, 0), 13, 'middle');
   }
   body += text(360, 421, 'Temperatur / °C · Abkühlung →', 14, 'middle');
-  body += text(685, 67, 'Bei ' + fmt(state.model.T[state.ti]) + ' °C', 16);
+  body += text(685, 67, 'Phasen', 16);
   values.forEach((phase, i) => {
     const y = 100 + i * 36;
     body += line(685, y - 4, 709, y - 4, phase.color, 4);
     body += text(718, y, phase.name, 13);
-    body += text(878, y + 16, fmt(phase.value * 100) + ' %', 14, 'end', phase.color);
+
   });
-  body += text(70, 452, 'Klicken oder ziehen zum Ablesen · die Zahlen rechts gehören zur markierten Temperatur', 12);
+  body += text(70, 452, 'Klicken oder ziehen zum Ablesen · Prozentwerte stehen in der Tabelle unter dem Diagramm', 12);
   return svg(body, 910, Math.max(480, 125 + values.length * 36), 'Direkt ablesbare Phasenanteile');
 }

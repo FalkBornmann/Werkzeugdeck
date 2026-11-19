@@ -16,7 +16,8 @@ export function composition(model, vertex) {
   const coordinates = vertex.slice(1, model.components.length);
   return [...coordinates, Math.max(0, 1 - coordinates.reduce((a, b) => a + b, 0))];
 }
-export function phaseName(name) {
+export function phaseName(name, model) {
+  if(model?.phaseLabels?.[name])return model.phaseLabels[name];
   return ({LIQUID:'L',FCC_A1:'α (kfz)',BCT_A5:'β-Sn',RHOMBO_A7:'Bi',RHOMBOHEDRAL_A7:'Bi',BCC_A2:'β (krz)',HCP_A3:'ζ (hdp)',
     AG3SN:'Ag₃Sn',CU6SN5:'Cu₆Sn₅',CU6SN5_L:'Cu₆Sn₅′',CU3SN:'Cu₃Sn',CU3SN_HT:'γ',DO3:'γ',EPSILON:'Ag₃Sn',CU41SN11:'Cu₄₁Sn₁₁',CU10SN3:'Cu₁₀Sn₃'})[name] || name;
 }
@@ -47,7 +48,7 @@ export function solve(model, compositionValue, ti) {
   const frame=model.frames[ti], dimensionality=model.components.length-1;
   const x=compositionValue[0],y=compositionValue[1];
   const candidates=dimensionality===1 ? frame.faces.map((_,i)=>i) : indexFrame(model,frame)[Math.min(19,Math.floor(y*20))*20+Math.min(19,Math.floor(x*20))];
-  let face, weights;
+  let face, weights, faceIndex;
   for(const fi of candidates) {
     const nodes=frame.faces[fi].map(i=>frame.vertices[i]);
     if(dimensionality===1) {
@@ -56,11 +57,12 @@ export function solve(model, compositionValue, ti) {
       const u=(x-nodes[0][1])/denominator;
       weights=[1-u,u];
     } else weights=barycentric(...nodes.map(n=>[n[1],n[2]]),x,y);
-    if(weights && weights.every(w=>w>=-EPS&&w<=1+EPS)) {face=frame.faces[fi];break}
+    if(weights && weights.every(w=>w>=-EPS&&w<=1+EPS)) {face=frame.faces[fi];faceIndex=fi;break}
   }
   if(!face) return null;
   weights=normalize(weights.map(w=>Math.max(0,w)));
   const phases=[];
+  const groups=frame.groups?.[faceIndex];
   let enthalpy=0;
   face.forEach((index,i)=>{
     const vertex=frame.vertices[index],cx=composition(model,vertex),amount=weights[i];
@@ -68,8 +70,8 @@ export function solve(model, compositionValue, ti) {
     if(amount<EPS)return;
     const raw=model.phases[vertex[0]];
     // Nearby vertices of one solution phase represent the same physical phase.
-    let group=phases.find(p=>p.raw===raw && Math.max(...cx.map((v,j)=>Math.abs(v-p.x[j])))<.08);
-    if(!group){group={raw,name:phaseName(raw),fraction:0,x:cx.map(()=>0)};phases.push(group)}
+    let group=phases.find(p=>p.raw===raw && (groups ? p.group===groups[i] : Math.max(...cx.map((v,j)=>Math.abs(v-p.x[j])))<.08));
+    if(!group){group={raw,group:groups?.[i],name:phaseName(raw,model),fraction:0,x:cx.map(()=>0)};phases.push(group)}
     const old=group.fraction;
     group.fraction+=amount;
     group.x=group.x.map((v,j)=>(v*old+cx[j]*amount)/group.fraction);

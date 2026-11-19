@@ -108,17 +108,17 @@ export function phaseBands(series) {
     if (series[j].signature === series[j - 1].signature) continue;
     const names = new Set([...series[j - 1].phases || [], ...series[j].phases || []].map(p => p.name));
     const upper = Math.max(lower, transitionEstimate(series, j, names));
-    bands.push({lower, upper, signature: series[j - 1].signature || 'Datenlücke'});
+    bands.push({lower, upper, signature: series[j - 1].signature || 'Datenlücke', allLiquid:series[j-1].liquid>1-1e-7});
     lower = upper;
   }
-  bands.push({lower, upper: series.at(-1).temperature, signature: series.at(-1).signature || 'Datenlücke'});
+  bands.push({lower, upper: series.at(-1).temperature, signature: series.at(-1).signature || 'Datenlücke', allLiquid:series.at(-1).liquid>1-1e-7});
   return bands;
 }
 export function bandTracks(columns) {
   const tracks = [], active = new Map(), count = columns.length - 1;
   columns.forEach((column, i) => {
     const next = new Map();
-    for (const band of phaseBands(column.series)) {
+    for (const band of (column.bands||phaseBands(column.series))) {
       const candidates = active.get(band.signature) || [];
       const previous = candidates.find(t => !next.get(band.signature)?.includes(t) &&
         Math.min(t.at(-1).upper, band.upper) >= Math.max(t.at(-1).lower, band.lower) - 1e-8);
