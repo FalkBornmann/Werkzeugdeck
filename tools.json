@@ -338,7 +338,7 @@
       "id": "abluftrechner",
       "title": "Abluft beim Lackieren",
       "status": "available",
-      "description": "Abluftbedarf und Lösemittelfreisetzung vergleichen: Wasserwand mit unterem Ansaugspalt, Trockenabsaugung und drehbare BLS-Laborkabine mit Werkstück.",
+      "description": "Luftführung und Lösemittelgrenzwerte vergleichen: Wasserwand mit unterem Ansaugspalt, Trockenabsaugung und drehbare Laborkabine mit Werkstück.",
       "domains": [
         "beschichtungen"
       ],
@@ -353,10 +353,14 @@
         "HVLP",
         "RP",
         "Lösemittel",
-        "Volumenstrom"
+        "Volumenstrom",
+        "AGW",
+        "UEG",
+        "Sicherheit",
+        "Grenzwerte"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Abluftrechner",
-      "revision": "87d7c16384db9a19bdd28becd4cc52dbf09ec1f7",
+      "revision": "fae6bfae40a9337a64a124369edd697f05f23113",
       "sourceDirectory": "Beschichtungen/Abluftrechner",
       "assets": [
         "index.html",
@@ -365,7 +369,9 @@
         "graphics.js",
         "app.js",
         "export-menu.js",
-        "tool-theme.css"
+        "tool-theme.css",
+        "safety.js",
+        "substances.js"
       ],
       "aliases": []
     }
