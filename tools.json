@@ -333,6 +333,41 @@
         "pbsnbi-hulls.json.gz"
       ],
       "aliases": []
+    },
+    {
+      "id": "abluftrechner",
+      "title": "Abluft beim Lackieren",
+      "status": "available",
+      "description": "Abluftbedarf und Lösemittelfreisetzung vergleichen: Wasserwand mit unterem Ansaugspalt, Trockenabsaugung und drehbare BLS-Laborkabine mit Werkstück.",
+      "domains": [
+        "beschichtungen"
+      ],
+      "activity": "simulation",
+      "collections": [],
+      "tags": [
+        "Abluft",
+        "Lackieren",
+        "Wasserwand",
+        "Trockenabsaugung",
+        "BLS",
+        "HVLP",
+        "RP",
+        "Lösemittel",
+        "Volumenstrom"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Abluftrechner",
+      "revision": "024db3e4562a4f50757f45ab1384b9f44340fd9c",
+      "sourceDirectory": "Beschichtungen/Abluftrechner",
+      "assets": [
+        "index.html",
+        "style.css",
+        "model.js",
+        "graphics.js",
+        "app.js",
+        "export-menu.js",
+        "tool-theme.css"
+      ],
+      "aliases": []
     }
   ]
 }
