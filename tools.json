@@ -308,7 +308,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Freie Gehaltsschnitte, Liquidus-Isothermen und Phasenanteile für reale Metalllegierungen erkunden. Zwischen mol-% und Masse-% wechseln und Erstarrungsreaktionen vergleichen.",
+      "description": "Freie Gehaltsschnitte und Liquidus-Isothermen für reale Legierungen erkunden. Phasenanteile direkt ablesen, Gefüge schematisch betrachten und zwischen mol-% und Masse-% wechseln.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -324,7 +324,7 @@
         "Peritektikum"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "8f58f56324f2d6518e1fc5d3a570c839dd8a4437",
+      "revision": "49c45647d46386b5e8680d92c9ef5309cb013fdc",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -338,7 +338,12 @@
         "export-menu.js",
         "sac-hulls.json.gz",
         "bisn-hulls.json.gz",
-        "cusn-hulls.json.gz"
+        "cusn-hulls.json.gz",
+        "symbols.js",
+        "geometry.js",
+        "section.js",
+        "fractions.js",
+        "microstructure.js"
       ],
       "aliases": []
     }
