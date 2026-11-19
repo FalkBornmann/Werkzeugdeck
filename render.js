@@ -104,7 +104,7 @@ export function triangleChart(state){
   if(samples.length>1){const p=trianglePoint(samples.at(-1).x,state);body+='<circle data-residual-end cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#a22c34" stroke="white" stroke-width="1"><title>Ende des modellierten Restschmelzpfads</title></circle>';}
  }
  body+='</g><path d="'+path(outline)+'" fill="none" stroke="#5e5144" stroke-width="1.5"/>';
- for(const [p,name] of [[a,'S₁'],[b,'S₂']])body+='<circle data-endpoint="'+name+'" cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="white" stroke="#513821" stroke-width="3"/>'+text(p[0],p[1]-14,name,15,'middle');
+ for(const [p,name] of [[a,'S₁'],[b,'S₂']])body+='<circle data-endpoint="'+name+'" cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="white" stroke="#513821" stroke-width="3"/>'+text(p[0],p[1]<100?p[1]+26:p[1]-16,name,15,'middle');
  body+=triangleAxes(state);
  body+=text(410,516,'NIST-Gleichgewichtsmodell · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
  return svg(body,820,535,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');

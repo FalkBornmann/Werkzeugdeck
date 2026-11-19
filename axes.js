@@ -14,6 +14,6 @@ export function triangleAxes(state){
  const axis=(x,y,angle,component)=>'<g data-axis="'+symbol(component)+'" transform="translate('+x+' '+y+') rotate('+angle+')">'+text(0,0,symbol(component)+' / '+unit,13,'middle')+'</g>';
  body+=axis(191,218,-46,indices[2])+axis(630,218,46,indices[1])+axis(410,478,0,indices[0]);
  const corner=tin?['Sn · 100 %','10 % '+symbol(0),'10 % '+symbol(1)]:state.model.components.map(elementSymbol);
- body+=text(55,430,corner[0],14,'end')+text(765,430,corner[1],14)+text(410,50,corner[2],14,'middle');
+ body+=text(55,470,corner[0],14,'end')+text(765,470,corner[1],14)+text(410,50,corner[2],14,'middle');
  return body;
 }
