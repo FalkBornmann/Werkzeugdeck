@@ -38,7 +38,6 @@ export function saltRender(state,el){
  el('triangle').innerHTML=svg(triangle,820,495,'Lage des Salzschnitts');
  el('legend').innerHTML='<span>Grüne Punkte · Versuchswerte</span><span>Rote Linie · abgelesener Liquidus</span><span>Braune Linien · weitere abgelesene Modellgrenzen</span>';
  el('cutDescription').textContent='Referenzschnitt aus ORNL/SPR-2021/2102, Abb. 6. 40 mol-% AlCl₃ und 1 bar. Die verbleibenden 60 mol-% verteilen sich auf NaCl und KCl.';
- el('resolution').textContent='Abgelesene Stützstellen mit linearer Verbindung. Vollständige Isothermen, Phasenanteile und beliebige Salzschnitte erfordern die zugrunde liegenden Modellparameter.';
+ el('resolution').textContent='Abgelesene Stützstellen mit linearer Verbindung. Robelin et al. (2004) liefert die Stoffdaten und Parameterquelle. Vollständige Isothermen, Phasenanteile und freie Salzschnitte benötigen noch die Umsetzung und Validierung des quasichemischen Modells.';
  el('snapStatus').textContent=state.points.map((x,i)=>'X'+(i+1)+' · '+compositionLabel(x,state)).join(' | ');
 }
-

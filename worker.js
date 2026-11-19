@@ -1,3 +1,4 @@
+import { transitionEstimate } from './geometry.js';
 import {solve,profile,thresholds,interpolate,toMoles,toMass} from './equilibrium.js';
 let model,latestLoad=0;
 function boundary(x,kind){
@@ -6,7 +7,10 @@ function boundary(x,kind){
   if(!test(hi))return null;
   if(test(0))return null;
   while(hi-lo>1){const mid=(lo+hi)>>1;if(test(mid))hi=mid;else lo=mid}
-  return (model.T[hi]+model.T[lo])/2;
+  const indices=[Math.max(0,lo-1),lo,hi,Math.min(model.T.length-1,hi+1)];
+  const samples=indices.map(i=>({temperature:model.T[i],...solve(model,x,i)}));
+  const names=new Set(samples.flatMap(s=>s.phases?.map(p=>p.name)||[]));
+  return transitionEstimate(samples,2,names);
 }
 self.onmessage=async({data:message})=>{
  try{
@@ -22,14 +26,14 @@ self.onmessage=async({data:message})=>{
   }
   if(message.type==='section'){
     const columns=[];
-    for(let i=0;i<=100;i++){
-      const c=message.basis==='mass'?toMoles(interpolate(toMass(message.a,model.masses),toMass(message.b,model.masses),i/100),model.masses):interpolate(message.a,message.b,i/100);
+    for(let i=0;i<=200;i++){
+      const c=message.basis==='mass'?toMoles(interpolate(toMass(message.a,model.masses),toMass(message.b,model.masses),i/200),model.masses):interpolate(message.a,message.b,i/200);
       columns.push({x:c,series:profile(model,c)});
     }
     postMessage({type:'section',id:message.id,columns});
   }
   if(message.type==='surface'){
-    const nodes=[],triangles=[],map=new Map(),n=32;
+    const nodes=[],triangles=[],map=new Map(),n=80;
     const vertices=message.vertices;
     for(let j=0;j<=n;j++)for(let i=0;i<=n-j;i++){
       const x=vertices[0].map((_,k)=>vertices[0][k]*(1-(i+j)/n)+vertices[1][k]*i/n+vertices[2][k]*j/n);
@@ -49,5 +53,3 @@ self.onmessage=async({data:message})=>{
   }
  }catch(error){postMessage({type:'error',id:message.id,message:error.message})}
 };
-
-

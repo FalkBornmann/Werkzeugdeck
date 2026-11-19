@@ -69,50 +69,50 @@ const server=require('node:http').createServer(async(req,res)=>{
  if(type==='svg'){const content=await fs.readFile(destination,'utf8');assert.ok(!content.includes('<image'))}
  }
  console.log('PNG and vector SVG downloads passed');
- await page.locator('[data-export-object]').selectOption('fractions');
- await page.locator('[data-export-format]').selectOption('video');
- await page.locator('[data-video-duration] select').selectOption('5');
- const originalTemperature=await page.locator('#temperature').inputValue();
- await page.locator('[data-export-save]').click();
- await page.locator('[data-export-cancel]').click();
- await page.waitForFunction(()=>document.querySelector('[data-export-message]').textContent.includes('abgebrochen'),{timeout:60000});
- assert.equal(await page.locator('#temperature').inputValue(),originalTemperature);
- const video=page.waitForEvent('download',{timeout:120000});
- await page.locator('[data-export-save]').click();
- const movie=await video;await movie.saveAs(path.join(out,movie.suggestedFilename()));
- assert.equal(await page.locator('#temperature').inputValue(),originalTemperature);
- assert.ok(await page.locator('#system').isEnabled());
- console.log('Local video export, cancellation and state restoration passed');
- await page.evaluate(()=>{
-   window.atlasOriginalRecorder=window.MediaRecorder;
-   window.atlasTracks=[];
-   const capture=HTMLCanvasElement.prototype.captureStream;
-   window.atlasCapture=capture;
-   HTMLCanvasElement.prototype.captureStream=function(...args){const stream=capture.apply(this,args);window.atlasTracks.push(...stream.getTracks());return stream};
-   window.MediaRecorder=class extends window.atlasOriginalRecorder {start(){throw Error('Test-Aufnahmefehler')}};
- });
- await page.locator('[data-export-save]').click();
- await page.waitForFunction(()=>document.querySelector('[data-export-message]').textContent.includes('Test-Aufnahmefehler'),{timeout:60000});
- assert.equal(await page.locator('#temperature').inputValue(),originalTemperature);
- assert.ok(await page.evaluate(()=>window.atlasTracks.every(track=>track.readyState==='ended')));
- await page.evaluate(()=>{window.MediaRecorder=window.atlasOriginalRecorder;HTMLCanvasElement.prototype.captureStream=window.atlasCapture});
- const videoPage=await browser.newPage();
- await videoPage.goto('http://127.0.0.1:8896/qa/'+movie.suggestedFilename());
- await videoPage.waitForFunction(()=>document.querySelector('video')?.readyState>=2,{timeout:30000});
- assert.ok(await videoPage.locator('video').evaluate(video=>video.videoWidth>0));
- await videoPage.close();
- await page.evaluate(()=>{window.MediaRecorder=undefined});
- await page.locator('[data-export-object]').selectOption('cool');
- const unsupported=page.locator('[data-export-format] option[value="video"]');
- assert.ok(await unsupported.evaluate(option=>option.disabled));
- await page.evaluate(()=>{window.MediaRecorder=window.atlasOriginalRecorder});
- console.log('Video error cleanup, playback and unsupported-browser fallback passed');
 
-
+ assert.equal(await page.locator('[data-export-format] option[value="video"]').count(),0);
+ assert.equal(await page.locator('#play').count(),0);
+ for(const id of ['triangle','cool','fractions','microstructure']){
+   if(id==='triangle')continue; // binary systems hide the triangle; the ternary export is checked separately below
+   await page.locator('[data-export-object]').selectOption(id);
+   for(const type of ['svg','png']){
+     await page.locator('[data-export-format]').selectOption(type);
+     const download=page.waitForEvent('download');await page.locator('[data-export-save]').click();
+     const file=await download,destination=path.join(out,id+'.'+type);await file.saveAs(destination);
+     assert.ok((await fs.stat(destination)).size>1000);
+     if(type==='svg')assert.ok(!(await fs.readFile(destination,'utf8')).includes('<image'));
+   }
+ }
+ await page.locator('#system').selectOption('bisn');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('abgeschlossen'));
+ await page.locator('#positionNumber').fill('50');await page.locator('#positionNumber').press('Tab');
+ await page.locator('#temperatureNumber').fill('100');await page.locator('#temperatureNumber').press('Tab');
+ assert.match(await page.locator('#microstructure').innerText(),/Lamellares/);
+ assert.match(await page.locator('#fractions').innerText(),/100 °C/);
+ const total=await page.locator('#fractionReadout tbody td:last-child').allTextContents();
+ assert.ok(Math.abs(total.reduce((sum,s)=>sum+parseFloat(s.replace(',','.')),0)-100)<.05);
+ await page.locator('#fractions').scrollIntoViewIfNeeded();
+ const box=await page.locator('#fractions svg').boundingBox();
+ await page.mouse.click(box.x+box.width*.2,box.y+box.height*.45);
+ assert.notEqual(await page.locator('#temperatureNumber').inputValue(),'100');
+ await page.locator('#fractionMode').selectOption('stacked');
+ assert.ok(await page.locator('#fractions [data-phase-curve]').first().getAttribute('fill')!=='none');
+ await page.locator('#morphology').selectOption('shells');
+ await page.locator('#temperatureNumber').fill('400');await page.locator('#temperatureNumber').press('Tab');
+ assert.match(await page.locator('#microstructure').innerText(),/Einphasige Schmelze/);
+ await page.locator('#microstructure').screenshot({path:path.join(out,'all-liquid.png')});
+ await page.locator('#temperatureNumber').fill('100');await page.locator('#temperatureNumber').press('Tab');
+ await page.locator('#morphology').selectOption('auto');
+ await page.locator('#microstructure').screenshot({path:path.join(out,'microstructure.png')});
+ await page.locator('#plot').screenshot({path:path.join(out,'smooth-section.png')});
+ await page.locator('#fractions').screenshot({path:path.join(out,'phase-fractions.png')});
+ assert.ok(await page.locator('#plot [data-phase-field]').first().getAttribute('d').then(d=>d.includes('C')));
+ assert.ok(!/\b(AG|CU|SN|BI)\b/.test(await page.locator('body').innerText()));
+ console.log('Phase fractions, temperature cursor, schematic microstructures and five diagram exports passed');
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:path.join(out,'mobile.png'),fullPage:true});
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal mobile overflow');
- for(const selector of ['#plot','#cool','#fractions']){
+ for(const selector of ['#plot','#cool','#fractions','#microstructure']){
  await page.locator(selector).scrollIntoViewIfNeeded();
  const box=await page.locator('#dock').boundingBox();assert.ok(box.y+box.height<=845);
  }
@@ -121,8 +121,23 @@ const server=require('node:http').createServer(async(req,res)=>{
  await page.locator('#basis').selectOption('mole');
  await page.locator('#basis').selectOption('mass');
  await page.screenshot({path:path.join(out,'salt-mobile.png'),fullPage:true});
+
+ await page.locator('#supportPoints').check();
+ await page.locator('#system').selectOption('sac');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('abgeschlossen'));
+ await page.locator('#triangleMode').selectOption('projection');
+ await page.waitForFunction(()=>document.querySelectorAll('#triangle [data-isotherm]').length>4,null,{timeout:90000});
+ await page.locator('#supportPoints').uncheck();
+ await page.locator('#basis').selectOption('mole');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('abgeschlossen'));
+ await page.setViewportSize({width:1440,height:1000});
+ await page.locator('#triangle').screenshot({path:path.join(out,'smooth-isotherms.png')});
+ await page.locator('[data-export-object]').selectOption('triangle');
+ await page.locator('[data-export-format]').selectOption('svg');
+ const ternaryExport=page.waitForEvent('download');await page.locator('[data-export-save]').click();
+ const ternaryFile=await ternaryExport;await ternaryFile.saveAs(path.join(out,'triangle.svg'));
+ assert.ok(!/\b(AG|CU|SN|BI)\b/.test(await fs.readFile(path.join(out,'triangle.svg'),'utf8')));
  assert.deepEqual(errors,[]);
  console.log('Mobile, synchronized dock and salt conversion passed');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
-

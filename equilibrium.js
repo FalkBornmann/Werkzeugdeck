@@ -1,3 +1,4 @@
+import { elementSymbol } from './symbols.js';
 // Local lever-rule / barycentric balance on the sampled Gibbs-energy lower hull.
 export const EPS = 1e-7;
 export function normalize(values) {
@@ -74,7 +75,7 @@ export function solve(model, compositionValue, ti) {
     group.x=group.x.map((v,j)=>(v*old+cx[j]*amount)/group.fraction);
   });
   for(const p of phases) {
-    if(phases.filter(other=>other.raw===p.raw).length>1) p.name+=' ('+model.components[p.x.indexOf(Math.max(...p.x))]+')';
+    if(phases.filter(other=>other.raw===p.raw).length>1) p.name+=' ('+elementSymbol(model.components[p.x.indexOf(Math.max(...p.x))])+')';
     p.mass=p.fraction*p.x.reduce((sum,v,j)=>sum+v*model.masses[j],0);
   }
   const massSum=phases.reduce((s,p)=>s+p.mass,0);
@@ -126,5 +127,3 @@ export function contourSegments(nodes, triangles, level) {
   }
   return segments;
 }
-
-

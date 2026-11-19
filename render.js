@@ -1,3 +1,5 @@
+import { joinContours, roundContour, simplifyContour } from './geometry.js';
+import { elementSymbol } from './symbols.js';
 import {toMass,composition,phaseName,contourSegments,thresholds} from './equilibrium.js';
 export const pointColors=['#8c4a12','#354fa0','#9e365b','#126957'];
 export const fmt=(value,digits=2)=>Number(value.toFixed(digits)).toLocaleString('de-DE');
@@ -12,10 +14,14 @@ export function fieldColor(name){
  let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))>>>0;
  return 'hsl('+(h%360)+' 36% 85%)';
 }
+export function phaseColor(name){
+ const colors={'L':'#337b9c','β-Sn':'#b87a28','Bi':'#8255a1','Ag₃Sn':'#b34e60','Cu₆Sn₅':'#248371','Cu₆Sn₅′':'#306a46','Cu₃Sn':'#777c2d','α (kfz)':'#b47d36','γ':'#776bb0','β (krz)':'#aa5f35'};
+ return colors[name]||fieldColor(name).replace('36% 85%','60% 36%');
+}
 export function liquidColor(f){return 'rgb('+[0,1,2].map((_,i)=>Math.round([235,216,175][i]*(1-f)+[55,126,157][i]*f)).join(',')+')'}
 export function display(x,state){return state.basis==='mass'?toMass(x,state.model.masses):x}
 export function compositionLabel(x,state){
- return display(x,state).map((v,i)=>state.model.components[i]+' '+fmt(v*100)+' %').join(' · ');
+ return display(x,state).map((v,i)=>elementSymbol(state.model.components[i])+' '+fmt(v*100)+' %').join(' · ');
 }
 export function trianglePoint(x,state){
  const v=display(x,state);
@@ -63,7 +69,9 @@ export function triangleChart(state){
   const interval=Number(state.interval);
   for(let level=Math.ceil(Math.min(...values)/interval)*interval;level<=Math.max(...values);level+=interval){
    const segments=contourSegments(surface.nodes,surface.triangles,level);
-   body+='<path d="'+segments.map(segment=>segment.map((p,i)=>(i?'L':'M')+trianglePoint(p,state).join(' ')).join('')).join('')+'" fill="none" stroke="#726354" stroke-width="1.2"/>';
+   const joined=joinContours(segments),curves=joined.map(points=>roundContour(simplifyContour(points.map(p=>trianglePoint(p,state)),2)));
+   body+='<path data-isotherm="'+level+'" d="'+curves.map(points=>points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')).join('')+'" fill="none" stroke="#665548" stroke-width="1.5"/>';
+   if(state.supportPoints)body+=segments.flat().map(p=>{const q=trianglePoint(p,state);return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="1.4" fill="#513821"/>'}).join('');
    if(segments.length){const p=trianglePoint(segments[Math.floor(segments.length*.6)][0],state);body+=text(...p,fmt(level)+'°',12)}
   }
  }
@@ -92,62 +100,11 @@ export function triangleChart(state){
   if(samples.length>1)body+='<path d="'+samples.map((p,i)=>(i?'L':'M')+trianglePoint(p.x,state).join(' ')).join('')+'" stroke="#a22c34" stroke-width="2.5" stroke-dasharray="5 3" fill="none"/>';
  }
  body+='</g><path d="'+path(outline)+'" fill="none" stroke="#5e5144" stroke-width="1.5"/>';
- const names=state.zoom==='tin'?['Sn','10 % Ag','10 % Cu']:model.components;
+ const names=state.zoom==='tin'?['Sn','10 % Ag','10 % Cu']:model.components.map(elementSymbol);
  body+=text(65,449,names[0],16,'middle')+text(755,449,names[1],16,'middle')+text(410,54,names[2],16,'middle');
  for(let i=1;i<10;i++)body+=text(65+690*i/10,444,fmt(i*(state.zoom==='tin'?1:10),0),11,'middle');
  body+=text(410,478,'Zusammensetzung in '+(state.basis==='mass'?'Masse-%':'mol-%')+' · NIST-Gleichgewichtsmodell',13,'middle');
  return svg(body,820,495,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
-}
-export function sectionChart(state){
- const {model,columns}=state,n=columns.length-1;
- const view=state.window,low=view[0],high=view[1];
- const X=lambda=>65+790*lambda,Y=t=>410-350*(t-low)/(high-low);
- let body=text(65,23,'S₁–S₂ · '+(state.style==='fields'?'Phasenfelder':'Schmelzanteil'),18);
- body+='<defs><clipPath id="sectionClip"><rect x="65" y="60" width="790" height="350"/></clipPath></defs><g clip-path="url(#sectionClip)">';
- const legend=new Set(),cells=[],counts=new Map();
- columns.forEach((column,i)=>{
-  const width=790/n,left=X(Math.max(0,(i-.5)/n));
-  column.series.forEach((s,j)=>{
-   const top=Y((model.T[j]+(model.T[j+1]??model.T[j]))/2),bottom=Y((model.T[j]+(model.T[j-1]??model.T[j]))/2);
-   const signature=s.signature||'Datenlücke';legend.add(signature);
-   let f=s.liquid??0;if(state.basis==='mass'&&s.phases)f=s.phases.filter(p=>p.raw==='LIQUID').reduce((sum,p)=>sum+p.mass,0);
-   body+='<rect x="'+left+'" y="'+top+'" width="'+width+'" height="'+Math.max(.01,bottom-top+.05)+'" fill="'+(state.style==='fields'?fieldColor(signature):liquidColor(f))+'"/>';
-   if(j&&column.series[j-1].signature!==signature)body+=line(left,bottom,left+width,bottom,'#726b61',.8);
-   if(i&&columns[i-1].series[j].signature!==signature)body+=line(left,top,left,bottom,'#726b61',.8);
-   if(top>=60&&bottom<=410){
-    if(!counts.has(signature))counts.set(signature,[]);
-    counts.get(signature).push({x:left+width/2,y:(top+bottom)/2});
-   }
-  });
- });
- for(const [field,list] of counts){
-  if(list.length<12||Math.max(...list.map(p=>p.y))-Math.min(...list.map(p=>p.y))<18||Math.max(...list.map(p=>p.x))-Math.min(...list.map(p=>p.x))<field.length*5.5)continue;
-  const mx=list.reduce((s,p)=>s+p.x,0)/list.length,my=list.reduce((s,p)=>s+p.y,0)/list.length;
-  const p=list.reduce((best,p)=>(p.x-mx)**2+(p.y-my)**2<(best.x-mx)**2+(best.y-my)**2?p:best);
-  body+='<g style="paint-order:stroke;stroke:white;stroke-width:4px;stroke-linejoin:round">'+text(p.x,p.y,field,12,'middle')+'</g>';
- }
- for(const kind of ['liquidus','solidus']){
-  let d='',connected=false;
-  columns.forEach((column,i)=>{
-   const bracket=thresholds(column.series)[kind];
-   if(!bracket){connected=false;return}
-   const t=(bracket[0]+bracket[1])/2;
-   d+=(connected?'L':'M')+X(i/n)+' '+Y(t);connected=true;
-  });
-  body+='<path d="'+d+'" fill="none" stroke="'+(kind==='liquidus'?'#b62c32':'#176657')+'" stroke-width="3"/>';
- }
- body+=line(65,Y(model.T[state.ti]),855,Y(model.T[state.ti]),'#252525',1.5,'5 4');
- state.lambdas.forEach((lambda,i)=>body+=line(X(lambda),60,X(lambda),410,pointColors[i],i===state.selected?3:1.5)+text(X(lambda),52,'X'+(i+1),14,'middle',pointColors[i]));
- body+='</g>';
- for(let i=0;i<=5;i++){
-  const t=low+(high-low)*i/5;
-  body+=text(58,Y(t)+4,fmt(t,0),13,'end')+line(65,Y(t),855,Y(t),'#8e8375',.35);
-  const c=state.binary ? display(columns[Math.round(n*i/5)].x,state)[0]*100 : i*20;
-  body+=text(X(i/5),435,fmt(c,0),14,'middle');
- }
- body+=text(12,42,'T / °C',14)+text(460,463,state.binary?model.components[0]+' / '+(state.basis==='mass'?'Masse-%':'mol-%'):'Position entlang S₁–S₂ / %',15,'middle');
- body+=text(460,490,'NIST-Gleichgewicht · Anschmelzbeginn und Liquidus innerhalb der Temperaturauflösung',12,'middle');
- return {image:svg(body,900,505,'Gehaltsschnitt mit beschrifteten Phasenfeldern'),legend:[...legend]};
 }
 export function curvesChart(state){
  const profiles=state.profiles;
@@ -170,18 +127,3 @@ export function curvesChart(state){
  state.points.forEach((_,i)=>body+=text(570+65*i,27,'X'+(i+1),15,'middle',pointColors[i]));
  return svg(body,900,475,'Energetische Abkühlkurven');
 }
-export function fractionsChart(state){
- const series=state.profiles[state.selected],phases=[...new Set(series.flatMap(s=>s.phases?.map(p=>p.name)||[]))];
- const lo=state.window[0],hi=state.window[1],X=t=>65+790*(t-lo)/(hi-lo),Y=f=>365-f*290;
- let body=text(65,25,'X'+(state.selected+1)+' · Phasenanteile in '+(state.basis==='mass'?'Masse-%':'mol-%'),18);
- for(const phase of phases){
-  const points=series.filter(s=>s.temperature>=lo&&s.temperature<=hi).map(s=>[X(s.temperature),Y(s.phases?.filter(p=>p.name===phase).reduce((sum,p)=>sum+(state.basis==='mass'?p.mass:p.fraction),0)||0)]);
-  body+='<path d="'+points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')+'" fill="none" stroke="'+fieldColor(phase).replace('36% 85%','65% 35%')+'" stroke-width="2"/>';
- }
- body+=line(X(state.model.T[state.ti]),75,X(state.model.T[state.ti]),365,'#555',1,'5 4');
- for(let i=0;i<=5;i++)body+=text(55,Y(i/5)+4,String(i*20),13,'end')+text(X(lo+(hi-lo)*i/5),390,fmt(lo+(hi-lo)*i/5,0),13,'middle');
- body+=text(460,418,'Temperatur / °C',14,'middle');
- phases.forEach((p,i)=>body+=text(70+(i%4)*200,446+Math.floor(i/4)*20,p,13,'start',fieldColor(p).replace('36% 85%','65% 35%')));
- return svg(body,900,475+Math.floor(phases.length/4)*20,'Phasenanteile während der Abkühlung');
-}
-
