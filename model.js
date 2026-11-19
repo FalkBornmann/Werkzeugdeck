@@ -1,15 +1,11 @@
 // SI geometry, m³/h ventilation, ml/min ready-to-spray coating. No CFD.
-export const bls = {
-  10:{width:1.810,depth:1.200,height:2.390,min:1500,recommended:2000},
-  30:{width:1.480,depth:2.380,height:2.590,min:3000,recommended:3500},
-  50:{width:1.780,depth:2.360,height:3.190,min:3500,recommended:4500}
-};
+import {assessSafety} from './safety.js';
 export const presets={
  water:{name:'Große Wasserwand · 8 m²',width:6,depth:5,height:3,wallWidth:4,wallHeight:2,slotHeight:.25,openingWidth:4,openingHeight:2,target:.5,flow:14400,distance:1.2,pieceWidth:1.2,pieceHeight:.8,pieceDepth:.05,pieceZ:.95,orientation:'vertical',floorWidth:1,floorDepth:1},
  dry:{name:'Trockenabsaugung · 2 m²',width:3.5,depth:3.5,height:2.7,wallWidth:2,wallHeight:1,slotHeight:.25,openingWidth:2,openingHeight:1,target:.5,flow:3600,distance:1,pieceWidth:.8,pieceHeight:.6,pieceDepth:.04,pieceZ:.9,orientation:'vertical',floorWidth:1,floorDepth:1},
- bls:{name:'BLS · schematische Innengeometrie',width:1.1,depth:1.05,height:1.2,wallWidth:1,wallHeight:1,slotHeight:.15,openingWidth:1,openingHeight:1,target:.3,flow:2000,distance:.5,pieceWidth:.3,pieceHeight:.2,pieceDepth:.004,pieceZ:.45,orientation:'horizontal',floorWidth:.9,floorDepth:.85}
+ bls:{name:'Laborkabine · schematische Innengeometrie',width:1.1,depth:1.05,height:1.2,wallWidth:1,wallHeight:1,slotHeight:.15,openingWidth:1,openingHeight:1,target:.3,flow:1200,distance:.5,pieceWidth:.3,pieceHeight:.2,pieceDepth:.004,pieceZ:.45,orientation:'horizontal',floorWidth:.9,floorDepth:.85}
 };
-export const initial=()=>({...presets.water,type:'water',size:'10',process:'RP',feedMode:'gun',liquid:80,guns:1,density:1.2,efficiency:65,water:0,solvent:40,solid:60,species:[],exPercent:25});
+export const initial=()=>({...presets.water,type:'water',process:'RP',feedMode:'gun',liquid:80,guns:1,density:1.2,efficiency:65,water:0,solvent:40,solid:60,species:[],exPercent:25,exFactor:3,warningPercent:80});
 const finite=(v)=>typeof v==='number'&&Number.isFinite(v);
 export function calculate(p){
  const errors=[];
@@ -23,7 +19,9 @@ export function calculate(p){
  if(!finite(p.efficiency)||p.efficiency<=0||p.efficiency>100)errors.push('Auftragswirkungsgrad muss größer 0 und höchstens 100 % sein.');
  for(const key of ['water','solvent','solid'])if(!finite(p[key])||p[key]<0||p[key]>100)errors.push('Massenanteile müssen zwischen 0 und 100 % liegen.');
  if(Math.abs(p.water+p.solvent+p.solid-100)>.01)errors.push('Wasser, organische Lösemittel und Festkörper müssen zusammen 100 Masse-% ergeben.');
- if(!finite(p.exPercent)||p.exPercent<=0||p.exPercent>100)errors.push('UEG-Rechenanteil muss größer 0 und höchstens 100 % sein.');
+ if(!finite(p.exPercent)||p.exPercent<=0||p.exPercent>25)errors.push('UEG-Rechenanteil muss größer 0 und höchstens 25 % sein.');
+ if(!finite(p.exFactor??3)||(p.exFactor??3)<1||(p.exFactor??3)>10)errors.push('UEG-Zuschlagsfaktor muss zwischen 1 und 10 liegen.');
+ if(!finite(p.warningPercent??80)||(p.warningPercent??80)<=0||(p.warningPercent??80)>=100)errors.push('Warnschwelle muss größer 0 und kleiner 100 % sein.');
  const ww=p.type==='bls'?p.floorWidth:p.wallWidth;
  if(ww>p.width||p.type!=='bls'&&p.wallHeight+.25>p.height)errors.push('Absaugfläche passt nicht in die eingegebene Kabine.');
  if(p.type!=='bls'&&(p.openingWidth>p.width||p.openingHeight>p.height))errors.push('Arbeits-Bezugsebene passt nicht in den Raum.');
@@ -53,9 +51,12 @@ export function calculate(p){
  const qHealth=healthReady?list.reduce((a,s)=>a+wetKgH*s.percent/100*1e6/s.agw,0):null;
  // Additive ideal mixing model; UEG in g/m³, mass source in g/h.
  const qEx=exReady?list.reduce((a,s)=>a+wetKgH*s.percent/100*1000/s.ueg,0)/(p.exPercent/100):null;
- const reference=p.type==='bls'&&p.orientation==='horizontal'?bls[p.size]:null;
- const candidates=[qGeometry,qHealth,qEx,reference?.min].filter(x=>finite(x));
  const noFlow=p.flow===0;
  const concentrations=list.map(s=>({name:s.name,mgM3:noFlow?null:wetKgH*s.percent/100*1e6/p.flow}));
- return {valid:true,errors:[],areaWork,areaInlet,qGeometry,speedWork,speedInlet,volume:p.width*p.depth*p.height,airChanges:p.flow/(p.width*p.depth*p.height),sprayedLh,wetKgH,solventKgH,waterKgH:wetKgH*p.water/100,solidKgH,depositedSolidKgH:solidKgH*p.efficiency/100,overspraySolidKgH:solidKgH*(1-p.efficiency/100),qHealth,qEx,healthReady,exReady,speciesErrors,reference,modelMax:Math.max(...candidates),concentrations,noFlow};
+ const output={valid:true,errors:[],areaWork,areaInlet,qGeometry,speedWork,speedInlet,volume:p.width*p.depth*p.height,airChanges:p.flow/(p.width*p.depth*p.height),sprayedLh,wetKgH,solventKgH,waterKgH:wetKgH*p.water/100,solidKgH,depositedSolidKgH:solidKgH*p.efficiency/100,overspraySolidKgH:solidKgH*(1-p.efficiency/100),qHealth,qEx,healthReady,exReady,speciesErrors,concentrations,noFlow};
+ output.safety=assessSafety(p,output);
+ output.modelMax=Math.max(qGeometry,output.safety.qAirReference,qHealth??0,output.safety.qExplosion??0);
+ const derived=[areaWork,areaInlet,qGeometry,speedWork,speedInlet,output.volume,output.airChanges,wetKgH,solventKgH,output.modelMax,qHealth??0,qEx??0,output.safety.healthIndex??0,output.safety.explosionPercent??0,...concentrations.map(x=>x.mgM3??0)];
+ if(derived.some(x=>!Number.isFinite(x)))return {valid:false,errors:['Die Eingaben führen zu einem Zahlenüberlauf. Durchsatz, Abmessungen und Volumenstrom prüfen.']};
+ return output;
 }

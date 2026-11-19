@@ -10,11 +10,11 @@ Einen statischen HTTP-Server im Repository starten und index.html öffnen. Alle 
 
 Arbeitsquerschnitt und Ansaugfläche sind getrennt. Q = 3600 A v; Stoffströme aus spritzfertiger Lackmenge, Dichte und Massenanteilen. Optionale additive AGW-/UEG-Vergleiche setzen vollständige Stoffdaten, kontinuierliche Freisetzung, unbelastete Zuluft und ideale Mischung voraus. Keine CFD, Aerosol-Explosionsbewertung oder Anlagenfreigabe. Kein zeitlicher Verdunstungs- oder Trocknungsverlauf. Die Zeichnung ist eine frei einstellbare Lehrgeometrie.
 
-BLS-Referenzwerte für horizontale Applikation: Baugröße 10 mindestens 1500 / empfohlen 2000, 30 mindestens 3000 / empfohlen 3500, 50 mindestens 3500 / empfohlen 4500 m³/h. Quelle: öffentliches Füll-Datenblatt, Seiten 5–6, am 19.11.2026 auf der Herstellerseite verlinkt. Außenmaße werden ausschließlich zur Orientierung angezeigt, nicht als Innenmaße verwendet.
+Alle Kabinenmaße und Startvolumenströme sind frei einstellbare Lehrannahmen. Es werden keine Herstellermaße, -baugrößen oder -volumenströme vorgegeben oder verglichen.
 
 ## Quellen und Grenzen
 
-DGUV Information 209-046 (Dezember 2024), TRGS 402/900, Herstellerunterlagen Füll und Schuko. Exakte Links und Einordnung in der Oberfläche. Die BLS-Lehrapp von Hendrik Dubbe diente als Anregung; kein fremder Quellcode, Bildmaterial oder proprietäres Dokument übernommen.
+DGUV Information 209-046 (Dezember 2024), TRGS 402/900, GisChem, BG RCI und BG ETEM. Exakte Links und Einordnung in der Oberfläche. Die BLS-Lehrapp von Hendrik Dubbe diente als Anregung; kein fremder Quellcode, Bildmaterial oder proprietäres Dokument übernommen.
 
 ## Prüfung
 
@@ -23,3 +23,9 @@ DGUV Information 209-046 (Dezember 2024), TRGS 402/900, Herstellerunterlagen Fü
 PNG und echte SVG-Vektorgrafiken verwenden denselben Darstellungszustand. CSV enthält Rechenwerte und Eingaben. Kein automatisches Offlinepaket.
 
 Privates Projekt in Entwicklung. Mit KI-Unterstützung entwickelt. Gesetzliche Haftungsregelungen gelten; Nutzung und fachliche Entscheidungen erfordern eine unabhängige Prüfung.
+
+## Grenzwertvergleiche
+
+Sechs auswählbare Lösemittel mit AGW nach TRGS 900 (05.06.2026), UEG aus BG-Quellen, CAS, Kurzzeitfaktor/-kategorie und Einzelquellen. Daten geprüft am 19.11.2026. Keine vorgefertigte Lackrezeptur. Bearbeitete Werte werden als Benutzerwerte markiert.
+
+AGW-Gemischindex, UEG-Anteil mit veränderbarem Zuschlagsfaktor (Startwert 3 nach DGUV-Rechenbeispiel) und DGUV-Luftführungsorientierung werden getrennt angezeigt. Zusätzliche 80-%-Warnschwelle ist eine frei gewählte Modelleinstellung. Aerosole und Kurzzeitexposition bleiben ausdrücklich unbewertet. Der Grenzwertvergleich ist als echte SVG- und PNG-Grafik exportierbar; CSV dokumentiert Faktoren und Stoffquellen.

@@ -13,7 +13,7 @@ export function sceneSVG(p,r,view={mode:'3d',yaw:-32,elevation:24}){
  const point=v=>{const q=raw(v);return [500+(q[0]-(minX+maxX)/2)*scale,292+(q[1]-(minY+maxY)/2)*scale,q[2]];};
  const polygon=(vertices,color,opacity=1,stroke='#776a7e')=>`<polygon points="${vertices.map(v=>point(v).slice(0,2).join(',')).join(' ')}" fill="${color}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="1.2"/>`;
  const compact=!!view.compact;
- const title=p.type==='water'?`Wasserwand · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:p.type==='dry'?`Trockenabsaugung · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:`BLS ${p.size} · schematische Innengeometrie`;
+ const title=p.type==='water'?`Wasserwand · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:p.type==='dry'?`Trockenabsaugung · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:'Laborkabine · schematische Innengeometrie';
  let s=text(25,compact?44:32,title,compact?38:23,'#4a3455',700)+text(25,compact?84:58,`Innenraum ${fmt(W,2)} × ${fmt(D,2)} × ${fmt(H,2)} m · Werkstück ${p.orientation==='horizontal'?'horizontal':'vertikal'}`,compact?26:15);
  s+=polygon([[0,0,0],[W,0,0],[W,D,0],[0,D,0]],'#e8dfd1');
  if(view.mode!=='top')s+=polygon([[0,D,0],[W,D,0],[W,D,H],[0,D,H]],'#e9e2ed',.3)+polygon([[0,0,0],[0,D,0],[0,D,H],[0,0,H]],'#e9e2ed',.13)+polygon([[W,0,0],[W,D,0],[W,D,H],[W,0,H]],'#e9e2ed',.13);
@@ -84,12 +84,23 @@ export function sceneSVG(p,r,view={mode:'3d',yaw:-32,elevation:24}){
  return root('Kabinenmodell mit Werkstück, Zuluft, belasteter Luft und Absaugöffnung',s,compact?955:650);
 }
 export function comparisonSVG(p,r,compact=false){
- const rows=[['Eingestellter Vergleichsvolumenstrom',p.flow,'#4a3455'],['Arbeitsquerschnitt × Zielgeschwindigkeit',r.qGeometry,'#24749a'],['AGW · idealer Modellbedarf',r.qHealth,'#9b743d'],['UEG · idealer Modellbedarf',r.qEx,'#b44a2c']];
- if(r.reference)rows.push(['BLS · Hersteller-Mindestwert',r.reference.min,'#677163'],['BLS · Herstellerempfehlung',r.reference.recommended,'#8a7499']);
+ const rows=[['Eingestellter Vergleichsvolumenstrom',p.flow,'#4a3455'],['Arbeitsquerschnitt × Zielgeschwindigkeit',r.qGeometry,'#24749a'],['AGW · idealer Modellbedarf',r.qHealth,'#9b743d'],['UEG · mit gewähltem Zuschlagsfaktor',r.safety.qExplosion,'#b44a2c']];
+ rows.push(['DGUV · Luftführungsorientierung',r.safety.qAirReference,'#677163']);
  const max=Math.max(1,...rows.map(a=>a[1]||0));let s=text(25,compact?45:32,'Volumenströme · m³/h',compact?38:23,'#4a3455',700);
  rows.forEach(([name,value,color],i)=>{const y=(compact?100:74)+i*(compact?95:65);s+=text(25,y,name,compact?28:15);if(value!==null)s+=`<rect x="25" y="${y+9}" width="${760*value/max}" height="17" rx="3" fill="${color}"/>`+text(805,y+24,fmt(value,0),compact?28:16,color,700);else s+=text(25,y+28,'Stoffdaten fehlen · nicht bewertet',compact?27:14,'#766677');});
  const h=rows.length*(compact?95:65)+(compact?180:115);
- if(compact)s+=text(25,h-90,'Modellwerte und Herstellerreferenz getrennt prüfen.',27)+text(25,h-50,'Stationäre Bilanz · keine Aussage zur örtlichen Erfassung',25);
- else s+=text(25,h-35,'Keine Addition der Kriterien. Modellwerte und Herstellerreferenz getrennt prüfen.',14)+text(25,h-14,'Werkzeugdeck · idealisierte stationäre Bilanz · keine Aussage zur örtlichen Erfassung',12);
+ if(compact)s+=text(25,h-90,'Luftführung, AGW und UEG getrennt prüfen.',27)+text(25,h-50,'Stationäre Bilanz · keine Aussage zur örtlichen Erfassung',25);
+ else s+=text(25,h-35,'Keine Addition der Kriterien. Luftführung, AGW und UEG getrennt prüfen.',14)+text(25,h-14,'Werkzeugdeck · idealisierte stationäre Bilanz · keine Aussage zur örtlichen Erfassung',12);
  return root('Vergleich der Abluftvolumenströme in Kubikmetern pro Stunde',s,h);
+}
+
+export function safetySVG(p,r,compact=false){
+ const a=r.safety,h=compact?920:580,size=compact?28:19;
+ const labels={unknown:'Nicht bewertet',exceeded:'Vergleichswert überschritten',near:'Nahe am Vergleichswert',within:'Unter Vergleichswert im Modell',below:'Orientierung unterschritten',reached:'DGUV-Orientierung erreicht','not-applicable':'Keine organische Lösemittellast'};
+ const colors={unknown:'#6a6270',exceeded:'#a12c2c',near:'#906314',within:'#1e607a',below:'#a12c2c',reached:'#1e607a','not-applicable':'#6a6270'};
+ const rows=[['Luftführung',`${fmt(r.speedWork,2)} / ${fmt(a.referenceSpeed,2)} m/s · DGUV-Orientierung`,a.airState],['Gesundheit · AGW-Gemischindex',`${fmt(a.healthIndex,2)} / 1 · idealer Dauerbetrieb`,a.healthState],['Explosionsschutz · Lösemitteldämpfe',`${fmt(a.explosionPercent,2)} / ${fmt(p.exPercent,1)} % UEG · Zuschlag ${fmt(a.exFactor,1)}`,a.exState],['Lackaerosole und Kurzzeitexposition','Nicht durch das stationäre Modell geprüft','unknown']];
+ let s=text(25,42,'Grenzwerte im Modellvergleich',compact?37:26,'#4a3455',700);
+ rows.forEach(([name,value,status],i)=>{const y=85+i*(compact?175:104);s+=`<rect x="20" y="${y}" width="960" height="${compact?160:93}" rx="8" fill="#f3eef5" stroke="${colors[status]}"/>`;s+=text(38,y+30,name,compact?32:20,'#4a3455',700)+text(38,y+(compact?78:58),value,size)+text(38,y+(compact?125:81),labels[status],size,colors[status],700);});
+ s+=text(25,h-(compact?77:48),`Warnschwelle: ${fmt(a.warningPercent,0)} % · frei gewählter Modellhinweis`,compact?26:17)+text(25,h-(compact?35:18),'Werkzeugdeck · keine Expositionsmessung oder Betriebsfreigabe',compact?26:17);
+ return root('Getrennte Vergleiche für Luftführung, AGW und UEG mit offen bleibenden Aerosol- und Kurzzeitbewertungen',s,h);
 }
