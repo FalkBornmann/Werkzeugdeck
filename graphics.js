@@ -13,7 +13,8 @@ export function sceneSVG(p,r,view={mode:'3d',yaw:-32,elevation:24}){
  const point=v=>{const q=raw(v);return [500+(q[0]-(minX+maxX)/2)*scale,292+(q[1]-(minY+maxY)/2)*scale,q[2]];};
  const polygon=(vertices,color,opacity=1,stroke='#776a7e')=>`<polygon points="${vertices.map(v=>point(v).slice(0,2).join(',')).join(' ')}" fill="${color}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="1.2"/>`;
  const compact=!!view.compact;
- let s=text(25,compact?44:32,p.name,compact?38:23,'#4a3455',700)+text(25,compact?84:58,`Innenraum ${fmt(W,2)} × ${fmt(D,2)} × ${fmt(H,2)} m · Werkstück ${p.orientation==='horizontal'?'horizontal':'vertikal'}`,compact?26:15);
+ const title=p.type==='water'?`Wasserwand · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:p.type==='dry'?`Trockenabsaugung · ${fmt(p.wallWidth*p.wallHeight,2)} m²`:`BLS ${p.size} · schematische Innengeometrie`;
+ let s=text(25,compact?44:32,title,compact?38:23,'#4a3455',700)+text(25,compact?84:58,`Innenraum ${fmt(W,2)} × ${fmt(D,2)} × ${fmt(H,2)} m · Werkstück ${p.orientation==='horizontal'?'horizontal':'vertikal'}`,compact?26:15);
  s+=polygon([[0,0,0],[W,0,0],[W,D,0],[0,D,0]],'#e8dfd1');
  if(view.mode!=='top')s+=polygon([[0,D,0],[W,D,0],[W,D,H],[0,D,H]],'#e9e2ed',.3)+polygon([[0,0,0],[0,D,0],[0,D,H],[0,0,H]],'#e9e2ed',.13)+polygon([[W,0,0],[W,D,0],[W,D,H],[W,0,H]],'#e9e2ed',.13);
  const faces=[];
@@ -67,18 +68,20 @@ export function sceneSVG(p,r,view={mode:'3d',yaw:-32,elevation:24}){
  const src=point(source),target=point([W/2,py,p.pieceZ+ph*.5]);
  s+=`<line x1="${src[0]}" y1="${src[1]}" x2="${target[0]}" y2="${target[1]}" stroke="#d5a45d" stroke-width="12" stroke-opacity=".45"/>`;
  if(compact){
- s+=`<rect x="20" y="510" width="960" height="370" rx="10" fill="#f0eaf3"/>`;
+ s+=`<rect x="20" y="510" width="960" height="425" rx="10" fill="#f0eaf3"/>`;
  const lines=[`Arbeitsquerschnitt: ${fmt(r.areaWork,3)} m²`,`Mittlere Modellgeschwindigkeit: ${fmt(r.speedWork,2)} m/s`,`${p.type==='water'?'Unterer Spalt':p.type==='dry'?'Aktive Filterfront':'Bodenfilter'}: ${fmt(r.areaInlet,3)} m²`,`Mittlere Eintrittsgeschwindigkeit: ${fmt(r.speedInlet,2)} m/s`,`Volumenstrom: ${fmt(p.flow,0)} m³/h`,'Werkstück / Substrat: sandfarben','Werkzeugdeck · stationäres Lehrmodell','Luftwege schematisch · keine Anlagenfreigabe'];
  lines.forEach((line,i)=>s+=text(38,550+i*42,line,i<5?31:27,'#4a3455',i===0?700:400));
+ s+=text(38,886,'Blau: Zuluft · Rot: belastete Luft',26)+text(38,922,'Violett: Abluft · Türkis: Wasserfilm',26);
  }else{
- s+=`<rect x="20" y="510" width="960" height="120" rx="10" fill="#f0eaf3"/>`;
+ s+=`<rect x="20" y="510" width="960" height="132" rx="10" fill="#f0eaf3"/>`;
  s+=text(38,538,`Arbeitsquerschnitt: ${fmt(r.areaWork,3)} m² · mittlere Modellgeschwindigkeit: ${fmt(r.speedWork,2)} m/s`,17,'#4a3455',700);
  s+=text(38,565,`${p.type==='water'?'Unterer Spalt':p.type==='dry'?'Aktive Filterfront':'Bodenfilter'}: ${fmt(r.areaInlet,3)} m² · mittlere Eintrittsgeschwindigkeit: ${fmt(r.speedInlet,2)} m/s`,17);
  s+=text(38,593,`Vergleichsvolumenstrom: ${fmt(p.flow,0)} m³/h · Werkstück / Substrat: sandfarben`,16);
  s+=text(38,616,'Werkzeugdeck · stationäres Lehrmodell · Luftwege schematisch, keine CFD oder Anlagenfreigabe',13);
+ s+=text(38,635,'Blau: Zuluft · Rot: belastete Luft · Violett: Abluft · Türkis: Wasserfilm',13);
  }
 
- return root('Kabinenmodell mit Werkstück, Zuluft, belasteter Luft und Absaugöffnung',s,compact?910:650);
+ return root('Kabinenmodell mit Werkstück, Zuluft, belasteter Luft und Absaugöffnung',s,compact?955:650);
 }
 export function comparisonSVG(p,r,compact=false){
  const rows=[['Eingestellter Vergleichsvolumenstrom',p.flow,'#4a3455'],['Arbeitsquerschnitt × Zielgeschwindigkeit',r.qGeometry,'#24749a'],['AGW · idealer Modellbedarf',r.qHealth,'#9b743d'],['UEG · idealer Modellbedarf',r.qEx,'#b44a2c']];
