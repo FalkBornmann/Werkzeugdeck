@@ -1,132 +1,282 @@
-import { coolingChart } from './cooling.js';
-const el = id => document.getElementById(id);
-const number = n => Number(n.toFixed(2)).toLocaleString('de-DE');
-const colors = ['#86460e','#3c4593','#9b2748','#096657'];
-const liquidus = [[0,652],[.1,666],[.2,674],[.3,672],[.4,649],[.47,615],[.5,591],[.55,555],[.6,575]];
-const saltLines = [liquidus, [[0,155],[.11,132],[.2,184],[.3,220],[.4,248],[.425,243]],[[0,132],[.4,132]],[[.4,243],[.6,243]],[[.425,243],[.455,360],[.49,461],[.52,502],[.54,455],[.575,340],[.59,225],[.6,102]]];
-const measured = [[0,638],[.2,671],[.303,671],[.403,646],[.503,576],[.55,568],[.6,570],[0,150],[.2,158],[.2,119],[.303,117],[.303,215],[.403,249],[.503,246],[.55,247],[.6,247]];
-const salt = {axes:[Array.from({length:61},(_,i)=>i/100)],T:[100,700],independent:['KCl']};
-let data, points, selected, cut, request=0;
-const isSalt = () => data===salt;
-const title = () => el('system').selectedOptions[0].text;
-const text = (x,y,s,size=15,anchor='start') => '<text x="'+x+'" y="'+y+'" font-size="'+size+'" text-anchor="'+anchor+'" fill="#382f25">'+s+'</text>';
-const line = (x,y,u,v,color,width=1) => '<line x1="'+x+'" y1="'+y+'" x2="'+u+'" y2="'+v+'" stroke="'+color+'" stroke-width="'+width+'"/>';
-const svg = (body,w,h) => '<svg class="chart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+title()+'" font-family="system-ui"><rect width="100%" height="100%" fill="white"/>'+body+'</svg>';
-const axis = () => data.axes[0];
-const X = x => 64+690*(x-axis()[0])/(axis().at(-1)-axis()[0]);
-const Y = t => 280-220*(t-data.T[0])/(data.T.at(-1)-data.T[0]);
-const row = (i,t) => data.rows[(i*(data.axes[1]?.length||1)+cut)*data.T.length+t];
-const pct = x => number(x*100)+' %';
-function renderPlot(){
-  let body=text(64,22,title(),18)+text(5,54,'T / °C');
-  if(isSalt()){
-    for(const curve of saltLines) body+='<polyline fill="none" stroke="#805938" stroke-width="2" points="'+curve.map(([x,t])=>X(x)+','+Y(t)).join(' ')+'"/>';
-    for(const [x,t] of measured) body+='<circle cx="'+X(x)+'" cy="'+Y(t)+'" r="3" fill="#16685d"/>';
-  }else{
-    const ai=axis(), ts=data.T, liquid=data.phases.indexOf('LIQUID');
-    for(let i=0;i<ai.length;i++){
-      const left=X(i?(ai[i-1]+ai[i])/2:ai[i]),right=X(i+1<ai.length?(ai[i+1]+ai[i])/2:ai[i]);
-      for(let t=0;t<ts.length;t++){
-        const r=row(i,t), f=r.find(([p])=>p===liquid)?.[1]??0;
-        const top=Y(t+1<ts.length?(ts[t+1]+ts[t])/2:ts[t]),bottom=Y(t?(ts[t-1]+ts[t])/2:ts[t]);
-        const color=r.length?'rgb('+[0,1,2].map((_,k)=>Math.round([217,196,151][k]*(1-f)+[56,124,148][k]*f)).join(',')+')':'#999';
-        body+='<rect x="'+left+'" y="'+top+'" width="'+(right-left+.05)+'" height="'+(bottom-top+.05)+'" fill="'+color+'"/>';
-      }
-    }
-  }
-  for(let k=0;k<=4;k++){
-    const t=data.T[0]+(data.T.at(-1)-data.T[0])*k/4;
-    body+=text(56,Y(t)+5,number(t),13,'end')+line(64,Y(t),754,Y(t),'#b5afa8',.55);
-    const x=axis()[0]+(axis().at(-1)-axis()[0])*k/4;
-    body+=text(X(x),303,number(x*100),14,'middle');
-  }
-  points.forEach((i,k)=>{body+=line(X(axis()[i]),50,X(axis()[i]),280,colors[k],k===selected?3:1.5)+text(X(axis()[i]),46,'X'+(k+1),14,'middle')});
-  body+=text(409,330,data.independent[0]+' / mol-%',16,'middle');
-  el('plot').innerHTML=svg(body,800,348);
+import {saltSetup,saltRender} from './salt.js';
+import {normalize,toMass,toMoles,interpolate,nearest,solve,profile,thresholds,transitions,phaseName} from './equilibrium.js';
+import {pointColors,fmt,escape,text,line,svg,display,compositionLabel,trianglePoint,triangleInverse,triangleChart,sectionChart,curvesChart,fractionsChart,fieldColor} from './render.js';
+const el=id=>document.getElementById(id);
+const state={basis:'mole',style:'fields',zoom:'full',triangleMode:'projection',interval:50,ties:true,points:[],lambdas:[],selected:0,ti:0,model:null,columns:[],profiles:[],a:[0,0,1],b:[.08,.02,.9],surface:null};
+const worker=new Worker('./worker.js',{type:'module'}),pending=new Map();
+let serial=0,loadId=0,sectionId=0,surfaceId=0,timer=null,endpoint='a',recording=false,specials=[],busy=true;
+function request(type,extra={}){
+ const id=++serial;
+ return new Promise((resolve,reject)=>{pending.set(id,{resolve,reject});worker.postMessage({type,id,...extra})});
 }
-function renderTriangle(){
-  const tern=isSalt()||data.axes.length===2;
-  el('view').options[2].disabled=!tern;
-  if(!tern){el('triangle').innerHTML='';el('view').value='plot';return}
-  const name=isSalt()?['NaCl','KCl','AlCl₃']:['Sn','Ag','Cu'];
-  const xy=(x,y)=>[55+400*x+200*y,194-154*y];
-  // For solder, enlarge the Sn corner; both axes share one scale.
-  const scale=isSalt()?1:0.1;
-  const y=isSalt()?.4:data.axes[1][cut];
-  const maxX=isSalt()?.6:.06, a=xy(axis()[0]/scale,y/scale), b=xy(maxX/scale,y/scale);
-  let body='<polygon points="55,194 455,194 255,40" fill="#f1e7da" stroke="#6a503a"/>'+line(...a,...b,'#985b23',3);
-  body+=text(55,216,name[0],14,'middle')+text(455,216,isSalt()?name[1]:'10 mol-% Ag',14,'middle')+text(255,30,isSalt()?name[2]:'10 mol-% Cu',14,'middle');
-  points.forEach((i,k)=>{const [x,v]=xy(axis()[i]/scale,y/scale);body+='<circle cx="'+x+'" cy="'+v+'" r="4" fill="'+colors[k]+'"/>'+text(x,v-8,'X'+(k+1),13,'middle')});
-  el('triangle').innerHTML=svg(body,510,225);
+worker.onmessage=({data})=>{
+ const callback=pending.get(data.id);if(!callback)return;
+ pending.delete(data.id);
+ if(data.type==='error')callback.reject(Error(data.message));else callback.resolve(data);
+};
+function status(message,error=false){el('status').textContent=message;el('status').classList.toggle('error',error)}
+function fail(error){busy=false;status(error.message,true);el('dock').hidden=true;stop()}
+function controlsEnabled(enabled){
+ for(const control of document.querySelectorAll('#dock input,#dock button,#dock select,#add,#remove,#useSpecial,#applyCut'))control.disabled=!enabled;
 }
-function details(){
-  el('position').value=points[selected];
-  el('results').innerHTML=points.map((i,k)=>{
-    const header='X'+(k+1)+' · '+pct(axis()[i])+' '+data.independent[0];
-    if(isSalt()){
-      const x=axis()[i],j=Math.max(1,liquidus.findIndex(p=>p[0]>=x)),[x0,t0]=liquidus[j-1],[x1,t1]=liquidus[j];
-      return '<article><strong>'+header+'</strong> · Liquidus ca. '+Math.round(t0+(t1-t0)*(x-x0)/(x1-x0))+' °C</article>';
-    }
-    const t=Number(el('temp').value),r=row(i,t);
-    const states=[];
-    for(let j=data.T.length-1;j>=0;j--){
-      const label=row(i,j).map(([p])=>data.phases[p]).sort().join(' + ')||'Datenlücke';
-      if(states.at(-1)?.label!==label)states.push({label,t:data.T[j]});
-    }
-    return '<article><strong>'+header+' bei '+data.T[t]+' °C</strong><br>'+ (r.map(([p,f])=>data.phases[p]+' '+pct(f)).join(' · ')||'Datenlücke')+'<details><summary>Phasenfolge beim Abkühlen</summary>'+states.map(s=>s.t+' °C · '+s.label).join('<br>')+'</details></article>';
-  }).join('');
+function percentage(x){return fmt(x*100)+' %'}
+function pointAt(f){return state.basis==='mass'?toMoles(interpolate(toMass(state.a,state.model.masses),toMass(state.b,state.model.masses),f),state.model.masses):interpolate(state.a,state.b,f)}
+function currentComposition(){return state.points[state.selected]}
+function endpointControls(){
+ for(const [id,x] of [['endpointA',state.a],['endpointB',state.b]]){
+  el(id).innerHTML=display(x,state).map((v,i)=>'<label>'+escape(state.model.components[i])+' / %<input type="number" min="0" max="100" step=".01" value="'+(v*100).toFixed(5)+'" data-component="'+i+'"></label>').join('');
+ }
+}
+function fromDisplay(values){return state.basis==='mass'?toMoles(values,state.model.masses):normalize(values)}
+function updateWindow(){
+ const limits=[state.model.T[0],state.model.T.at(-1)];
+ if(el('temperatureWindow').value==='solidification'){
+  const t=thresholds(state.profiles[state.selected]);
+  if(t.solidus&&t.liquidus){limits[0]=Math.max(limits[0],Math.floor(t.solidus[0]-20));limits[1]=Math.min(limits[1],Math.ceil(t.liquidus[1]+30))}
+ }
+ state.window=limits;
+}
+function chartState(){
+ state.current=solve(state.model,currentComposition(),state.ti);
+ updateWindow();
+}
+function temperatureState(){
+ el('temperature').value=state.ti;
+ el('temperature').setAttribute('aria-valuetext',fmt(state.model.T[state.ti])+' Grad Celsius');
+ el('currentT').textContent=fmt(state.model.T[state.ti])+' °C';
+}
+function updatePoints(){
+ state.points=state.lambdas.map(pointAt);
+ el('active').innerHTML=state.points.map((_,i)=>'<option value="'+i+'">X'+(i+1)+'</option>').join('');
+ el('active').value=state.selected;
+ el('position').value=state.lambdas[state.selected]*100;el('positionNumber').value=Number((state.lambdas[state.selected]*100).toFixed(4));
+ el('add').disabled=state.points.length>=4||busy||recording;el('remove').disabled=state.points.length<=1||busy||recording;
+}
+function renderResults(){
+ const basis=state.basis==='mass'?'Massenanteil':'Stoffmengenanteil';
+ const range=b=>b ? (b[0]===b[1]?fmt(b[0]):fmt(b[0])+'–'+fmt(b[1]))+' °C' : 'außerhalb des Modellbereichs';
+ el('results').innerHTML=state.points.map((x,i)=>{
+  const current=solve(state.model,x,state.ti),limits=thresholds(state.profiles[i]);
+  return '<article style="--point:'+pointColors[i]+'"><h3>X'+(i+1)+'</h3><p>'+escape(compositionLabel(x,state))+'</p><p><b>Anschmelzbeginn</b><br>'+range(limits.solidus)+'<br><b>Liquidus</b><br>'+range(limits.liquidus)+'</p><p>Bei '+fmt(state.model.T[state.ti])+' °C</p><table><thead><tr><th>Phase</th><th>'+basis+'</th></tr></thead><tbody>'+
+   (current?.phases.map(p=>'<tr><td>'+escape(p.name)+'</td><td>'+percentage(state.basis==='mass'?p.mass:p.fraction)+'</td></tr>').join('')||'<tr><td>Datenlücke</td></tr>')+'</tbody></table>'+
+   (current?.phases.length>1?'<details><summary>Zusammensetzung der Phasen</summary>'+current.phases.map(p=>'<p><b>'+escape(p.name)+'</b><br>'+escape(compositionLabel(p.x,state))+'</p>').join('')+'</details>':'')+'</article>';
+ }).join('');
+ el('reactions').innerHTML=state.profiles.map((series,i)=>{
+  const events=transitions(series);
+  return '<details'+(i===state.selected?' open':'')+'><summary>X'+(i+1)+' · Reaktionen und Phasenfolge</summary><table><thead><tr><th>Temperaturintervall</th><th>Phasenumwandlung beim Abkühlen</th><th>Ergebnis</th></tr></thead><tbody>'+
+  events.map(e=>'<tr><td>'+fmt(e.to)+'–'+fmt(e.from)+' °C</td><td>'+escape(e.reaction||e.above+' → '+e.below)+'<br><small>'+escape(e.above)+' → '+escape(e.below)+'</small></td><td>'+escape(e.note)+'</td></tr>').join('')+'</tbody></table></details>';
+ }).join('');
 }
 function render(){
-  renderTriangle();renderPlot();details();
-  el('energy').hidden=isSalt();el('view').options[1].disabled=isSalt();
-  if(isSalt()&&el('view').value==='cool')el('view').value='plot';
-  el('cool').innerHTML=isSalt()?'':coolingChart(data,points,cut,colors);
-  el('snap').hidden=!['bisn','sac'].includes(el('system').value);
+ if(!state.model||busy)return;
+ updatePoints();chartState();temperatureState();
+ const result=sectionChart(state);
+ el('plot').innerHTML=result.image;
+ el('legend').innerHTML=result.legend.map(name=>'<span><i class="swatch" style="background:'+fieldColor(name)+'"></i>'+escape(name)+'</span>').join('');
+ if(!state.binary)el('triangle').innerHTML=triangleChart(state);
+ el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);renderResults();
+ el('resolution').textContent='Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben.';
+ el('cutDescription').textContent=state.binary ? 'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt '+state.model.components[0]+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
 }
-function controls(){
-  el('active').innerHTML=points.map((_,k)=>'<option>X'+(k+1)+'</option>').join('');
-  el('active').selectedIndex=selected;el('add').disabled=points.length>=4;render();
+function stop(){clearInterval(timer);timer=null;el('play').textContent='Abspielen'}
+async function rebuildSection(){
+ if(state.salt)return renderSalt();
+ const id=++sectionId;busy=true;stop();controlsEnabled(false);status('Freier Gehaltsschnitt wird lokal berechnet …');
+ const answer=await request('section',{a:state.a,b:state.b,basis:state.basis});
+ if(id!==sectionId)return;
+ state.columns=answer.columns;
+ state.points=state.lambdas.map(pointAt);
+ state.profiles=state.points.map(x=>profile(state.model,x));
+ busy=false;controlsEnabled(true);el('dock').hidden=false;
+ status('Berechnung auf deinem Gerät abgeschlossen. Schnittendpunkte und Legierungspunkte sind frei wählbar.');
+ render();
 }
-async function load(){
-  const seq=++request,key=el('system').value;
-  const next=key==='salt'?salt:await fetch(key+'.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
-  if(seq!==request)return;
-  data=next;cut=0;selected=0;points=[Math.floor(axis().length/2)];
-  el('context').textContent=isSalt()?'Schnitt bei 40 mol-% AlCl₃ und 1 bar. Die restlichen 60 mol-% verteilen sich auf NaCl und KCl.':'Gleichgewicht bei 1,01325 bar. Die Auswahl rastet auf berechneten Zusammensetzungen ein.';
-  const cuts=data.axes[1]||[];
-  el('cutLabel').hidden=!cuts.length;el('cut').innerHTML=cuts.map(x=>'<option>'+pct(x)+' Cu</option>').join('');
-  el('tlabel').hidden=isSalt();el('temp').max=data.T.length-1;el('temp').value=Math.floor(data.T.length/2);
-  el('position').max=axis().length-1;
-  el('caption').textContent=isSalt()?'Punkte: Versuchswerte. Linien: aus der ORNL-Modellgrafik abgelesene Grenzverläufe.':'Sand: vollständig fest. Blau: vollständig flüssig. Zwischenfarben: anteilig geschmolzen. Achsen in mol-%.';
-  controls();
+async function rebuildSurface(){
+ if(state.binary||state.salt)return;
+ const id=++surfaceId;
+ const vertices=state.zoom==='full'?[[1,0,0],[0,1,0],[0,0,1]]:[[0,0,1],[.1,0,.9],[0,.1,.9]].map(x=>state.basis==='mass'?toMoles(x,state.model.masses):x);
+ const answer=await request('surface',{vertices});
+ if(id!==surfaceId)return;
+ state.surface=answer;
+ if(!busy)el('triangle').innerHTML=triangleChart(state);
 }
-el('system').onchange=()=>load().catch(e=>el('context').textContent='Daten konnten nicht geladen werden: '+e.message);
-el('snap').onclick=()=>{
- const tern=data.axes.length===2,amounts=tern?[3.73/107.87,.85/63.546,95.42/118.69]:[43.03/118.69,56.97/208.98];
- const total=amounts.reduce((a,b)=>a+b),nearest=(a,v)=>a.reduce((b,x,i)=>Math.abs(x-v)<Math.abs(a[b]-v)?i:b,0);
- points[selected]=nearest(axis(),amounts[0]/total);if(tern){cut=nearest(data.axes[1],amounts[1]/total);el('cut').selectedIndex=cut}render();
-};
-el('cut').onchange=()=>{cut=el('cut').selectedIndex;render()};
-el('add').onclick=()=>{points.push(Math.min(axis().length-1,points[selected]+1));selected=points.length-1;controls()};
-el('active').onchange=()=>{selected=el('active').selectedIndex;render()};
-el('position').oninput=e=>{points[selected]=Number(e.target.value);render()};
-el('temp').oninput=details;
-function move(e){
-  const chart=el('plot').firstElementChild,pt=chart.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
-  const x=pt.matrixTransform(chart.getScreenCTM().inverse()).x;
-  points[selected]=axis().reduce((best,v,i)=>Math.abs(X(v)-x)<Math.abs(X(axis()[best])-x)?i:best,0);render()
-}
-el('plot').onpointerdown=e=>{el('plot').setPointerCapture(e.pointerId);move(e)};
-el('plot').onpointermove=e=>{if(el('plot').hasPointerCapture(e.pointerId))move(e)};
-el('save').onclick=async()=>{
- const chart=el(el('view').value).firstElementChild.cloneNode(true),box=chart.viewBox.baseVal;
- chart.setAttribute('width',box.width);chart.setAttribute('height',box.height);
- let blob=new Blob([new XMLSerializer().serializeToString(chart)],{type:'image/svg+xml'});
- if(el('format').value==='PNG'){
-   const bitmap=new Image(),url=URL.createObjectURL(blob);bitmap.src=url;
-   try{await bitmap.decode();const c=document.createElement('canvas');c.width=2*box.width;c.height=2*box.height;c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);blob=await new Promise(resolve=>c.toBlob(resolve))}finally{URL.revokeObjectURL(url)}
+function renderSalt(){saltRender(state,el);updatePoints();exporter?.refresh()}
+function loadSalt(){state.model=saltSetup();state.binary=false;state.a=[.6,0,.4];state.b=[0,.6,.4];state.lambdas=[.3,.7];state.selected=0;busy=false;el('dock').hidden=true;el('coolingSection').hidden=true;el('fractionSection').hidden=true;el('resultsSection').hidden=true;el('applyCut').disabled=true;el('useSpecial').disabled=true;el('special').innerHTML='<option>Referenzschnitt · keine freien Modelldaten</option>';el('temperatureWindow').disabled=true;controlsEnabled(true);status('ORNL-Referenzschnitt bei 40 mol-% AlCl₃ · 1 bar. Für freie Salzschnitte fehlen die vollständigen Modelldateien.');renderSalt()}
+function referencePoints(){
+ const m=state.model;
+ const mass=x=>toMoles(x,m.masses);
+ if(state.binary){
+  const pure=m.components.map((name,i)=>({name:'Reinstoff '+name,x:m.components.map((_,j)=>i===j?1:0)}));
+  if(el('system').value==='bisn')pure.push({name:'Eutektikum · NIST-Referenz 138,8 °C',x:mass([.4303,.5697])});
+  else pure.push({name:'Eutektikum · NIST-Referenz 226,8 °C',x:mass([.9911,.0089])},{name:'Cu₆Sn₅ · peritektische Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]},{name:'Peritektische Schmelze · NIST-Referenz 415 °C',x:mass([.8693,.1307])});
+  return pure;
  }
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Legierungsatlas-'+el('system').value+'.'+el('format').value.toLowerCase();a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)
+ return [{name:'Ternäres Eutektikum · NIST-Referenz 215,9 °C',x:mass([.0373,.0085,.9542])},
+  {name:'Ag₃Sn · Verbindung',x:[.75,0,.25]},{name:'Cu₆Sn₅ · Verbindung',x:[0,.545,.455]},
+  ...m.components.map((name,i)=>({name:'Reinstoff '+name,x:m.components.map((_,j)=>i===j?1:0)}))];
+}
+function projectOnCut(x){
+ const a=display(state.a,state),b=display(state.b,state),p=display(x,state);
+ const direction=b.map((v,i)=>v-a[i]),denominator=direction.reduce((s,v)=>s+v*v,0);
+ const lambda=direction.reduce((s,v,i)=>s+v*(p[i]-a[i]),0)/denominator;
+ const on=interpolate(a,b,lambda);
+ return {lambda,distance:Math.sqrt(on.reduce((s,v,i)=>s+(v-p[i])**2,0))};
+}
+function setPoint(lambda,allowSnap=true){
+ lambda=Math.max(0,Math.min(1,lambda));let target;
+ if(allowSnap&&el('snap').checked){
+  target=specials.map(s=>({...s,...projectOnCut(s.x)})).find(s=>s.distance<1e-6&&s.lambda>=0&&s.lambda<=1&&Math.abs(lambda-s.lambda)<.015);
+  if(target)lambda=target.lambda;
+ }
+ state.lambdas[state.selected]=lambda;
+ state.points=state.lambdas.map(pointAt);
+ if(state.salt){renderSalt();return}
+ state.profiles[state.selected]=profile(state.model,currentComposition());
+ el('snapStatus').textContent=target?'Eingerastet · '+target.name:'';
+ render();
+}
+function setSpecial(){
+ const target=specials[Number(el('special').value)];if(!target)return;exactLambda=null;
+ let p=projectOnCut(target.x);
+ if(p.distance>1e-6||p.lambda<0||p.lambda>1){
+  const direction=state.b.map((v,i)=>v-state.a[i]);
+  let min=-Infinity,max=Infinity;
+  direction.forEach((v,i)=>{if(v>1e-12)min=Math.max(min,-target.x[i]/v);if(v<-1e-12)max=Math.min(max,-target.x[i]/v)});
+  if(!Number.isFinite(min)||!Number.isFinite(max)||max-min<1e-9)return;
+  state.a=interpolate(target.x,target.x.map((v,i)=>v+direction[i]),min);
+  state.b=interpolate(target.x,target.x.map((v,i)=>v+direction[i]),max);
+  state.a=normalize(state.a.map(v=>Math.max(0,v)));state.b=normalize(state.b.map(v=>Math.max(0,v)));
+  endpointControls();p=projectOnCut(target.x);
+ }
+ state.lambdas[state.selected]=Math.max(0,Math.min(1,p.lambda));
+ el('snapStatus').textContent=target.name;
+ rebuildSection().catch(fail);
+}
+async function loadSystem(){
+ const id=++loadId;sectionId++;surfaceId++;stop();busy=true;controlsEnabled(false);el('dock').hidden=true;
+ for(const id of ['applyCut','chooseA','chooseB','triangleMode','zoom','interval','ties','special','useSpecial','exactCompare','leftCompare','rightCompare']){el(id).disabled=false;el(id).hidden=false}
+ el('resultsSection').hidden=false;el('temperatureWindow').disabled=false;el('endpointA').parentElement.parentElement.hidden=false;
+ const key=el('system').value;state.salt=key==='salt';state.surface=null;
+ el('ternary').hidden=false;el('coolingSection').hidden=false;el('fractionSection').hidden=false;
+ if(state.salt){loadSalt();return}
+ status('Gleichgewichtsmodell wird geladen und lokal entpackt …');
+ const answer=await request('load',{key});
+ if(id!==loadId)return;
+ state.model=answer.model;state.binary=state.model.components.length===2;
+ state.a=state.binary?[0,1]:[0,0,1];state.b=state.binary?[1,0]:[.08,.02,.9];
+ state.lambdas=[.35,.65];exactLambda=null;state.selected=0;
+ state.ti=nearest(state.model.T,state.binary?200:220);
+ el('temperature').max=state.model.T.length-1;el('ternary').hidden=state.binary;
+ specials=referencePoints();el('special').innerHTML=specials.map((p,i)=>'<option value="'+i+'">'+escape(p.name)+'</option>').join('');
+ el('useSpecial').textContent=state.binary?'Punkt wählen':'Schnitt durch Ziel legen';
+ endpointControls();
+ await rebuildSection();
+ if(!state.binary)rebuildSurface().catch(fail);
+}
+el('system').onchange=()=>loadSystem().catch(fail);
+el('basis').onchange=()=>{
+ const oldPoints=state.points.slice();state.basis=el('basis').value;
+ if(state.model&&!state.salt)state.lambdas=oldPoints.map(x=>projectOnCut(x).lambda);
+ if(state.salt)return renderSalt();
+ endpointControls();
+ rebuildSection().catch(fail);if(!state.binary)rebuildSurface().catch(fail);
 };
-load().catch(e=>el('context').textContent=e.message);
+el('style').onchange=()=>{state.style=el('style').value;state.salt?renderSalt():render()};
+el('zoom').onchange=()=>{state.zoom=el('zoom').value;rebuildSurface().catch(fail);if(!busy)render()};
+el('triangleMode').onchange=()=>{state.triangleMode=el('triangleMode').value;if(!busy)render()};
+el('interval').onchange=()=>{state.interval=Number(el('interval').value);if(!busy)render()};
+el('ties').onchange=()=>{state.ties=el('ties').checked;if(!busy)render()};
+el('chooseA').onclick=()=>{endpoint='a';el('chooseA').setAttribute('aria-pressed','true');el('chooseB').setAttribute('aria-pressed','false')};
+el('chooseB').onclick=()=>{endpoint='b';el('chooseA').setAttribute('aria-pressed','false');el('chooseB').setAttribute('aria-pressed','true')};
+el('applyCut').onclick=()=>{
+ try{
+  const read=id=>{const v=[...el(id).querySelectorAll('input')].map(n=>Number(n.value)/100);if(Math.abs(v.reduce((s,v)=>s+v,0)-1)>.00001)throw Error('Die Anteile jedes Endpunkts müssen zusammen 100 % ergeben.');return fromDisplay(v)};
+  const a=read('endpointA'),b=read('endpointB');
+  if(a.reduce((s,v,i)=>s+(v-b[i])**2,0)<1e-12)throw Error('Die Schnittendpunkte müssen verschieden sein.');
+  state.a=a;state.b=b;el('cutError').textContent='';rebuildSection().catch(fail);
+ }catch(error){el('cutError').textContent=error.message}
+};
+el('active').onchange=()=>{state.selected=Number(el('active').value);exactLambda=null;state.salt?renderSalt():render()};
+el('add').onclick=()=>{
+ if(state.lambdas.length>=4)return;state.lambdas.push(Math.min(1,state.lambdas[state.selected]+.05));state.selected=state.lambdas.length-1;setPoint(state.lambdas[state.selected],false);
+};
+el('remove').onclick=()=>{
+ if(state.lambdas.length<=1)return;state.lambdas.splice(state.selected,1);state.profiles.splice(state.selected,1);state.selected=Math.min(state.selected,state.lambdas.length-1);setPoint(state.lambdas[state.selected],false);
+};
+el('position').oninput=e=>setPoint(Number(e.target.value)/100);
+el('positionNumber').onchange=e=>{if(Number.isFinite(Number(e.target.value)))setPoint(Number(e.target.value)/100,false)};
+el('useSpecial').onclick=setSpecial;
+let exactLambda=null;
+el('exactCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setPoint(exactLambda,false)};
+el('leftCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setPoint(exactLambda-Number(el('offset').value)/100,false)};
+el('rightCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setPoint(exactLambda+Number(el('offset').value)/100,false)};
+el('temperatureWindow').onchange=()=>render();
+function setTemperature(index){
+ state.ti=Math.max(0,Math.min(state.model.T.length-1,index));render();
+}
+el('temperature').oninput=e=>setTemperature(Number(e.target.value));
+el('start').onclick=()=>{stop();setTemperature(state.model.T.length-1)};
+el('end').onclick=()=>{stop();setTemperature(0)};
+el('play').onclick=()=>{
+ if(timer){stop();return}
+ if(state.ti<=0)state.ti=state.model.T.length-1;
+ el('play').textContent='Pause';
+ timer=setInterval(()=>{if(busy||recording)return;setTemperature(state.ti-Number(el('speed').value));if(state.ti===0)stop()},180);
+};
+function svgPoint(event,container){
+ const chart=el(container).querySelector('svg');if(!chart)return null;
+ const p=chart.createSVGPoint();p.x=event.clientX;p.y=event.clientY;return p.matrixTransform(chart.getScreenCTM().inverse());
+}
+let dragEndpoint=null,dragMoved=false;
+el('triangle').onpointerdown=e=>{
+ if(busy||state.salt)return;
+ const p=svgPoint(e,'triangle');if(!p)return;
+ dragEndpoint=[['a',state.a],['b',state.b]].find(([,x])=>{const q=trianglePoint(x,state);return Math.hypot(q[0]-p.x,q[1]-p.y)<18})?.[0]||endpoint;
+ el('triangle').setPointerCapture(e.pointerId);dragMoved=false;
+};
+el('triangle').onpointermove=e=>{
+ if(!dragEndpoint||!el('triangle').hasPointerCapture(e.pointerId))return;
+ dragMoved=true;moveEndpoint(e);
+};
+function moveEndpoint(e){
+ const p=svgPoint(e,'triangle');let d=triangleInverse(p.x,p.y,state);
+ d=normalize(d.map(v=>Math.max(0,v)));
+ let x=state.basis==='mass'?toMoles(d,state.model.masses):d;
+ if(el('snap').checked){
+  const match=specials.find(s=>{const p2=trianglePoint(s.x,state);return Math.hypot(p.x-p2[0],p.y-p2[1])<12});
+  if(match)x=match.x;
+ }
+ const other=dragEndpoint==='a'?state.b:state.a;
+ if(x.reduce((sum,v,i)=>sum+(v-other[i])**2,0)<1e-10)return;
+ state[dragEndpoint]=x;state.points=state.lambdas.map(pointAt);
+ endpointControls();el('triangle').innerHTML=triangleChart(state);
+}
+el('triangle').onpointerup=e=>{
+ if(!dragEndpoint)return;moveEndpoint(e);dragEndpoint=null;rebuildSection().catch(fail);
+};
+el('triangle').onpointercancel=()=>{dragEndpoint=null};
+el('plot').onpointerdown=e=>{if(busy)return;el('plot').setPointerCapture(e.pointerId);const p=svgPoint(e,'plot');setPoint((p.x-65)/790)};
+el('plot').onpointermove=e=>{if(!busy&&el('plot').hasPointerCapture(e.pointerId)){const p=svgPoint(e,'plot');setPoint((p.x-65)/790)}};
+async function saveGraphic(id,type){
+ const source=el(id).querySelector('svg').cloneNode(true);
+ const blob=new Blob([new XMLSerializer().serializeToString(source)],{type:'image/svg+xml'});
+ let output=blob;
+ if(type==='png'){
+  const url=URL.createObjectURL(blob);
+  try{const image=new Image();image.src=url;await image.decode();const canvas=document.createElement('canvas');canvas.width=source.viewBox.baseVal.width*2;canvas.height=source.viewBox.baseVal.height*2;canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);output=await new Promise(r=>canvas.toBlob(r))}finally{URL.revokeObjectURL(url)}
+ }
+ const a=document.createElement('a');a.href=URL.createObjectURL(output);a.download='Legierungsatlas-'+id+'.'+type;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+}
+const exporter=WDExports.mount({anchor:el('exports'),defaultItem:'plot',items:['plot','triangle','cool','fractions'].map((id,i)=>({
+ id,label:['Gehaltsschnitt','Gehaltsdreieck','Abkühlverläufe','Phasenanteile'][i],enabled:()=>!busy&&!!el(id).querySelector('svg')&&!el(id).closest('[hidden]'),
+ save:type=>saveGraphic(id,type),videoReady:()=>!state.salt&&!busy,video:()=>{
+  const previous=state.ti;stop();recording=true;
+  return {title:'Legierungsatlas · Gleichgewichtsmodell',caption:()=> 'Relative Modellzeit τ = '+fmt(1-state.ti/(state.model.T.length-1))+' · '+fmt(state.model.T[state.ti])+' °C',
+   frame:f=>{state.ti=Math.round((1-f)*(state.model.T.length-1));render();return el(id).querySelector('svg')},
+   restore:()=>{recording=false;state.ti=previous;render()}};
+ }
+}))});
+loadSystem().catch(fail);
+
+
 
