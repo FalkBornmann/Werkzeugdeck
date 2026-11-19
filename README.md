@@ -1,0 +1,3 @@
+# Legierungsatlas
+Interaktive Gehaltsschnitte für das Werkzeugdeck. Die Metalltabellen stammen aus dem Gleichgewichtsmodell der NIST-Lotdatenbank. generate.py erzeugt sie mit pycalphad 0.12.0. Für das Salzsystem zeigt der Atlas den veröffentlichten Schnitt bei 40 mol-% AlCl₃ und 1 bar aus ORNL/SPR-2021/2102, Abb. 6. Lokal über einen statischen HTTP-Server öffnen. Keine Zugangsdaten oder externen Rechendienste erforderlich.
+Zur Reproduktion NIST-solder.tdb von https://www.metallurgy.nist.gov/phase/solder/NIST-solder.tdb neben generate.py speichern. Metallzustände und molare Enthalpien werden vorab berechnet. Die interaktive Auswertung erfolgt lokal.
