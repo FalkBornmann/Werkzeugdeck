@@ -303,6 +303,40 @@
       "aliases": [
         "/gefuegerechner/"
       ]
+    },
+    {
+      "id": "legierungsatlas",
+      "title": "Legierungsatlas",
+      "status": "available",
+      "description": "Gehaltsschnitte, Abkühlverläufe und Phasenanteile für reale Legierungen vergleichen und einen experimentell untersuchten Salzschnitt erkunden.",
+      "domains": [
+        "werkstofftechnik"
+      ],
+      "activity": "simulation",
+      "collections": [],
+      "tags": [
+        "Phasendiagramm",
+        "Solidus",
+        "Liquidus",
+        "AlCl₃",
+        "Salzschmelze",
+        "Eutektikum",
+        "Peritektikum"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
+      "revision": "6199b1fcf8c7bf56c9a031bd9a4ee859d5684bc3",
+      "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
+      "assets": [
+        "index.html",
+        "app.js",
+        "cooling.js",
+        "style.css",
+        "tool-theme.css",
+        "bisn.json",
+        "cusn.json",
+        "sac.json"
+      ],
+      "aliases": []
     }
   ]
 }
