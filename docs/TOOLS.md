@@ -14,7 +14,7 @@ Die lokale Ordnung kann weiter verwendet werden. `sourceDirectory` gibt den loka
 
 ## Vorhaben
 
-Zuerst ID, Titel, Beschreibung, Fachgebiete, Tätigkeit, Sammlungen und Schlagwörter eintragen. Ein geplantes Tool erhält keinen Startlink und benötigt weder Repository noch Quellcodedateien. Beim NSS-Vorhaben bleiben Auswertungsmethode und Validierung bis zur Entwicklung offen.
+Zuerst ID, Titel, Beschreibung, Fachgebiete, Tätigkeit, Sammlungen und Schlagwörter eintragen. Ein geplantes Tool erhält keinen Startlink und benötigt weder Repository noch Quellcodedateien.
 
 ## Verfügbares Tool
 

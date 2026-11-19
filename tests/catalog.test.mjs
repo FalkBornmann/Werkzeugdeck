@@ -6,9 +6,11 @@ import {validateCatalog, renderPage} from '../scripts/site.mjs';
 const catalog = JSON.parse(readFileSync(new URL('../tools.json', import.meta.url), 'utf8').replace(/^\uFEFF/, ''));
 test('catalog references are consistent and sources pinned', () => validateCatalog(catalog));
 test('planned tools never receive launch links', () => {
-  const html = renderPage(catalog);
-  assert.match(html, /NSS-Beschichtungsanalyse/);
-  assert.doesNotMatch(html, /href="\/tools\/nss-beschichtungsanalyse/);
+  const modified = structuredClone(catalog);
+  modified.tools.push({id:'test-vorhaben',title:'Testvorhaben',description:'Test',status:'planned',domains:['beschichtungen'],activity:'bildanalyse',collections:[],tags:[]});
+  const html = renderPage(modified);
+  assert.match(html, /Testvorhaben/);
+  assert.doesNotMatch(html, /href="\/tools\/test-vorhaben/);
 });
 test('tool can appear in multiple domains without duplicating its address', () => {
   const modified = structuredClone(catalog);

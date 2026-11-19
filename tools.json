@@ -195,25 +195,6 @@
       "aliases": []
     },
     {
-      "id": "nss-beschichtungsanalyse",
-      "title": "NSS-Beschichtungsanalyse",
-      "status": "planned",
-      "description": "Geplant: Blasenbildung und Entnetzung an belasteten Lackoberflächen anhand von Fotos erfassen. Auswertungsverfahren und Validierung werden bei der Entwicklung festgelegt.",
-      "domains": [
-        "beschichtungen"
-      ],
-      "activity": "bildanalyse",
-      "collections": [],
-      "tags": [
-        "NSS",
-        "Salzsprühnebel",
-        "Lack",
-        "Foto",
-        "Blasengrad",
-        "Entnetzung"
-      ]
-    },
-    {
       "id": "winand-diagramm",
       "title": "Winand-Diagramm",
       "status": "available",

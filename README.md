@@ -14,7 +14,6 @@ Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung
 | Wärmeübertragung | Simulation | Kaffee & Milch | [Werkzeugdeck-Kaffee-und-Milch](https://github.com/FalkBornmann/Werkzeugdeck-Kaffee-und-Milch) |
 | Stofftransport | Simulation | Keks und Tee | [KeksUndTee](https://github.com/FalkBornmann/KeksUndTee) |
 | Werkstofftechnik | Simulation | Gefügerechner für Stähle | [Werkzeugdeck-Gefuegerechner](https://github.com/FalkBornmann/Werkzeugdeck-Gefuegerechner) |
-| Beschichtungen | Bildanalyse | NSS-Beschichtungsanalyse | Geplant |
 
 „Theoretische Spielereien“ ist eine zusätzliche Sammlung und der vorausgewählte Einstieg. Fachgebiete, Aufgaben, Sammlungen und Suchbegriffe werden unabhängig gepflegt. Eine Anwendung kann mehreren Fachgebieten zugeordnet sein und behält ihre Adresse unter /tools/<id>/.
 
