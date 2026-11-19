@@ -24,6 +24,11 @@
       "id": "werkstofftechnik",
       "title": "Werkstofftechnik",
       "description": "Gefüge, Wärmebehandlung und Eigenschaften von Werkstoffen verstehen und modellieren."
+    },
+    {
+      "id": "waermeuebertragung",
+      "title": "Wärmeübertragung",
+      "description": "Mischen, Abkühlen und Wärmeaustausch mit der Umgebung erkunden."
     }
   ],
   "activities": {
@@ -152,6 +157,42 @@
         "/Eintunken/",
         "/KeksUndTee/"
       ]
+    },
+    {
+      "id": "kaffee-und-milch",
+      "title": "Kaffee & Milch",
+      "status": "available",
+      "description": "Milch sofort oder später eingießen? Vergleiche zwei Tassen beim ersten Schluck und erkunde Gefäße, Füllmengen und Wunschtemperatur.",
+      "domains": [
+        "waermeuebertragung"
+      ],
+      "activity": "simulation",
+      "collections": [
+        "theoretische-spielereien"
+      ],
+      "tags": [
+        "Kaffee",
+        "Milch",
+        "Thermodynamik",
+        "Abkühlung",
+        "Mischtemperatur",
+        "Alltagsphysik"
+      ],
+      "repository": "FalkBornmann/Werkzeugdeck-Kaffee-und-Milch",
+      "revision": "0e03a5bb7654aa6118db8f004bc90eae31272dde",
+      "sourceDirectory": "Theoretische Spielereien/KaffeeUndMilch",
+      "assets": [
+        "index.html",
+        "style.css",
+        "app.js",
+        "graphics.js",
+        "model.js",
+        "tool-theme.css",
+        "timeline-dock.js",
+        "timeline-dock.css",
+        "export-menu.js"
+      ],
+      "aliases": []
     },
     {
       "id": "nss-beschichtungsanalyse",

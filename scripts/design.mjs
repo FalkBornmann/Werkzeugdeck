@@ -1,4 +1,5 @@
 export const themes = {
+  waermeuebertragung: {dark:'#4b3030', accent:'#955137', light:'#f8eee4'},
   elektrochemie: {dark:'#163e50', accent:'#176b8b', light:'#edf5fa'},
   stofftransport: {dark:'#193e35', accent:'#24745d', light:'#edf5ee'},
   beschichtungen: {dark:'#4a3455', accent:'#77508c', light:'#f4eff7'},

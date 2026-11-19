@@ -11,6 +11,7 @@ Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung
 | Elektrochemie | Datenauswertung | EIS-Fitting | [Werkzeugdeck-EIS-Fitting](https://github.com/FalkBornmann/Werkzeugdeck-EIS-Fitting) |
 | Elektrochemie | Datenauswertung | Potentialkurven | [Werkzeugdeck-Potentialkurven](https://github.com/FalkBornmann/Werkzeugdeck-Potentialkurven) |
 | Elektrochemie | Simulation | Winand-Diagramm | [Werkzeugdeck-Winand-Diagramm](https://github.com/FalkBornmann/Werkzeugdeck-Winand-Diagramm) |
+| Wärmeübertragung | Simulation | Kaffee & Milch | [Werkzeugdeck-Kaffee-und-Milch](https://github.com/FalkBornmann/Werkzeugdeck-Kaffee-und-Milch) |
 | Stofftransport | Simulation | Keks und Tee | [KeksUndTee](https://github.com/FalkBornmann/KeksUndTee) |
 | Werkstofftechnik | Simulation | Gefügerechner für Stähle | [Werkzeugdeck-Gefuegerechner](https://github.com/FalkBornmann/Werkzeugdeck-Gefuegerechner) |
 | Beschichtungen | Bildanalyse | NSS-Beschichtungsanalyse | Geplant |

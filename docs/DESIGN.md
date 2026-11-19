@@ -5,6 +5,7 @@
 | Fachgebiet | Dunkler Kopfbereich | Akzent | Heller Hintergrund |
 | --- | --- | --- | --- |
 | Elektrochemie | #163e50 | #176b8b | #edf5fa |
+| Wärmeübertragung | #4b3030 | #955137 | #f8eee4 |
 | Stofftransport | #193e35 | #24745d | #edf5ee |
 | Beschichtungen | #4a3455 | #77508c | #f4eff7 |
 | Werkstofftechnik | #513821 | #8b5e2f | #f8f1e8 |
