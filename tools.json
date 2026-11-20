@@ -289,7 +289,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Reale binäre und ternäre Legierungen erkunden: Gehaltsschnitte, drei Dreiecksskalen, drehbare 3D-Liquidusfläche und Phasenanteile. Schnittendpunkte und Legierungspunkte vergleichen.",
+      "description": "Binäre und ternäre Phasendiagramme mit glatten Liquidus-Isothermen, Reaktionslinien, freien Gehaltsschnitten, 3D-Randdiagrammen und nachvollziehbarer Gefügebildung erkunden.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -305,7 +305,7 @@
         "Peritektikum"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "fb5a20716950bce872746217887c67e8f436c294",
+      "revision": "3327ad036a8b6453e0ffa1176dc662be457ce263",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -330,7 +330,14 @@
         "constituents.js",
         "phase-space.js",
         "systems.js",
-        "pbsnbi-hulls.json.gz"
+        "pbsnbi-hulls.json.gz",
+        "temperature-window.js",
+        "reaction-data.js",
+        "solidification.js",
+        "construction.js",
+        "liquidus-geometry.js",
+        "sac-liquidus.json.gz",
+        "pbsnbi-liquidus.json.gz"
       ],
       "aliases": []
     },
