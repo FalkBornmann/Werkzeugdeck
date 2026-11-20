@@ -1,3 +1,5 @@
+import {liquidusGeometry} from './liquidus-geometry.js';
+import {reactionReferences} from './reaction-data.js';
 import { triangleAxes } from './axes.js';
 import { residualPath } from './boundary.js';
 import { joinContours, roundContour, simplifyContour } from './geometry.js';
@@ -61,21 +63,41 @@ export function triangleChart(state){
    for(let i=0;i<3;i++){const key=[face[i],face[(i+1)%3]].sort((a,b)=>a-b).join(',');if(!edges.has(key))edges.set(key,{points:[points[i],points[(i+1)%3]],signature});else if(edges.get(key).signature!==signature)body+=line(...points[i],...points[(i+1)%3],'#8c8174',1)}
   });
  }else if(surface){
-  for(const face of surface.triangles){
+  for(const face of (surface.drawTriangles||surface.triangles)){
    const nodes=face.map(i=>surface.nodes[i]);
    const names=nodes.map(n=>n.primary).filter(Boolean);
    const name=names.sort((a,b)=>names.filter(v=>v===b).length-names.filter(v=>v===a).length)[0]||'';
    if(name){if(!labels.has(name))labels.set(name,{sumX:0,sumY:0,count:0});const label=labels.get(name),p=nodes.map(n=>trianglePoint(n.x,state));label.sumX+=p.reduce((v,q)=>v+q[0],0)/3;label.sumY+=p.reduce((v,q)=>v+q[1],0)/3;label.count++;}
    body+='<path d="'+path(nodes.map(n=>trianglePoint(n.x,state)))+'" fill="'+fieldColor(name)+'" stroke="'+fieldColor(name)+'" stroke-width=".3"/>';
   }
-  const values=surface.nodes.map(n=>n.value).filter(v=>v!==null);
-  const interval=Number(state.interval);
-  for(let level=Math.ceil(Math.min(...values)/interval)*interval;level<=Math.max(...values);level+=interval){
-   const segments=contourSegments(surface.nodes,surface.triangles,level);
-   const joined=joinContours(segments),curves=joined.map(points=>points.map(p=>trianglePoint(p,state)));
-   body+='<path data-isotherm="'+level+'" d="'+curves.map(points=>points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')).join('')+'" fill="none" stroke="#665548" stroke-width="1.5"/>';
-   if(state.supportPoints)body+=segments.flat().map(p=>{const q=trianglePoint(p,state);return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="1.4" fill="#513821"/>'}).join('');
-   if(segments.length){const p=trianglePoint(segments[Math.floor(segments.length*.6)][0],state);body+=text(...p,fmt(level)+'°',12)}
+  const geometry=liquidusGeometry(surface,Number(state.interval));
+  for(const {t:level,paths} of geometry.isotherms){
+   const curves=paths.map(points=>points.map(p=>trianglePoint(p,state)));
+   body+='<path data-isotherm="'+level+'" d="'+curves.map(points=>points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')).join('')+'" fill="none" stroke="#776653" stroke-width="1.25"/>';
+   if(state.supportPoints)body+=curves.flat().map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.1" fill="#513821"/>').join('');
+   for(const points of curves.filter(p=>p.length>30).slice(0,2)){const p=points[Math.floor(points.length*.6)];body+='<g style="paint-order:stroke;stroke:white;stroke-width:3px">'+text(...p,fmt(level)+'°',11)+'</g>'}
+  }
+  if(state.reactionLines){
+   body+='<defs><marker id="downhill" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L7 3L0 6Z" fill="#382d22"/></marker></defs>';
+   for(const {path:points} of geometry.reactions){
+    const p=points.map(q=>trianglePoint(q.x,state));
+    body+='<path data-reaction-line d="'+p.map((v,i)=>(i?'L':'M')+v.join(' ')).join('')+'" fill="none" stroke="#382d22" stroke-width="2.5"/>';
+    // Temperature gradient along each reconstructed branch determines arrow direction locally.
+    for(let i=3;i<p.length-3;i+=Math.max(9,Math.floor(p.length/3))){
+     const before=i-2,after=i+2;
+     if(Math.abs(points[after].t-points[before].t)<.1||Math.hypot(p[after][0]-p[before][0],p[after][1]-p[before][1])<4)continue;
+     const from=points[after].t<points[before].t?before:after,to=from===before?after:before;
+     body+='<path data-reaction-arrow d="M'+p[from].join(' ')+'L'+p[to].join(' ')+'" stroke="#382d22" stroke-width="2" marker-end="url(#downhill)"/>';
+    }
+   }
+   const refs=reactionReferences(model);
+   refs.forEach((e,i)=>{
+    const p=trianglePoint(e.x,state),color=e.kind==='E'?'#873b31':'#4d3b88';
+    body+='<circle data-reaction-point="'+e.label+'" cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="white" stroke="'+color+'" stroke-width="2"><title>'+escape(e.reaction+' · NIST '+fmt(e.t)+' °C')+'</title></circle>';
+    // Dense high-temperature nodes are numbered; the table contains every temperature and reaction.
+    if(refs.length<=3||i<3)body+='<g style="paint-order:stroke;stroke:white;stroke-width:4px">'+text(p[0]+8,p[1]+(i%2?-10:17),e.label+' '+fmt(e.t)+' °C',12,'start',color)+'</g>';
+    else body+=text(p[0]+6,p[1]-4,e.label,10,'start',color);
+   });
   }
  }
  if(state.triangleMode==='projection')for(const [name,label] of labels)if(label.count>16)body+='<g style="paint-order:stroke;stroke:white;stroke-width:4px">'+text(label.sumX/label.count,label.sumY/label.count,name,13,'middle')+'</g>';
@@ -111,12 +133,12 @@ export function triangleChart(state){
 }
 export function curvesChart(state){
  const profiles=state.profiles;
- const minT=state.window[0],maxT=state.window[1],Y=t=>395-330*(t-minT)/(maxT-minT);
+ const minT=state.model.T[0],maxT=state.model.T.at(-1),Y=t=>395-330*(t-minT)/(maxT-minT);
  const energies=profiles.map(p=>p.map(s=>s.enthalpy));
  const maxima=energies.map(e=>Math.max(...e.filter(Number.isFinite)));
  const span=Math.max(1,...energies.flatMap((e,i)=>e.filter(Number.isFinite).map(v=>(maxima[i]-v)/1000)));
  const X=q=>65+790*q/span;
- let body=text(65,25,'Abkühlverläufe · entzogene Enthalpie',18);
+ let body=text(65,25,'Abkühlverläufe · vollständiger Temperaturverlauf',18);
  body+='<defs><clipPath id="curveClip"><rect x="65" y="55" width="790" height="340"/></clipPath></defs><g clip-path="url(#curveClip)">';
  profiles.forEach((series,k)=>{
   if(state.shown&&!state.shown.includes(k))return;
@@ -131,3 +153,7 @@ export function curvesChart(state){
  (state.shown||state.points.map((_,i)=>i)).forEach((i,j)=>body+=text(440+70*j,27,state.labels?.[i]||'X'+(i+1),14,'middle',pointColors[i]));
  return svg(body,900,475,'Energetische Abkühlkurven');
 }
+
+
+
+

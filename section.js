@@ -11,8 +11,9 @@ function prepare(state){
   const bands=phaseBands(column.series),roots={liquidus:boundaryFromSeries(column.series,'liquidus'),solidus:boundaryFromSeries(column.series,'solidus')};
   if(!state.binary&&state.surface&&roots.liquidus.length===1){
    const t=surfaceTemperature(state.surface,column.x),root=roots.liquidus[0];
-   if(t!==null&&t>=root.bracket[0]-1e-6&&t<=root.bracket[1]+1e-6){
+   if(t!==null){
     root.temperature=t;
+    for(const band of bands)if(!band.allLiquid){band.lower=Math.min(band.lower,t);band.upper=Math.min(band.upper,t)}
     for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=t;bands[j+1].lower=t}
    }
   }
@@ -138,6 +139,8 @@ export function sectionChart(state) {
   const symbol = elementSymbol(component);
   body += text(460, 463, state.binary ? symbol + ' / ' + (state.basis === 'mass' ? 'Masse-%' : 'mol-%') :
     'Position entlang S₁–S₂ / %', 15, 'middle');
-  body += text(460, 490, 'Grenzlinien interpoliert innerhalb der Modellauflösung · Stützstellen optional einblendbar', 12, 'middle');
+  body += text(460, 490, 'Liquidus: gemeinsame Sättigungsfläche · weitere Grenzen aus den diskreten Gleichgewichtszuständen', 12, 'middle');
   return {image: svg(body, 900, 505, 'Gehaltsschnitt mit glatten Phasenfeldgrenzen'), legend: [...legend]};
 }
+
+

@@ -1,7 +1,7 @@
 import { transitionEstimate } from './geometry.js';
 import { boundaryFromSeries } from './boundary.js';
-import {solve,profile,interpolate,toMoles,toMass} from './equilibrium.js';
-let model,latestLoad=0,surfaceCache=null;
+import {solve,profile,interpolate,toMoles,toMass,phaseName} from './equilibrium.js';
+let model,atlas,latestLoad=0,surfaceCache=null;
 function boundary(x){
  let lo=0,hi=model.T.length-1;
  const test=i=>{const s=solve(model,x,i);return s&&s.liquid>1-1e-7};
@@ -14,35 +14,25 @@ function boundary(x){
  return {value:root?.temperature??(model.T[lo]+model.T[hi])/2,bracket:[model.T[lo],model.T[hi]],primary:solids?.[0]?.name||''};
 }
 function makeSurface(){
- const nodes=[],triangles=[],drawTriangles=[],map=new Map(),n=120;
+ const {n}=atlas,nodes=[],triangles=[],drawTriangles=[],map=new Map();
+ let k=0;
  for(let j=0;j<=n;j++)for(let i=0;i<=n-j;i++){
-  const x=[1-(i+j)/n,i/n,j/n],b=boundary(x);
-  map.set(i+','+j,nodes.length);nodes.push({x,value:b?.value??null,rawValue:b?.value??null,bracket:b?.bracket,primary:b?.primary||''});
+  const [value,branch]=atlas.nodes[k],id=atlas.branches[branch],raw=id.split('#')[0];
+  const primary=phaseName(raw,model)+(raw==='FCC_A1'?' ('+({AG:'Ag',CU:'Cu',PB:'Pb'}[id.split('#')[1]]||'')+')':'');
+  map.set(i+','+j,k++);nodes.push({x:[1-(i+j)/n,i/n,j/n],value,primary});
  }
- for(let j=0;j<n;j++)for(let i=0;i<n-j;i++){
-  triangles.push([map.get(i+','+j),map.get((i+1)+','+j),map.get(i+','+(j+1))]);
-  if(i+j<n-1)triangles.push([map.get((i+1)+','+j),map.get((i+1)+','+(j+1)),map.get(i+','+(j+1))]);
+ const mesh=(step,target)=>{for(let j=0;j<n;j+=step)for(let i=0;i<n-j;i+=step){
+  target.push([map.get(i+','+j),map.get((i+step)+','+j),map.get(i+','+(j+step))]);
+  if(i+j<n-step)target.push([map.get((i+step)+','+j),map.get((i+step)+','+(j+step)),map.get(i+','+(j+step))]);
+ }};
+ mesh(1,triangles);mesh(4,drawTriangles);
+ const edges=[];
+ for(const [a,b] of [[0,1],[1,2],[2,0]]){
+  const columns=[];
+  for(let i=0;i<=80;i++){const x=[0,0,0];x[a]=1-i/80;x[b]=i/80;columns.push({x,series:profile(model,x)})}
+  edges.push({a,b,columns});
  }
- const links=nodes.map(()=>new Set());
- for(const f of triangles)for(const i of f)for(const j of f)if(i!==j)links[i].add(j);
- // Relax discretization noise only inside one primary field and the original
- // temperature bracket. Physical field changes, binary edges and vertices stay fixed.
- for(let pass=0;pass<3;pass++){
-  const next=nodes.map((node,i)=>{
-   if(node.value===null||node.x.some(v=>v<1e-9))return node.value;
-   const neighbors=[...links[i]].map(j=>nodes[j]);
-   if(neighbors.some(p=>p.value===null||p.primary!==node.primary))return node.value;
-   const mean=neighbors.reduce((s,p)=>s+p.value,0)/neighbors.length;
-   return Math.max(node.bracket[0],Math.min(node.bracket[1],.35*node.value+.65*mean));
-  });
-  nodes.forEach((node,i)=>node.value=next[i]);
- }
- // Coarser rendering mesh for the interactive 3D view; numerical contours use all nodes.
- for(let j=0;j<n;j+=2)for(let i=0;i<n-j;i+=2){
-  drawTriangles.push([map.get(i+','+j),map.get((i+2)+','+j),map.get(i+','+(j+2))]);
-  if(i+j<n-2)drawTriangles.push([map.get((i+2)+','+j),map.get((i+2)+','+(j+2)),map.get(i+','+(j+2))]);
- }
- return {nodes,triangles,drawTriangles,n};
+ return {nodes,triangles,drawTriangles,n,reactionSegments:atlas.reactionSegments,edges,method:atlas.method};
 }
 self.onmessage=async({data:message})=>{
  try{
@@ -52,7 +42,10 @@ self.onmessage=async({data:message})=>{
    if(!response.ok)throw Error('Modelldatei konnte nicht geladen werden');
    const loaded=await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
    if(message.id!==latestLoad)return;
-   model=loaded;surfaceCache=null;postMessage({type:'loaded',id:message.id,model});
+   loaded.system=message.key;let loadedAtlas=null;
+   if(loaded.components.length===3){const r=await fetch(message.key+'-liquidus.json.gz');if(!r.ok)throw Error('Liquiduspaket konnte nicht geladen werden');loadedAtlas=await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()}
+   if(message.id!==latestLoad)return;
+   model=loaded;atlas=loadedAtlas;surfaceCache=null;postMessage({type:'loaded',id:message.id,model});
   }
   if(message.type==='section'){
    const columns=[];
@@ -68,3 +61,7 @@ self.onmessage=async({data:message})=>{
   }
  }catch(error){postMessage({type:'error',id:message.id,message:error.message})}
 };
+
+
+
+

@@ -1,3 +1,7 @@
+import {temperatureWindow} from './temperature-window.js';
+import {constructionChart} from './construction.js';
+import {solidificationHistory} from './solidification.js';
+import {reactionReferences} from './reaction-data.js';
 import { systems, filterSystems } from './systems.js';
 import { phaseSpaceChart } from './phase-space.js';
 import { fractionsChart, fractionValues } from './fractions.js';
@@ -38,13 +42,11 @@ function endpointControls(){
 }
 function fromDisplay(values){return state.basis==='mass'?toMoles(values,state.model.masses):normalize(values)}
 function updateWindow(){
- const limits=[state.model.T[0],state.model.T.at(-1)];
- if(el('temperatureWindow').value==='solidification'){
-  const t=thresholds(state.profiles[state.selected]);
-  if(t.solidus&&t.liquidus){limits[0]=Math.max(limits[0],Math.floor(t.solidus[0]-20));limits[1]=Math.min(limits[1],Math.ceil(t.liquidus[1]+30))}
- }
- limits[0]=Math.min(limits[0],state.model.T[state.ti]);limits[1]=Math.max(limits[1],state.model.T[state.ti]);
- state.window=limits;
+ state.window=temperatureWindow(state.model,state.columns,el('temperatureWindow').value,[Number(el('windowMin').value),Number(el('windowMax').value)]);
+ el('manualWindow').hidden=el('temperatureWindow').value!=='manual';
+ const t=state.model.T[state.ti],outside=t<state.window[0]||t>state.window[1];
+ el('windowHint').textContent=(outside?'Ablesetemperatur außerhalb des Diagrammbereichs. ':'')+'Die Achsen bleiben bei der Temperatur- und Punktwahl fest. Unterste Grenze des Datenmodells: '+fmt(state.model.T[0])+' °C; Vorgänge darunter sind nicht berechnet.';
+
 }
 function chartState(){
  state.current=solve(state.model,currentComposition(),state.ti);
@@ -76,6 +78,11 @@ function updatePoints(){
  el('dockComposition').textContent=pointLabel(state.selected)+' · '+compositionLabel(currentComposition(),state);
 }
 
+function renderFormation(){
+ const h=solidificationHistory(state);
+ el('formation').innerHTML='<h3>Erstarrungsfolge aus dem Modell</h3><p>Erste ausgeschiedene Phase: '+escape(h.firstPrimary.join(' + ')||'im Modellbereich nicht aufgelöst')+'.</p><table><thead><tr><th>Temperatur / °C</th><th>Vorgang</th><th>Phasen</th></tr></thead><tbody>'+h.stages.map(s=>'<tr><td>'+fmt(s.low)+'–'+fmt(s.high)+'</td><td>'+escape(s.kind)+'</td><td>'+escape(s.signature)+'</td></tr>').join('')+'</tbody></table><p>Phasenanteile sind Gleichgewichtsgrößen. Primärkristalle und gemeinsam erstarrte Gemische sind Gefügebestandteile; ihre Form hängt zusätzlich von Wärmefluss, Keimbildung und Diffusion ab.</p>';
+}
+
 function renderResults(){
  const basis=state.basis==='mass'?'Massenanteil':'Stoffmengenanteil';
  const range=b=>b ? (b[0]===b[1]?fmt(b[0]):fmt(b[0])+'–'+fmt(b[1]))+' °C' : 'außerhalb des Modellbereichs';
@@ -100,9 +107,9 @@ function render(){
  const result=sectionChart(state);
  el('plot').innerHTML=result.image;
  el('legend').innerHTML=result.legend.map(name=>'<span><i class="swatch" style="background:'+fieldColor(name)+'"></i>'+escape(name)+'</span>').join('');
- if(!state.binary)el('triangle').innerHTML=triangleChart(state);
- el('phase3D').innerHTML=state.binary?'':phaseSpaceChart(state);el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);el('microstructure').innerHTML=microstructureChart(state);fractionReadout(state.ti);renderResults();
- el('resolution').textContent='Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Die Linien werden innerhalb der Stützintervalle formtreu interpoliert.';
+ if(!state.binary){el('triangle').innerHTML=triangleChart(state);el('reactionReferences').hidden=!state.reactionLines;el('reactionReferences').innerHTML='<summary>Reaktionspunkte · NIST-Literaturwerte</summary><table><thead><tr><th>Punkt</th><th>Temperatur / °C</th><th>Reaktion beim Abkühlen</th></tr></thead><tbody>'+reactionReferences(state.model).map(e=>'<tr><td>'+e.label+'</td><td>'+fmt(e.t)+'</td><td>'+escape(e.reaction)+'</td></tr>').join('')+'</tbody></table><p>Die Markierungen zeigen Literaturzusammensetzungen der Schmelze. Modellinterpolation und Literaturwerte können abweichen. U bezeichnet eine Übergangsreaktion.</p>'}
+ el('phase3D').innerHTML=state.binary?'':phaseSpaceChart(state);el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);el('microstructure').innerHTML=microstructureChart(state);el('construction').innerHTML=constructionChart(state);renderFormation();fractionReadout(state.ti);renderResults();
+ el('resolution').textContent='Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
  el('cutDescription').textContent=state.binary ? 'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt '+elementSymbol(state.model.components[0])+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
 }
 
@@ -137,9 +144,8 @@ function referencePoints(){
   else pure.push({name:'Eutektikum · NIST-Referenz 226,8 °C',x:mass([.9911,.0089])},{name:'Cu₆Sn₅ · peritektische Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]},{name:'Peritektische Schmelze · NIST-Referenz 415 °C',x:mass([.8693,.1307])});
   return pure;
  }
- return [{name:'Ternäres Eutektikum · NIST-Referenz 215,9 °C',x:mass([.0373,.0085,.9542])},
-  {name:'Ag₃Sn · Verbindung',x:[.75,0,.25]},{name:'Cu₆Sn₅ · Verbindung',x:[0,.545,.455]},
-  ...m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}))];
+ return [...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literatur '+fmt(r.t)+' °C',x:r.x})),
+ ...m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}))];
 }
 function projectOnCut(x){
  const a=display(state.a,state),b=display(state.b,state),p=display(x,state);
@@ -189,7 +195,7 @@ async function loadSystem(){
  status('Gleichgewichtsmodell wird geladen und lokal entpackt …');
  const answer=await request('load',{key});
  if(id!==loadId)return;
- state.model=answer.model;state.binary=state.model.components.length===2;
+ state.model=answer.model;el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
  state.a=state.binary?[0,1]:[0,0,1];state.b=state.binary?[1,0]:key==='pbsnbi'?[.611,.389,0]:[.08,.02,.9];
  state.lambdas=[.35,.65];state.activeId='x0';state.visibleIds=new Set(['x0','x1']);exactLambda=null;state.selected=0;
  state.ti=nearest(state.model.T,state.binary?200:220);
@@ -197,7 +203,7 @@ async function loadSystem(){
  specials=referencePoints();el('special').innerHTML=specials.map((p,i)=>'<option value="'+i+'">'+escape(p.name)+'</option>').join('');
  el('useSpecial').textContent=state.binary?'Punkt wählen':'Schnitt durch Ziel legen';
  endpointControls();
- el('side3D').innerHTML=[[0,1,0],[1,2,120],[2,0,240]].map(([a,b,yaw])=>'<option value="'+yaw+'">'+elementSymbol(state.model.components[a])+'–'+elementSymbol(state.model.components[b])+'</option>').join('');
+ el('side3D').innerHTML='<option value="free">Freie Perspektive</option>'+[[0,1,0],[1,2,240],[2,0,120]].map(([a,b,yaw])=>'<option value="'+yaw+'">'+elementSymbol(state.model.components[a])+'–'+elementSymbol(state.model.components[b])+'</option>').join('');
  await rebuildSection();
  if(!state.binary)rebuildSurface().catch(fail);
 }
@@ -239,6 +245,12 @@ el('exactCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setP
 el('leftCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setPoint(exactLambda-Number(el('offset').value)/100,false)};
 el('rightCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setPoint(exactLambda+Number(el('offset').value)/100,false)};
 el('temperatureWindow').onchange=()=>render();
+for(const id of ['windowMin','windowMax'])el(id).onchange=()=>{if(Number(el('windowMax').value)>Number(el('windowMin').value))render()};
+el('reactionLines').onchange=()=>{state.reactionLines=el('reactionLines').checked;render()};
+state.reactionLines=true;state.binaryFields=true;
+el('binaryFields').onchange=()=>{state.binaryFields=el('binaryFields').checked;el('phase3D').innerHTML=phaseSpaceChart(state)};
+el('growth').onchange=()=>{state.growth=el('growth').value;render()};
+el('nucleation').onchange=()=>{state.nucleation=el('nucleation').value;render()};
 el('supportPoints').onchange=()=>{state.supportPoints=el('supportPoints').checked;render()};
 el('fractionMode').onchange=()=>{state.fractionMode=el('fractionMode').value;render()};
 el('morphology').onchange=()=>{state.morphology=el('morphology').value;render()};
@@ -301,11 +313,11 @@ el('plot').onpointerup=()=>{dragPoint=null};
 el('plot').onpointercancel=()=>{dragPoint=null};
 let orbit=null;
 el('phase3D').onpointerdown=e=>{orbit=[e.clientX,e.clientY,state.camera.yaw,state.camera.pitch];el('phase3D').setPointerCapture(e.pointerId)};
-el('phase3D').onpointermove=e=>{if(!orbit||!el('phase3D').hasPointerCapture(e.pointerId))return;state.camera.yaw=orbit[2]+(e.clientX-orbit[0])*.5;state.camera.pitch=Math.max(5,Math.min(85,orbit[3]-(e.clientY-orbit[1])*.4));el('phase3D').innerHTML=phaseSpaceChart(state)};
+el('phase3D').onpointermove=e=>{if(!orbit||!el('phase3D').hasPointerCapture(e.pointerId))return;el('side3D').value='free';state.camera.yaw=orbit[2]+(e.clientX-orbit[0])*.5;state.camera.pitch=Math.max(5,Math.min(85,orbit[3]-(e.clientY-orbit[1])*.4));el('phase3D').innerHTML=phaseSpaceChart(state)};
 el('phase3D').onpointerup=()=>{orbit=null};el('phase3D').onpointercancel=()=>{orbit=null};
-el('phase3D').onkeydown=e=>{const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[e.key];if(!d)return;e.preventDefault();state.camera.yaw+=d[0];state.camera.pitch=Math.max(5,Math.min(85,state.camera.pitch+d[1]));el('phase3D').innerHTML=phaseSpaceChart(state)};
-el('reset3D').onclick=()=>{state.camera={yaw:35,pitch:28};el('phase3D').innerHTML=phaseSpaceChart(state)};
-el('side3D').onchange=()=>{state.camera={yaw:Number(el('side3D').value),pitch:5};el('phase3D').innerHTML=phaseSpaceChart(state)};
+el('phase3D').onkeydown=e=>{const d={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[e.key];if(!d)return;e.preventDefault();el('side3D').value='free';state.camera.yaw+=d[0];state.camera.pitch=Math.max(5,Math.min(85,state.camera.pitch+d[1]));el('phase3D').innerHTML=phaseSpaceChart(state)};
+el('reset3D').onclick=()=>{el('side3D').value='free';state.camera={yaw:35,pitch:28};el('phase3D').innerHTML=phaseSpaceChart(state)};
+el('side3D').onchange=()=>{if(el('side3D').value==='free')return;state.camera={yaw:Number(el('side3D').value),pitch:5};el('phase3D').innerHTML=phaseSpaceChart(state)};
 
 async function saveGraphic(id,type){
  const source=el(id).querySelector('svg').cloneNode(true);
@@ -317,8 +329,8 @@ async function saveGraphic(id,type){
  }
  const a=document.createElement('a');a.href=URL.createObjectURL(output);a.download='Legierungsatlas-'+id+'.'+type;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),30000);
 }
-const exporter=WDExports.mount({anchor:el('exports'),defaultItem:'plot',items:['plot','triangle','cool','fractions','microstructure','phase3D'].map((id,i)=>({
- id,label:['Gehaltsschnitt','Gehaltsdreieck','Abkühlverläufe','Phasenanteile','Gefügeskizze','3D-Liquidusfläche'][i],enabled:()=>!busy&&(id!=='phase3D'||!!state.surface)&&!!el(id).querySelector('svg')&&!el(id).closest('[hidden]'),save:type=>saveGraphic(id,type)
+const exporter=WDExports.mount({anchor:el('exports'),defaultItem:'plot',items:['plot','triangle','cool','fractions','microstructure','phase3D','construction'].map((id,i)=>({
+ id,label:['Gehaltsschnitt','Gehaltsdreieck','Abkühlverläufe','Phasenanteile','Gefügeskizze','3D-Liquidusfläche','Phasenbilanz'][i],enabled:()=>!busy&&(id!=='phase3D'||!!state.surface)&&!!el(id).querySelector('svg')&&!el(id).closest('[hidden]'),save:type=>saveGraphic(id,type)
 }))});
 
 let favorites=[];
@@ -344,3 +356,9 @@ function initializeLibrary(){
 }
 
 initializeLibrary();loadSystem().catch(fail);
+
+
+
+
+
+

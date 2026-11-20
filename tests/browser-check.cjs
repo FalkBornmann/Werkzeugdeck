@@ -18,6 +18,32 @@ const server=require('node:http').createServer(async(req,res)=>{
  await page.screenshot({path:path.join(out,'desktop.png'),fullPage:true});
 
  assert.equal(await page.locator('#triangle [data-axis]').count(),3);
+ assert.ok(await page.locator('#triangle [data-reaction-line]').count()>4);
+ assert.ok(await page.locator('#triangle [data-reaction-arrow]').count()>3);
+ assert.ok(await page.locator('#triangle [data-reaction-point]').count()>5);
+ assert.ok(await page.locator('#phase3D [data-binary-field]').count()>10);
+ assert.ok(await page.locator('#phase3D [data-isotherm-3d]').count()>10);
+ const tickTexts=()=>page.locator('#plot text[x="58"]').allTextContents();
+ const fixedTicks=await tickTexts();
+ await page.locator('#temperatureNumber').fill('1030');await page.locator('#temperatureNumber').press('Tab');
+ assert.deepEqual(await tickTexts(),fixedTicks);
+ await page.locator('#active').selectOption('s2');assert.deepEqual(await tickTexts(),fixedTicks);
+ await page.locator('#active').selectOption('x0');
+ await page.locator('#temperatureNumber').fill('220');await page.locator('#temperatureNumber').press('Tab');
+ assert.deepEqual(await tickTexts(),fixedTicks);
+ for(const [value,a,b,other] of [['0',0,1,2],['240',1,2,0],['120',2,0,1]]){
+  await page.locator('#side3D').selectOption(value);
+  const depths=await page.locator('#phase3D [data-vertex]').evaluateAll(ns=>Object.fromEntries(ns.map(n=>[n.dataset.vertex,Number(n.dataset.depth)])));
+  assert.ok(depths[a]<depths[other]&&depths[b]<depths[other]);
+  assert.ok(Math.abs(depths[a]-depths[b])<1e-7);
+ }
+ await page.locator('#phase3D').screenshot({path:path.join(out,'binary-side.png')});
+ await page.locator('#reset3D').click();
+ await page.locator('#phase3D').screenshot({path:path.join(out,'phase-space-v4.png')});
+ await page.locator('#triangle').screenshot({path:path.join(out,'liquidus-v4.png')});
+ await page.locator('#plot').screenshot({path:path.join(out,'section-v4.png')});
+ await page.locator('#construction').screenshot({path:path.join(out,'construction-v4.png')});
+ console.log('Reaction topology, stable axes, front-facing binary planes, 3D isotherms and construction passed');
  const endpointValues=await page.locator('#endpointA input').evaluateAll(nodes=>nodes.map(n=>n.value));
  const triangleBox=await page.locator('#triangle svg').boundingBox();
  await page.mouse.click(triangleBox.x+triangleBox.width*.6,triangleBox.y+triangleBox.height*.5);
@@ -117,8 +143,8 @@ const server=require('node:http').createServer(async(req,res)=>{
 
  assert.equal(await page.locator('[data-export-format] option[value="video"]').count(),0);
  assert.equal(await page.locator('#play').count(),0);
- for(const id of ['triangle','cool','fractions','microstructure']){
-   if(id==='triangle')continue; // binary systems hide the triangle; the ternary export is checked separately below
+ for(const id of ['triangle','cool','fractions','microstructure','construction','phase3D']){
+   if(id==='triangle'||id==='phase3D')continue; // binary systems hide the triangle; the ternary export is checked separately below
    await page.locator('[data-export-object]').selectOption(id);
    for(const type of ['svg','png']){
      await page.locator('[data-export-format]').selectOption(type);
@@ -133,6 +159,10 @@ const server=require('node:http').createServer(async(req,res)=>{
  await page.locator('#positionNumber').fill('50');await page.locator('#positionNumber').press('Tab');
  await page.locator('#temperatureNumber').fill('100');await page.locator('#temperatureNumber').press('Tab');
  assert.match(await page.locator('#microstructure').innerText(),/Lamellares|eutektisches/);
+ const coarse=await page.locator('#microstructure').innerHTML();
+ await page.locator('#growth').selectOption('directed');await page.locator('#nucleation').selectOption('high');
+ assert.notEqual(await page.locator('#microstructure').innerHTML(),coarse);
+ await page.locator('#growth').selectOption('equiaxed');await page.locator('#nucleation').selectOption('medium');
  assert.match(await page.locator('#fractionReadout').innerText(),/100 °C/);
  const total=await page.locator('#fractionReadout tbody td:last-child').allTextContents();
  assert.ok(Math.abs(total.reduce((sum,s)=>sum+parseFloat(s.replace(',','.')),0)-100)<.05);
@@ -207,3 +237,5 @@ const server=require('node:http').createServer(async(req,res)=>{
  console.log('Mobile, dock, salt conversion, searchable library and simpler ternary model passed');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
+
+

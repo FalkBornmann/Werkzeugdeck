@@ -41,8 +41,8 @@ export function ribbonPath(points) {
     'L' + [points.at(-1)[0], points.at(-1)[2]].join(' ') +
     lower.reverse().map(c => 'C' + c.join(' ')).join('') + 'Z';
 }
-export function joinContours(segments) {
-  const key = p => p.map(v => Math.round(v * 1e8)).join(',');
+export function joinContours(segments, dimensions) {
+  const key = p => (dimensions?p.slice(0,dimensions):p).map(v => Math.round(v * 1e8)).join(',');
   const links = new Map();
   segments.forEach((segment, index) => segment.forEach(point => {
     const k = key(point);
@@ -151,3 +151,5 @@ export function simplifyContour(points, tolerance = 2) {
   return [...simplifyContour(points.slice(0,furthest+1),tolerance).slice(0,-1),
     ...simplifyContour(points.slice(furthest),tolerance)];
 }
+
+

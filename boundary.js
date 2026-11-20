@@ -21,7 +21,14 @@ export function boundaryAt(model,x,kind='liquidus'){return boundaryFromSeries(pr
 // No free smoothing of individual isotherms: they are contours of one scalar surface.
 export function surfaceTemperature(surface,x){
  if(!surface)return null;
- const {nodes,triangles}=surface;
+ const {nodes,triangles,n}=surface;
+ if(n){
+  const u=Math.max(0,Math.min(n,x[1]*n)),v=Math.max(0,Math.min(n,x[2]*n));
+  const i=Math.min(n-1,Math.floor(u)),j=Math.min(n-1-i,Math.floor(v)),f=u-i,g=v-j;
+  const at=(a,b)=>nodes[b*(n+1)-b*(b-1)/2+a].value;
+  if(f+g<=1+1e-9)return (1-f-g)*at(i,j)+f*at(i+1,j)+g*at(i,j+1);
+  return (1-g)*at(i+1,j)+(f+g-1)*at(i+1,j+1)+(1-f)*at(i,j+1);
+ }
  for(const face of triangles){
   const p=face.map(i=>nodes[i]),a=p[0].x,b=p[1].x,c=p[2].x;
   if(p.some(n=>n.value===null))continue;
@@ -46,3 +53,5 @@ export function residualPath(series){
  }
  return points;
 }
+
+
