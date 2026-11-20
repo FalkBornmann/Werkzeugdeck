@@ -289,7 +289,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Glatte Phasengrenzen, Literaturisothermen, geometrisches Salzmodell und freie Gehaltsschnitte mit festen Dreiecksankern erkunden; die Schnittliquiduslinie folgt in der 3D-Ansicht.",
+      "description": "Elf Metall- und Salzsysteme mit glatten Phasengrenzen, freien Gehaltsschnitten, 3D-Liquidusfläche und lokaler Mengenrechnung vergleichen; Auswahlhilfe für weitere Werkstoffe.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -302,10 +302,14 @@
         "AlCl₃",
         "Salzschmelze",
         "Eutektikum",
-        "Peritektikum"
+        "Peritektikum",
+        "Hartlot",
+        "Weichlot",
+        "Mischkristall",
+        "Bismut"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "1ad0470866af456f2e11413bc0a2889fb204966f",
+      "revision": "a22e9a3dabb72b83498886407f4daa69a54b2e39",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -345,7 +349,31 @@
         "sac-solidus.json.gz",
         "pbsnbi-solidus.json.gz",
         "bisn-solidus.json.gz",
-        "cusn-solidus.json.gz"
+        "cusn-solidus.json.gz",
+        "agcu-hulls.json.gz",
+        "agcu-solidus.json.gz",
+        "agsn-hulls.json.gz",
+        "agsn-solidus.json.gz",
+        "pbsn-hulls.json.gz",
+        "pbsn-solidus.json.gz",
+        "bipb-hulls.json.gz",
+        "bipb-solidus.json.gz",
+        "agbisn-hulls-index.json",
+        "agbisn-hulls-part-1.json.gz",
+        "agbisn-hulls-part-2.json.gz",
+        "agbisn-hulls-part-3.json.gz",
+        "agbisn-hulls-part-4.json.gz",
+        "agbisn-hulls-part-5.json.gz",
+        "agbisn-liquidus.json.gz",
+        "agbisn-solidus.json.gz",
+        "bicusn-hulls-index.json",
+        "bicusn-hulls-part-1.json.gz",
+        "bicusn-hulls-part-2.json.gz",
+        "bicusn-hulls-part-3.json.gz",
+        "bicusn-hulls-part-4.json.gz",
+        "bicusn-hulls-part-5.json.gz",
+        "bicusn-liquidus.json.gz",
+        "bicusn-solidus.json.gz"
       ],
       "aliases": []
     },
