@@ -288,7 +288,8 @@ el('rightCompare').onclick=()=>{exactLambda??=state.lambdas[state.selected];setP
 el('temperatureWindow').onchange=()=>render();
 for(const id of ['windowMin','windowMax'])el(id).onchange=()=>{if(Number(el('windowMax').value)>Number(el('windowMin').value))render()};
 el('reactionLines').onchange=()=>{state.reactionLines=el('reactionLines').checked;render()};
-state.reactionLines=true;state.binaryFields=true;
+state.reactionLines=true;state.binaryFields=true;state.sectionPlane=true;
+el('sectionPlane').onchange=()=>{state.sectionPlane=el('sectionPlane').checked;el('phase3D').innerHTML=phaseSpaceChart(state)};
 el('binaryFields').onchange=()=>{state.binaryFields=el('binaryFields').checked;el('phase3D').innerHTML=phaseSpaceChart(state)};
 el('growth').onchange=()=>{state.growth=el('growth').value;render()};
 el('nucleation').onchange=()=>{state.nucleation=el('nucleation').value;render()};
