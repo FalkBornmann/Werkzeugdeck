@@ -1,3 +1,4 @@
+import {surfaceTemperature,boundaryFromSeries} from './boundary.js';
 import {svg,text,line,fieldColor,display,fmt,pointColors} from './render.js';
 import {elementSymbol} from './symbols.js';
 import {phaseBands,bandTracks,ribbonPath,smoothGraph} from './geometry.js';
@@ -72,21 +73,16 @@ export function phaseSpaceChart(state){
  for(let k=0;k<=5;k++){const t=low+(high-low)*k/5,p=project(vertices[front],t);body+=text(p[0]-9,p[1]+4,fmt(t,0),11,'end')}
  const a0=project(state.a,low),b0=project(state.b,low),a1=project(state.a,high),b1=project(state.b,high);
  body+='<path d="M'+a0.slice(0,2).join(' ')+'L'+b0.slice(0,2).join(' ')+'L'+b1.slice(0,2).join(' ')+'L'+a1.slice(0,2).join(' ')+'Z" fill="#347aa0" fill-opacity=".06" stroke="#26627e" stroke-width="1" stroke-dasharray="5 4"/>';
+ // Liquidus intersection of the selected vertical section and the common surface.
+ let cut='',connected=false;
+ for(const column of state.columns||[]){
+  const t=surfaceTemperature(surface,column.x);
+  if(t===null||!Number.isFinite(t)){connected=false;continue}
+  const q=project(column.x,t);cut+=(connected?'L':'M')+q.slice(0,2).join(' ');connected=true;
+ }
+ if(cut)body+='<path data-cut-liquidus d="'+cut+'" fill="none" stroke="white" stroke-width="5"/><path data-cut-liquidus d="'+cut+'" fill="none" stroke="#b62c32" stroke-width="3"><title>Liquiduslinie des gewählten Schnitts S₁–S₂</title></path>';
  state.points.forEach((x,i)=>{if(state.shown&&!state.shown.includes(i))return;const p=project(x,state.model.T[state.ti]);body+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="'+pointColors[i]+'"/>'+text(p[0]+7,p[1]-6,state.labels?.[i]||'X'+(i+1),12)});
  body+=text(450,530,'T / °C · Oberhalb der Liquidusfläche ist das System vollständig flüssig.',13,'middle');
- body+=text(450,553,'Randdiagramme: berechnete Phasenfelder · Schnittebene S₁–S₂ blau · keine Phasenvolumina',11,'middle');
+ body+=text(450,553,'Randdiagramme: berechnete Phasenfelder · Schnittebene blau · Schnittliquidus rot · keine Phasenvolumina',11,'middle');
  return svg(body,900,575,'Drehbare Liquidusfläche mit Isothermen und binären Phasenfeldflächen');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

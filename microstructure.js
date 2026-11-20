@@ -47,6 +47,7 @@ function choose(phases, value) {
   return phases.at(-1);
 }
 export function microstructureChart(state) {
+ if(state.current?.unavailable)return svg(text(40,90,'Kein Gefügemodell außerhalb des belegten Isothermenbereichs.',17),900,210);
   const sample = state.current;
   const cells=grains(({low:12,medium:22,high:48})[state.nucleation||'medium'],state.growth==='directed');
   const formation=solidificationHistory(state);
@@ -153,7 +154,3 @@ export function microstructureChart(state) {
   body += text(30, 431, 'Korngröße, Lamellenabstand und reale räumliche Verteilung sind nicht berechnet.', 12);
   return svg(body, 900, Math.max(450, 130 + phases.length * 43), 'Schematisches mögliches Gefüge mit berechneten Phasenanteilen');
 }
-
-
-
-

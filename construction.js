@@ -2,6 +2,7 @@ import {svg,text,line,trianglePoint,escape,fmt,pointColors,phaseColor} from './r
 import {elementSymbol} from './symbols.js';
 import {solidificationHistory} from './solidification.js';
 export function constructionChart(state){
+ if(state.current?.unavailable)return svg(text(40,90,'Keine Bilanzkonstruktion außerhalb des belegten Isothermenbereichs.',17),900,210);
  const phases=state.current.phases,history=solidificationHistory(state);
  let body=text(40,27,'Vom Phasendiagramm zur Mengenbilanz',19);
  body+=text(40,51,'Phasenzusammensetzungen und Gesamtgehalt bei '+fmt(state.model.T[state.ti])+' °C',12);
@@ -29,6 +30,3 @@ export function constructionChart(state){
  body+=text(40,436,'Massenwerte werden aus den molaren Phasenmengen und Phasenzusammensetzungen umgerechnet.',11);
  return svg(body,900,460,'Geometrische Phasenbilanz mit Konoden und Phasenzusammensetzungen');
 }
-
-
-

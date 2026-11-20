@@ -11,6 +11,7 @@ export function fractionValues(state, index = state.ti) {
   }));
 }
 export function fractionsChart(state) {
+ if(state.current?.unavailable)return svg(text(40,90,'Keine Phasenmengen außerhalb des belegten Isothermenbereichs.',17),900,210);
   const series = state.profiles[state.selected], values = fractionValues(state);
   const [low, high] = state.window;
   const X = temperature => 70 + 580 * (high - temperature) / (high - low);

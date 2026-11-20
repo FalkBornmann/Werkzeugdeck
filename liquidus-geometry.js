@@ -6,7 +6,14 @@ export function liquidusGeometry(surface,interval=50){
  let map=cache.get(surface);if(!map){map=new Map();cache.set(surface,map)}
  if(map.has(interval))return map.get(interval);
  const vals=surface.nodes.map(n=>n.value).filter(Number.isFinite),isotherms=[];
- for(let t=Math.ceil(Math.min(...vals)/interval)*interval;t<=Math.max(...vals);t+=interval)
+ if(surface.sourceIsotherms){
+  const groups=new Map();
+  for(const iso of surface.sourceIsotherms)if(Math.abs(iso.t/interval-Math.round(iso.t/interval))<1e-6){
+   if(!groups.has(iso.t))groups.set(iso.t,[]);groups.get(iso.t).push(...iso.paths);
+  }
+  for(const [t,paths] of [...groups].sort((a,b)=>a[0]-b[0]))isotherms.push({t,paths});
+ }
+ else for(let t=Math.ceil(Math.min(...vals)/interval)*interval;t<=Math.max(...vals);t+=interval)
   isotherms.push({t,paths:joinContours(contourSegments(surface.nodes,surface.triangles,t))});
  const reactions=[];
  for(const [pair,segments] of Object.entries(surface.reactionSegments||{})){
@@ -21,4 +28,3 @@ export function liquidusGeometry(surface,interval=50){
  }
  const result={isotherms,reactions};map.set(interval,result);return result;
 }
-

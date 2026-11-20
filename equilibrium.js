@@ -1,3 +1,4 @@
+import {solveDiagram} from './diagram-model.js';
 import { elementSymbol } from './symbols.js';
 // Local lever-rule / barycentric balance on the sampled Gibbs-energy lower hull.
 export const EPS = 1e-7;
@@ -45,6 +46,7 @@ function indexFrame(model, frame) {
   return bins;
 }
 export function solve(model, compositionValue, ti) {
+  if(model.diagramModel)return solveDiagram(model,compositionValue,ti);
   const frame=model.frames[ti], dimensionality=model.components.length-1;
   const x=compositionValue[0],y=compositionValue[1];
   const candidates=dimensionality===1 ? frame.faces.map((_,i)=>i) : indexFrame(model,frame)[Math.min(19,Math.floor(y*20))*20+Math.min(19,Math.floor(x*20))];

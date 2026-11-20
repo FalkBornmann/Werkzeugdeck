@@ -1,3 +1,4 @@
+import {diagramSetup,diagramLiquidus,solveDiagram} from './diagram-model.js';
 import { transitionEstimate } from './geometry.js';
 import { boundaryFromSeries } from './boundary.js';
 import {solve,profile,interpolate,toMoles,toMass,phaseName} from './equilibrium.js';
@@ -14,6 +15,12 @@ function boundary(x){
  return {value:root?.temperature??(model.T[lo]+model.T[hi])/2,bracket:[model.T[lo],model.T[hi]],primary:solids?.[0]?.name||''};
 }
 function makeSurface(){
+ if(model.diagramModel){
+  const surface=model.diagram;
+  if(!surface.nodes.some(n=>n.primary))for(const node of surface.nodes){if(node.value===null)continue;const ti=Math.max(0,model.T.findLastIndex(t=>t<node.value-.5));const sample=solveDiagram(model,node.x,ti);node.primary=sample.phases.filter(p=>p.raw!=='LIQUID').sort((a,b)=>b.fraction-a.fraction)[0]?.name||'Modellprimärfeld'}
+  return {...surface,edges:makeEdges()};
+ }
+
  const {n}=atlas,nodes=[],triangles=[],drawTriangles=[],map=new Map();
  let k=0;
  for(let j=0;j<=n;j++)for(let i=0;i<=n-j;i++){
@@ -26,24 +33,30 @@ function makeSurface(){
   if(i+j<n-step)target.push([map.get((i+step)+','+j),map.get((i+step)+','+(j+step)),map.get(i+','+(j+step))]);
  }};
  mesh(1,triangles);mesh(4,drawTriangles);
+ const edges=makeEdges();
+ return {nodes,triangles,drawTriangles,n,reactionSegments:atlas.reactionSegments,edges,method:atlas.method};
+}
+function makeEdges(){
  const edges=[];
  for(const [a,b] of [[0,1],[1,2],[2,0]]){
   const columns=[];
   for(let i=0;i<=80;i++){const x=[0,0,0];x[a]=1-i/80;x[b]=i/80;columns.push({x,series:profile(model,x)})}
   edges.push({a,b,columns});
  }
- return {nodes,triangles,drawTriangles,n,reactionSegments:atlas.reactionSegments,edges,method:atlas.method};
+ return edges;
 }
 self.onmessage=async({data:message})=>{
  try{
   if(message.type==='load'){
    latestLoad=message.id;
-   const response=await fetch(message.key+'-hulls.json.gz');
-   if(!response.ok)throw Error('Modelldatei konnte nicht geladen werden');
-   const loaded=await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
-   if(message.id!==latestLoad)return;
-   loaded.system=message.key;let loadedAtlas=null;
-   if(loaded.components.length===3){const r=await fetch(message.key+'-liquidus.json.gz');if(!r.ok)throw Error('Liquiduspaket konnte nicht geladen werden');loadedAtlas=await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()}
+   const read=async name=>{const r=await fetch(name);if(!r.ok)throw Error('Modelldatei konnte nicht geladen werden: '+name);return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()};
+   let loaded,loadedAtlas=null;
+   if(message.key==='salt')loaded=diagramSetup(await read('salt-diagram.json.gz'));
+   else{
+    loaded=await read(message.key+'-hulls.json.gz');loaded.system=message.key;
+    loaded.solidusDisplay=await read(message.key+'-solidus.json.gz');
+    if(loaded.components.length===3)loadedAtlas=await read(message.key+'-liquidus.json.gz');
+   }
    if(message.id!==latestLoad)return;
    model=loaded;atlas=loadedAtlas;surfaceCache=null;postMessage({type:'loaded',id:message.id,model});
   }
@@ -61,7 +74,3 @@ self.onmessage=async({data:message})=>{
   }
  }catch(error){postMessage({type:'error',id:message.id,message:error.message})}
 };
-
-
-
-

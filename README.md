@@ -48,11 +48,41 @@ Die Restschmelze wird bis zum letzten flüssigen Modellzustand verfolgt. Eine au
 
 In erkennbaren binären und ternären eutektischen Enderstarrungen unterscheidet die Gefügeskizze Primärkristalle und eutektisches Gemisch. Ein vorausgeschiedener ternärer Anteil kann bereits mehrere Phasen enthalten. Die automatische Skizze berücksichtigt vorhandene peritektische Kerne und Produkte. Eine Tabelle zeigt die berechnete Phasenfolge; eine eigene Vektorgrafik erläutert Hebelgesetz und Konodendreieck. Keimbildung und gerichteter Wärmefluss sind qualitative Bildoptionen. Die näherungsweise Erstarrungsbilanz stammt aus der letzten Restschmelze, nicht aus den aktuellen Gesamtphasenanteilen. Sie ist keine Berechnung räumlicher Morphologie oder von Volumenanteilen. Grundlage: Bargel/Siemer, Werkstoffkunde, 14. Auflage, Abschnitte 1.3 und 1.6, doi:10.1007/978-3-662-71672-4.
 
-## Salzreferenz
+## Salzmodell aus Isothermen
 
-AlCl₃–NaCl–KCl zeigt den veröffentlichten Schnitt bei 40 mol-% AlCl₃ und 1 bar aus ORNL/SPR-2021/2102, Abb. 6. Linien wurden aus der Grafik abgelesen und zwischen den Stützstellen linear verbunden. Robelin, Chartrand und Pelton (2004), doi:10.1016/j.jct.2004.04.011 liefert die Stoffdaten (Tabelle 1), optimierte Wechselwirkungsparameter (Gleichungen 12, 17, 18, 20, 21) und Vergleichsschnitte. Eine freie Salzrechnung erfordert noch die Umsetzung des referenzierten modifizierten quasichemischen Formalismus und dessen Validierung. Die vom Nutzer bereitgestellte Verlags-PDF wird nicht mitveröffentlicht.
+NaCl–KCl–AlCl₃ wird als geometrisches Übersichtsmodell aus Abb. 21 und Tabelle 6 von Robelin, Chartrand und Pelton (2004), doi:10.1016/j.jct.2004.04.011, rekonstruiert. Es verwendet 343 numerische Isothermenstützstellen, Verbindungen und Referenzeutektika. Die Original-PDF und Quellenabbildungen werden nicht mitveröffentlicht.
 
-Prüffall aus Abb. 18: quasibinär NaAlCl₄–KAlCl₄, Reinstoff-Schmelzpunkte 156,7 / 257,3 °C, Eutektikum 133,2 °C bei x(KAlCl₄)=0,278. In diesem Teilsystem nehmen die Autoren keine gegenseitige feste Löslichkeit an. Diese Literaturwerte sind noch kein berechnetes Salzmodell. Massenumrechnung und Vergleichspunkte stehen für den belegten Schnitt zur Verfügung.
+Die Quellisothermen werden geometrisch beruhigt; formtreue Profile entlang fester NaCl/KCl-Verhältnisse verbinden sie zur Liquidusfläche. Bei zweimal geschnittenen gleichen Isothermen wird ein sanftes Tal innerhalb des benachbarten 25-K-Stützabstands angenähert. Diese zusätzliche Talform ist eine Annahme. Die gezeichneten Isothermen bleiben Literaturstützlinien, keine neuen Messwerte.
+
+Die Projektion allein bestimmt keine eindeutigen Mengen. Die zusätzliche Regel wählt den größten geometrisch zulässigen Schmelzanteil, dessen Zerlegung mit festen NaCl-, KCl-, NaAlCl₄-, KAlCl₄- und AlCl₃-Bilanzpunkten den Gesamtgehalt ergibt. Vorhandene NaCl/KCl-Festanteile werden näherungsweise mit dem binären Überschuss-Gibbsmodell aus Gleichung (13) der Veröffentlichung in einen oder zwei Mischkristalle aufgeteilt. Die Komponenten- und Massenbilanz bleibt erfüllt; der gesamte Zustand ist keine thermodynamische Gibbs-Minimierung. Felder unterdrücken Spuren unter 0,3 % und beruhigen Einzelspalten innerhalb derselben Schmelzklasse. Die Mengenwerte bleiben davon getrennt.
+
+Abkühlkurven verwenden ein normiertes Wärmeabfuhrmaß: normierter sensibler Anteil plus 0,6 mal Schmelzanteil. Die Annahme dient der Darstellung von Knicken und Halten, nicht der Vorhersage von Sekunden oder kJ/mol. Volumenanteile und reale Gefügestruktur sind nicht bestimmt.
+
+Der durch die erfassten Isothermen nicht ausreichend belegte Bereich oberhalb 74 mol-% AlCl₃ bleibt grau und liefert keine Mengenprognose. Gas und Flüssig–Flüssig-Entmischung fehlen; die Zustände beschreiben kondensierte Modellphasen. Ein flüssiger Modellzustand schließt Verdampfung nicht aus.
+
+Referenzen: E₁ 132,1 °C bei x=(0,364 / 0,138 / 0,498); E₂ 91,4 °C bei (0,255 / 0,142 / 0,603); E₃ 241,47 °C bei (0,002 / 0,512 / 0,486). Quasibinär NaAlCl₄–KAlCl₄: E 133,2 °C bei x(KAlCl₄)=0,278; Endglieder 156,7 / 257,3 °C. Der Referenzschnitt bei 40 mol-% AlCl₃ ist außerdem in ORNL/SPR-2021/2102, Abb. 6 dokumentiert.
+
+Reproduktion mit einer eigenen Kopie der Veröffentlichung:
+
+    python build-salt-diagram.py path/to/Robelin2004.pdf
+
+## Glatte Anschmelzgrenzen und Felder
+
+Für die vier Metallmodelle werden zusätzlich direkte Flüssigauftretens-Gleichgewichte eingegrenzt. Ternäre Anschmelzäste werden nach ihrem festen Phasenbestand getrennt interpoliert; dadurch werden reale Reaktionssprünge nicht zu falschen Rampen verschmiert. Der lokale numerische Temperaturbereich prüft die Astzuordnung. Übrige Feldgrenzen werden mit einer Krümmungsstrafe gemeinsam geglättet. Liquidus, Anschmelzgrenze und Verzweigungsendpunkte haben Vorrang. Die benachbarten Flächen benutzen identische Randkurven.
+
+    node solidus-seeds.mjs
+    python build-solidus.py sac
+    python build-solidus-branches.py sac
+    python build-solidus.py pbsnbi
+    python build-solidus-branches.py pbsnbi
+    python build-solidus.py bisn
+    python build-solidus.py cusn
+
+96 unabhängige Direktrechnungen prüfen die tatsächliche Browser-Anschmelzdarstellung. Maximale Abweichungen dieser Stichprobe: Ag–Cu–Sn 5,875 K, Bi–Pb–Sn 0,872 K, Sn–Bi 0,002 K und Sn–Cu 0,389 K. Das prüft eine numerische Näherung gegen dasselbe Stoffmodell, keine experimentelle Gültigkeit. Reproduktion: für jedes System python validate-solidus.py SYSTEM, anschließend node validate-solidus-display.mjs.
+
+## Feste Anker im Gehaltsdreieck
+
+Ein oder zwei Anker A₁/A₂ können auf Literaturziele oder auf die aktuelle Zusammensetzung von S₁/S₂ gesetzt werden. Ein Anker erlaubt das Drehen der Schnittgeraden mit Winkelsteuerung oder durch Ziehen von S₁/S₂; zwei Anker fixieren die Gerade. Die Endpunkte sind die Randintersektionen mit dem Dreieck. X-Punkte bleiben frei auf dem Schnitt verschiebbar. Bindungen werden bei einem Systemwechsel gelöst und beim Basiswechsel physikalisch erhalten. Die rote Liquidus-Schnittlinie wird auf die blaue 3D-Schnittebene projiziert und gemeinsam aktualisiert.
 
 ## Prüfung gegen direkte Gleichgewichte
 
@@ -79,5 +109,3 @@ Nutzung als privates Lernprojekt. Quellen, Berechnungsgrenzen und Haftungshinwei
 ## Spätere Desktop-Richtung
 
 Eine gemeinsame Werkstoffkunde.exe soll den Legierungsatlas, den geplanten Aluminiumgefügerechner und geeignete weitere Werkstoffkunde-Module zusammenführen. Die aktuelle Ausbaustufe bleibt eine lokale Browseranwendung; es wird noch kein EXE-Paket erstellt. Online-Darstellung und spätere Desktop-Version sollen gemeinsame Datenformate und Diagrammkomponenten verwenden.
-
-

@@ -22,6 +22,7 @@ const server=require('node:http').createServer(async(req,res)=>{
  assert.ok(await page.locator('#triangle [data-reaction-arrow]').count()>3);
  assert.ok(await page.locator('#triangle [data-reaction-point]').count()>5);
  assert.ok(await page.locator('#phase3D [data-binary-field]').count()>10);
+ assert.ok(await page.locator('#phase3D [data-cut-liquidus]').count()>=1);
  assert.ok(await page.locator('#phase3D [data-isotherm-3d]').count()>10);
  const tickTexts=()=>page.locator('#plot text[x="58"]').allTextContents();
  const fixedTicks=await tickTexts();
@@ -192,9 +193,32 @@ const server=require('node:http').createServer(async(req,res)=>{
  const box=await page.locator('#dock').boundingBox();assert.ok(box.y+box.height<=845);
  }
  await page.locator('#system').selectOption('salt');
- await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('ORNL'));
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches Isothermenmodell'),null,{timeout:90000}).catch(async e=>{console.error('SALT STATUS',await page.locator('#status').innerText());throw e});
  await page.locator('#basis').selectOption('mole');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches Isothermenmodell'),null,{timeout:90000});
+ await page.waitForFunction(()=>document.querySelector('#phase3D [data-cut-liquidus]'),null,{timeout:90000});
+ assert.ok(await page.locator('#temperature').isEnabled());
+ assert.ok(await page.locator('#applyCut').isEnabled());
+ assert.ok(await page.locator('#special option').count()>=4);
+ await page.locator('#special').selectOption('1');await page.locator('#useSpecial').click();
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches Isothermenmodell'));
+ await page.locator('#temperatureNumber').fill('80');await page.locator('#temperatureNumber').press('Tab');
+ assert.match(await page.locator('#cool').innerText(),/Normiertes Wärmeabfuhrmaß/);
  await page.locator('#basis').selectOption('mass');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches Isothermenmodell'));
+ await page.locator('#triangleMode').selectOption('isothermal');
+ await page.locator('#triangleMode').selectOption('projection');
+ await page.locator('#cutLockControls summary').click();
+ await page.locator('#lockTarget1').selectOption('ref:0');await page.locator('#applyLocks').click();
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches'),null,{timeout:90000});
+ const anchorPath=await page.locator('#triangle [data-cut-anchor]').getAttribute('d');
+ await page.locator('#cutAngleNumber').fill('60');await page.locator('#cutAngleNumber').press('Tab');
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches'),null,{timeout:90000});
+ assert.equal(await page.locator('#triangle [data-cut-anchor]').getAttribute('d'),anchorPath);
+ await page.locator('#lockTarget2').selectOption('ref:1');await page.locator('#applyLocks').click();
+ await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Geometrisches'),null,{timeout:90000});
+ assert.equal(await page.locator('#triangle [data-cut-anchor]').count(),2);assert.ok(await page.locator('#applyCut').isDisabled());
+ await page.locator('#clearLocks').click();assert.equal(await page.locator('#triangle [data-cut-anchor]').count(),0);
  await page.screenshot({path:path.join(out,'salt-mobile.png'),fullPage:true});
 
  await page.locator('#supportPoints').check();
@@ -237,5 +261,3 @@ const server=require('node:http').createServer(async(req,res)=>{
  console.log('Mobile, dock, salt conversion, searchable library and simpler ternary model passed');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
-
-

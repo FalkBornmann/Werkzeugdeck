@@ -1,14 +1,25 @@
+import {displayedSolidus} from './solidus-display.js';
+import {smoothFieldBoundaries} from './smooth-fields.js';
 import { boundaryFromSeries, surfaceTemperature } from './boundary.js';
 import { elementSymbol } from './symbols.js';
 import { bandTracks, phaseBands, smoothGraph, ribbonPath } from './geometry.js';
 import { fieldColor, liquidColor, display, fmt, line, text, svg, pointColors } from './render.js';
 
 const prepared=new WeakMap();
-function prepare(state){
+export function prepareSection(state){
  const cached=prepared.get(state.columns);
- if(cached?.surface===state.surface)return cached.columns;
- const columns=state.columns.map(column=>{
-  const bands=phaseBands(column.series),roots={liquidus:boundaryFromSeries(column.series,'liquidus'),solidus:boundaryFromSeries(column.series,'solidus')};
+ if(cached&&cached.surface===state.surface)return cached.columns;
+ const overview=state.model.diagramModel?state.columns.map((column,i)=>column.series.map((sample,j)=>{
+  if(sample.unavailable)return sample;
+  const kind=s=>s.liquid>1-1e-7?2:s.liquid>1e-7?1:0,votes=new Map();
+  for(let k=Math.max(0,i-4);k<=Math.min(state.columns.length-1,i+4);k++){
+   const s=state.columns[k].series[j];if(!s.unavailable&&kind(s)===kind(sample))votes.set(s.signature,(votes.get(s.signature)||0)+1);
+  }
+  const signature=[...votes].sort((a,b)=>b[1]-a[1])[0]?.[0]||sample.signature;
+  return {...sample,signature};
+ })):null;
+ const columns=state.columns.map((column,i)=>{
+  const bands=phaseBands(overview?.[i]||column.series),roots={liquidus:boundaryFromSeries(column.series,'liquidus'),solidus:boundaryFromSeries(column.series,'solidus')};
   if(!state.binary&&state.surface&&roots.liquidus.length===1){
    const t=surfaceTemperature(state.surface,column.x),root=roots.liquidus[0];
    if(t!==null){
@@ -17,14 +28,19 @@ function prepare(state){
     for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=t;bands[j+1].lower=t}
    }
   }
+  if(state.model.solidusDisplay&&roots.solidus.length===1){
+   const t=displayedSolidus(state.model,column.x,roots.solidus[0],column.series);
+   if(Number.isFinite(t))roots.solidus[0].temperature=Math.min(t,roots.liquidus[0]?.temperature??Infinity);
+  }
   if(roots.liquidus.length===1)for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=roots.liquidus[0].temperature;bands[j+1].lower=roots.liquidus[0].temperature}
-  return {...column,bands,boundaries:roots};
+  return {...column,bands,rawBands:bands.map(b=>({...b})),boundaries:roots};
  });
+ smoothFieldBoundaries(columns);
  prepared.set(state.columns,{surface:state.surface,columns});return columns;
 }
 export function sectionChart(state) {
   const { model } = state;
-  const columns=prepare(state);
+  const columns=prepareSection(state);
   const [low, high] = state.window;
   const X = fraction => 65 + 790 * fraction;
   const Y = temperature => 410 - 350 * (temperature - low) / (high - low);
@@ -105,7 +121,7 @@ export function sectionChart(state) {
   }
   if (state.supportPoints) {
     columns.forEach((column, i) => {
-      column.bands.slice(1).forEach(band => {
+      column.rawBands.slice(1).forEach(band => {
         body += '<circle cx="' + X(i / count) + '" cy="' + Y(band.lower) + '" r="1.8" fill="#44392d"/>';
       });
     });
@@ -139,8 +155,6 @@ export function sectionChart(state) {
   const symbol = elementSymbol(component);
   body += text(460, 463, state.binary ? symbol + ' / ' + (state.basis === 'mass' ? 'Masse-%' : 'mol-%') :
     'Position entlang S₁–S₂ / %', 15, 'middle');
-  body += text(460, 490, 'Liquidus: gemeinsame Sättigungsfläche · weitere Grenzen aus den diskreten Gleichgewichtszuständen', 12, 'middle');
+  body += text(460, 490, 'Gemeinsame glatte Grenzkurven · Konturstützstellen und numerische Intervalle bleiben einblendbar', 12, 'middle');
   return {image: svg(body, 900, 505, 'Gehaltsschnitt mit glatten Phasenfeldgrenzen'), legend: [...legend]};
 }
-
-

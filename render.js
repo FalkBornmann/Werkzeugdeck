@@ -4,7 +4,7 @@ import { triangleAxes } from './axes.js';
 import { residualPath } from './boundary.js';
 import { joinContours, roundContour, simplifyContour } from './geometry.js';
 import { elementSymbol } from './symbols.js';
-import {toMass,composition,phaseName,contourSegments,thresholds} from './equilibrium.js';
+import {solve,toMass,composition,phaseName,contourSegments,thresholds} from './equilibrium.js';
 export const pointColors=['#8c4a12','#354fa0','#9e365b','#126957','#755ca1','#bd623a'];
 export const fmt=(value,digits=2)=>Number(value.toFixed(digits)).toLocaleString('de-DE');
 export const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
@@ -48,7 +48,12 @@ export function triangleChart(state){
  const outline=[[65,425],[755,425],[410,65]];
  body+='<defs><clipPath id="triangleClip"><path d="'+path(outline)+'"/></clipPath></defs><g clip-path="url(#triangleClip)">';
  const labels=new Map();
- if(state.triangleMode==='isothermal'){
+ if(state.triangleMode==='isothermal'&&model.diagramModel){
+  for(const face of surface?.drawTriangles||[]){const nodes=face.map(i=>surface.nodes[i]),x=[0,1,2].map(k=>nodes.reduce((s,n)=>s+n.x[k],0)/3),sample=solve(model,x,ti),name=sample.signature;
+   body+='<path d="'+path(nodes.map(n=>trianglePoint(n.x,state)))+'" fill="'+(sample.unavailable?'#e4e2df':fieldColor(name))+'" stroke="none"/>';
+   if(!sample.unavailable){const p=trianglePoint(x,state);if(!labels.has(name))labels.set(name,{centers:[]});labels.get(name).centers.push(p)}
+  }
+ }else if(state.triangleMode==='isothermal'){
   const frame=model.frames[ti],edges=new Map();
   frame.faces.forEach(face=>{
    const nodes=face.map(i=>frame.vertices[i]);
@@ -93,7 +98,7 @@ export function triangleChart(state){
    const refs=reactionReferences(model);
    refs.forEach((e,i)=>{
     const p=trianglePoint(e.x,state),color=e.kind==='E'?'#873b31':'#4d3b88';
-    body+='<circle data-reaction-point="'+e.label+'" cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="white" stroke="'+color+'" stroke-width="2"><title>'+escape(e.reaction+' · NIST '+fmt(e.t)+' °C')+'</title></circle>';
+    body+='<circle data-reaction-point="'+e.label+'" cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="white" stroke="'+color+'" stroke-width="2"><title>'+escape(e.reaction+' · Literatur '+fmt(e.t)+' °C')+'</title></circle>';
     // Dense high-temperature nodes are numbered; the table contains every temperature and reaction.
     if(refs.length<=3||i<3)body+='<g style="paint-order:stroke;stroke:white;stroke-width:4px">'+text(p[0]+8,p[1]+(i%2?-10:17),e.label+' '+fmt(e.t)+' °C',12,'start',color)+'</g>';
     else body+=text(p[0]+6,p[1]-4,e.label,10,'start',color);
@@ -108,6 +113,7 @@ export function triangleChart(state){
   body+=line(755-690*f,425,410-345*f,65+360*f,'#706354',.4);
  }
  if(state.triangleMode==='isothermal'){
+  for(const [name,label] of labels)if(label.centers?.length>15){const mean=[0,1].map(k=>label.centers.reduce((s,p)=>s+p[k],0)/label.centers.length),p=label.centers.reduce((a,b)=>Math.hypot(b[0]-mean[0],b[1]-mean[1])<Math.hypot(a[0]-mean[0],a[1]-mean[1])?b:a);body+='<g style="paint-order:stroke;stroke:white;stroke-width:3px">'+text(...p,name,11,'middle')+'</g>'}
   for(const [name,label] of labels)if(label.area>280)body+=text(...label.point,name,12,'middle');
   if(state.ties&&state.current){
    const current=state.current;
@@ -127,8 +133,13 @@ export function triangleChart(state){
  }
  body+='</g><path d="'+path(outline)+'" fill="none" stroke="#5e5144" stroke-width="1.5"/>';
  for(const [p,name] of [[a,'S₁'],[b,'S₂']])body+='<circle data-endpoint="'+name+'" cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="white" stroke="#513821" stroke-width="3"/>'+text(p[0],p[1]<100?p[1]+26:p[1]-16,name,15,'middle');
+ for(const anchor of state.cutAnchors||[]){
+  const p=trianglePoint(anchor.x,state);
+  body+='<path data-cut-anchor="'+anchor.id+'" d="M'+p[0]+' '+(p[1]-9)+'L'+(p[0]+9)+' '+p[1]+'L'+p[0]+' '+(p[1]+9)+'L'+(p[0]-9)+' '+p[1]+'Z" fill="#513821" stroke="white" stroke-width="2"><title>'+escape(anchor.label)+'</title></path>'+text(p[0]-10,p[1]-13,anchor.id==='A1'?'A₁':'A₂',14,'end');
+ }
  body+=triangleAxes(state);
- body+=text(410,516,'NIST-Gleichgewichtsmodell · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
+ if(model.diagramModel&&state.zoom==='full')body+=text(410,97,'Nicht berechnet: AlCl₃-reiche Spitze',11,'middle');
+ body+=text(410,516,''+(model.diagramModel?'Geometrisches Isothermenmodell':'NIST-Gleichgewichtsmodell')+' · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
  return svg(body,820,535,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
 }
 export function curvesChart(state){
@@ -138,22 +149,18 @@ export function curvesChart(state){
  const maxima=energies.map(e=>Math.max(...e.filter(Number.isFinite)));
  const span=Math.max(1,...energies.flatMap((e,i)=>e.filter(Number.isFinite).map(v=>(maxima[i]-v)/1000)));
  const X=q=>65+790*q/span;
- let body=text(65,25,'Abkühlverläufe · vollständiger Temperaturverlauf',18);
+ let body=text(65,25,''+(state.model.diagramModel?'Schematische Abkühlverläufe':'Abkühlverläufe · vollständiger Temperaturverlauf')+'',18);
  body+='<defs><clipPath id="curveClip"><rect x="65" y="55" width="790" height="340"/></clipPath></defs><g clip-path="url(#curveClip)">';
  profiles.forEach((series,k)=>{
   if(state.shown&&!state.shown.includes(k))return;
   let d='',connected=false;
   series.forEach(s=>{if(!Number.isFinite(s.enthalpy)){connected=false;return}d+=(connected?'L':'M')+X((maxima[k]-s.enthalpy)/1000)+' '+Y(s.temperature);connected=true});
   body+='<path d="'+d+'" fill="none" stroke="'+pointColors[k]+'" stroke-width="2.5"/>';
-  const s=series[state.ti];body+='<circle cx="'+X((maxima[k]-s.enthalpy)/1000)+'" cy="'+Y(s.temperature)+'" r="5" fill="'+pointColors[k]+'"/>';
+  const s=series[state.ti];if(Number.isFinite(s.enthalpy)&&Number.isFinite(maxima[k]))body+='<circle cx="'+X((maxima[k]-s.enthalpy)/1000)+'" cy="'+Y(s.temperature)+'" r="5" fill="'+pointColors[k]+'"/>';
  });
  body+=line(65,Y(state.model.T[state.ti]),855,Y(state.model.T[state.ti]),'#555',1,'5 4')+'</g>';
  for(let i=0;i<=5;i++)body+=text(55,Y(minT+(maxT-minT)*i/5)+4,fmt(minT+(maxT-minT)*i/5,0),13,'end')+text(X(span*i/5),425,fmt(span*i/5,0),13,'middle');
- body+=text(10,47,'T / °C')+text(460,452,'Entzogene molare Enthalpie / kJ mol⁻¹',14,'middle');
+ body+=text(10,47,'T / °C')+text(460,452,''+(state.model.diagramModel?'Normiertes Wärmeabfuhrmaß / Modellgröße':'Entzogene molare Enthalpie / kJ mol⁻¹')+'',14,'middle');
  (state.shown||state.points.map((_,i)=>i)).forEach((i,j)=>body+=text(440+70*j,27,state.labels?.[i]||'X'+(i+1),14,'middle',pointColors[i]));
  return svg(body,900,475,'Energetische Abkühlkurven');
 }
-
-
-
-

@@ -27,19 +27,9 @@ export function smoothGraph(points, move = true) {
   return d;
 }
 export function ribbonPath(points) {
-  const center = points.map(p => [p[0], (p[1] + p[2]) / 2]);
-  const half = points.map(p => [p[0], (p[2] - p[1]) / 2]);
-  const dc = slopes(center), dh = slopes(half);
-  const upper = [], lower = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const a = points[i], b = points[i + 1], h = (b[0] - a[0]) / 3;
-    upper.push([a[0] + h, a[1] + (dc[i] - dh[i]) * h, b[0] - h, b[1] - (dc[i + 1] - dh[i + 1]) * h, b[0], b[1]]);
-    lower.push([b[0] - h, b[2] - (dc[i + 1] + dh[i + 1]) * h, a[0] + h, a[2] + (dc[i] + dh[i]) * h, a[0], a[2]]);
-  }
-  return 'M' + [points[0][0], points[0][1]].join(' ') +
-    upper.map(c => 'C' + c.join(' ')).join('') +
-    'L' + [points.at(-1)[0], points.at(-1)[2]].join(' ') +
-    lower.reverse().map(c => 'C' + c.join(' ')).join('') + 'Z';
+  // Every adjoining field uses the same boundary interpolation, avoiding unequal ribbon derivatives.
+  return smoothGraph(points.map(p=>[p[0],p[1]]))+
+    smoothGraph(points.slice().reverse().map(p=>[p[0],p[2]]),false)+'Z';
 }
 export function joinContours(segments, dimensions) {
   const key = p => (dimensions?p.slice(0,dimensions):p).map(v => Math.round(v * 1e8)).join(',');
@@ -108,10 +98,10 @@ export function phaseBands(series) {
     if (series[j].signature === series[j - 1].signature) continue;
     const names = new Set([...series[j - 1].phases || [], ...series[j].phases || []].map(p => p.name));
     const upper = Math.max(lower, transitionEstimate(series, j, names));
-    bands.push({lower, upper, signature: series[j - 1].signature || 'Datenlücke', allLiquid:series[j-1].liquid>1-1e-7});
+    bands.push({lower, upper, signature: series[j - 1].signature || 'Datenlücke', hasLiquid:series[j-1].liquid>1e-7, allLiquid:series[j-1].liquid>1-1e-7});
     lower = upper;
   }
-  bands.push({lower, upper: series.at(-1).temperature, signature: series.at(-1).signature || 'Datenlücke', allLiquid:series.at(-1).liquid>1-1e-7});
+  bands.push({lower, upper: series.at(-1).temperature, signature: series.at(-1).signature || 'Datenlücke', hasLiquid:series.at(-1).liquid>1e-7, allLiquid:series.at(-1).liquid>1-1e-7});
   return bands;
 }
 export function bandTracks(columns) {
@@ -151,5 +141,3 @@ export function simplifyContour(points, tolerance = 2) {
   return [...simplifyContour(points.slice(0,furthest+1),tolerance).slice(0,-1),
     ...simplifyContour(points.slice(furthest),tolerance)];
 }
-
-

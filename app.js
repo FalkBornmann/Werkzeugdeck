@@ -1,3 +1,4 @@
+import {constrainedCut,directionAngle} from './cut-constraints.js';
 import {temperatureWindow} from './temperature-window.js';
 import {constructionChart} from './construction.js';
 import {solidificationHistory} from './solidification.js';
@@ -8,11 +9,11 @@ import { fractionsChart, fractionValues } from './fractions.js';
 import { microstructureChart } from './microstructure.js';
 import { sectionChart } from './section.js';
 import { elementSymbol } from './symbols.js';
-import {saltSetup,saltRender} from './salt.js';
+
 import {normalize,toMass,toMoles,interpolate,nearest,solve,profile,thresholds,transitions,phaseName} from './equilibrium.js';
 import {pointColors,fmt,escape,text,line,svg,display,compositionLabel,trianglePoint,triangleInverse,triangleChart,curvesChart,fieldColor} from './render.js';
 const el=id=>document.getElementById(id);
-const state={basis:'mole',style:'fields',zoom:'full',triangleMode:'projection',interval:50,ties:true,points:[],lambdas:[],selected:0,ti:0,model:null,columns:[],profiles:[],a:[0,0,1],b:[.08,.02,.9],surface:null,supportPoints:false,fractionMode:'curves',morphology:'auto',activeId:'x0',visibleIds:new Set(['x0','x1']),camera:{yaw:35,pitch:28},labels:[]};
+const state={basis:'mole',style:'fields',zoom:'full',triangleMode:'projection',interval:50,ties:true,points:[],lambdas:[],selected:0,ti:0,model:null,columns:[],profiles:[],a:[0,0,1],b:[.08,.02,.9],surface:null,supportPoints:false,fractionMode:'curves',morphology:'auto',activeId:'x0',visibleIds:new Set(['x0','x1']),camera:{yaw:35,pitch:28},labels:[],cutAnchors:[]};
 const worker=new Worker('./worker.js',{type:'module'}),pending=new Map();
 let serial=0,loadId=0,sectionId=0,surfaceId=0,endpoint='a',specials=[],busy=true;
 function request(type,extra={}){
@@ -34,10 +35,23 @@ function pointAt(f){return state.basis==='mass'?toMoles(interpolate(toMass(state
 function currentComposition(){return state.points[state.selected]}
 function pointLabel(i){return state.labels[i]||'X'+(i+1)}
 function updateProfiles(){updatePoints();state.profiles=state.points.map(x=>profile(state.model,x))}
-function selectPoint(id){state.activeId=id;exactLambda=null;state.salt?renderSalt():render()}
+function selectPoint(id){state.activeId=id;exactLambda=null;render()}
+function anchorTargets(anchors=state.cutAnchors){return anchors.map(p=>({pointId:p.id,x:display(p.x,state)}))}
+function enforceAnchors(angle){
+ const cut=constrainedCut(anchorTargets(),display(state.a,state),display(state.b,state),angle);
+ state.a=fromDisplay(cut.a);state.b=fromDisplay(cut.b);return cut;
+}
+function anchorControls(reset=false){
+ const options='<option value="">Kein Anker</option><option value="s1">Aktuelle Position S₁ festhalten</option><option value="s2">Aktuelle Position S₂ festhalten</option>'+specials.map((p,i)=>'<option value="ref:'+i+'">'+escape(p.name)+'</option>').join('');
+ for(const id of ['lockTarget1','lockTarget2']){const old=reset?'':el(id).value;el(id).innerHTML=options;el(id).value=old}
+ const count=state.cutAnchors.length,angle=directionAngle(display(state.b,state).map((v,i)=>v-display(state.a,state)[i]));
+ for(const id of ['cutAngle','cutAngleNumber']){el(id).disabled=count!==1||busy;el(id).value=angle.toFixed(1)}
+ el('clearLocks').disabled=count===0||busy;el('applyLocks').disabled=busy;el('cutLockControls').hidden=state.binary;el('applyCut').disabled=busy||count===2;
+ el('lockStatus').textContent=count===0?'Schnitt frei wählbar.':count===1?'Ein fester Anker: '+state.cutAnchors[0].label+' · S₁/S₂ oder Winkel drehen den Schnitt.':'Zwei feste Anker: '+state.cutAnchors.map(p=>p.label).join(' / ')+'. Bindungen lösen gibt den Schnitt frei.';
+}
 function endpointControls(){
  for(const [id,x] of [['endpointA',state.a],['endpointB',state.b]]){
-  el(id).innerHTML=display(x,state).map((v,i)=>'<label>'+escape(elementSymbol(state.model.components[i]))+' / %<input type="number" min="0" max="100" step=".01" value="'+(v*100).toFixed(5)+'" data-component="'+i+'"></label>').join('');
+  el(id).innerHTML=display(x,state).map((v,i)=>'<label>'+escape(elementSymbol(state.model.components[i]))+' / %<input type="number" min="0" max="100" step=".01" value="'+(v*100).toFixed(5)+'" data-component="'+i+'"'+(state.cutAnchors.length===2?' readonly':'')+'></label>').join('');
  }
 }
 function fromDisplay(values){return state.basis==='mass'?toMoles(values,state.model.masses):normalize(values)}
@@ -69,16 +83,18 @@ function updatePoints(){
  const endpoint=state.selected>=count;
  el('position').disabled=endpoint||busy;el('positionNumber').disabled=endpoint||busy;
  el('remove').disabled=endpoint||count<=1||busy;
- for(const id of ['useSpecial','special','exactCompare','leftCompare','rightCompare'])el(id).disabled=endpoint||busy||state.salt;
+ for(const id of ['useSpecial','special','exactCompare','leftCompare','rightCompare'])el(id).disabled=endpoint||busy;
  el('position').value=endpoint?(state.activeId==='s1'?0:100):state.lambdas[state.selected]*100;
  el('positionNumber').value=Number(Number(el('position').value).toFixed(4));
  el('add').disabled=count>=4||busy;
  state.shown=state.ids.map((id,i)=>state.visibleIds.has(id)||id===state.activeId?i:-1).filter(i=>i>=0);
  el('pointVisibility').innerHTML=state.ids.map((id,i)=>'<label><input type="checkbox" data-visible-point="'+id+'"'+(state.visibleIds.has(id)?' checked':'')+'>'+state.labels[i]+'</label>').join('');
+ anchorControls();
  el('dockComposition').textContent=pointLabel(state.selected)+' · '+compositionLabel(currentComposition(),state);
 }
 
 function renderFormation(){
+ if(state.current.unavailable){el('formation').textContent='Keine Erstarrungsfolge außerhalb des belegten Isothermenbereichs.';return}
  const h=solidificationHistory(state);
  el('formation').innerHTML='<h3>Erstarrungsfolge aus dem Modell</h3><p>Erste ausgeschiedene Phase: '+escape(h.firstPrimary.join(' + ')||'im Modellbereich nicht aufgelöst')+'.</p><table><thead><tr><th>Temperatur / °C</th><th>Vorgang</th><th>Phasen</th></tr></thead><tbody>'+h.stages.map(s=>'<tr><td>'+fmt(s.low)+'–'+fmt(s.high)+'</td><td>'+escape(s.kind)+'</td><td>'+escape(s.signature)+'</td></tr>').join('')+'</tbody></table><p>Phasenanteile sind Gleichgewichtsgrößen. Primärkristalle und gemeinsam erstarrte Gemische sind Gefügebestandteile; ihre Form hängt zusätzlich von Wärmefluss, Keimbildung und Diffusion ab.</p>';
 }
@@ -102,41 +118,40 @@ function renderResults(){
 }
 function render(){
  if(!state.model||busy)return;
- if(state.salt)return renderSalt();
+
  updatePoints();chartState();temperatureState();
  const result=sectionChart(state);
  el('plot').innerHTML=result.image;
  el('legend').innerHTML=result.legend.map(name=>'<span><i class="swatch" style="background:'+fieldColor(name)+'"></i>'+escape(name)+'</span>').join('');
- if(!state.binary){el('triangle').innerHTML=triangleChart(state);el('reactionReferences').hidden=!state.reactionLines;el('reactionReferences').innerHTML='<summary>Reaktionspunkte · NIST-Literaturwerte</summary><table><thead><tr><th>Punkt</th><th>Temperatur / °C</th><th>Reaktion beim Abkühlen</th></tr></thead><tbody>'+reactionReferences(state.model).map(e=>'<tr><td>'+e.label+'</td><td>'+fmt(e.t)+'</td><td>'+escape(e.reaction)+'</td></tr>').join('')+'</tbody></table><p>Die Markierungen zeigen Literaturzusammensetzungen der Schmelze. Modellinterpolation und Literaturwerte können abweichen. U bezeichnet eine Übergangsreaktion.</p>'}
+ if(!state.binary){el('triangle').innerHTML=triangleChart(state);el('reactionReferences').hidden=!state.reactionLines;el('reactionReferences').innerHTML='<summary>Reaktionspunkte · Literaturwerte</summary><table><thead><tr><th>Punkt</th><th>Temperatur / °C</th><th>Reaktion beim Abkühlen</th></tr></thead><tbody>'+reactionReferences(state.model).map(e=>'<tr><td>'+e.label+'</td><td>'+fmt(e.t)+'</td><td>'+escape(e.reaction)+'</td></tr>').join('')+'</tbody></table><p>Die Markierungen zeigen Literaturzusammensetzungen der Schmelze. Modellinterpolation und Literaturwerte können abweichen. U bezeichnet eine Übergangsreaktion.</p>'}
  el('phase3D').innerHTML=state.binary?'':phaseSpaceChart(state);el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);el('microstructure').innerHTML=microstructureChart(state);el('construction').innerHTML=constructionChart(state);renderFormation();fractionReadout(state.ti);renderResults();
- el('resolution').textContent='Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
+ el('resolution').textContent=state.model.diagramModel?'Geometrische Rekonstruktion aus Literaturisothermen. Endglieder als feste Bilanzpunkte; größtmöglicher geometrisch zulässiger Schmelzanteil. Keine CALPHAD- oder Wärmestromrechnung. Oberhalb 74 mol-% AlCl₃ keine Auswertung; Gas und Flüssig–Flüssig-Entmischung sind nicht modelliert.':'Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
  el('cutDescription').textContent=state.binary ? 'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt '+elementSymbol(state.model.components[0])+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
 }
 
 async function rebuildSection(){
- if(state.salt)return renderSalt();
+
  const id=++sectionId;busy=true;controlsEnabled(false);status('Freier Gehaltsschnitt wird lokal berechnet …');
  const answer=await request('section',{a:state.a,b:state.b,basis:state.basis});
  if(id!==sectionId)return;
  state.columns=answer.columns;
  updateProfiles();
  busy=false;controlsEnabled(true);el('dock').hidden=false;
- status('Berechnung auf deinem Gerät abgeschlossen. Schnittendpunkte und Legierungspunkte sind frei wählbar.');
+ status(state.model.diagramModel?'Geometrisches Isothermenmodell lokal berechnet · Robelin et al., Abb. 21. Stoffbilanz erfüllt; Phasenmengen und Wärmeabfuhrmaß sind Modellgrößen.':'Berechnung auf deinem Gerät abgeschlossen. Schnittendpunkte und Legierungspunkte sind frei wählbar.');
  render();
 }
 async function rebuildSurface(){
- if(state.binary||state.salt)return;
+ if(state.binary)return;
  const id=++surfaceId;
  const vertices=[[1,0,0],[0,1,0],[0,0,1]];
  const answer=await request('surface',{vertices});
  if(id!==surfaceId)return;
- state.surface=answer;
+ state.surface=answer;el('phase3D').dataset.loadedSystem=state.model.system;
  if(!busy)render();
 }
-function renderSalt(){updatePoints();saltRender(state,el);exporter?.refresh()}
-function loadSalt(){state.model=saltSetup();state.binary=false;state.a=[.6,0,.4];state.b=[0,.6,.4];state.lambdas=[.3,.7];state.selected=0;state.activeId='x0';busy=false;el('dock').hidden=true;el('coolingSection').hidden=true;el('fractionSection').hidden=true;el('microstructureSection').hidden=true;el('spaceSection').hidden=true;el('resultsSection').hidden=true;el('applyCut').disabled=true;el('useSpecial').disabled=true;el('special').innerHTML='<option>Referenzschnitt · keine freien Modelldaten</option>';el('temperatureWindow').disabled=true;controlsEnabled(true);status('ORNL-Referenzschnitt bei 40 mol-% AlCl₃ · 1 bar. Robelin et al. (2004) liefert die Parameterquelle; die freie Modellrechnung ist noch nicht umgesetzt und validiert.');renderSalt()}
 function referencePoints(){
  const m=state.model;
+ if(m.diagramModel)return [...m.diagram.references.map(r=>({name:r.label+' · '+r.reaction+' · '+fmt(r.t)+' °C',x:r.x})),{name:'NaAlCl₄ · 156,7 °C',x:[.5,0,.5]},{name:'KAlCl₄ · 257,3 °C',x:[0,.5,.5]}];
  const mass=x=>toMoles(x,m.masses);
  if(state.binary){
   const pure=m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}));
@@ -163,7 +178,7 @@ function setPoint(lambda,allowSnap=true){
  }
  state.lambdas[state.selected]=lambda;
  updatePoints();
- if(state.salt){renderSalt();return}
+
  updateProfiles();
  el('snapStatus').textContent=target?'Eingerastet · '+target.name:'';
  render();
@@ -171,6 +186,11 @@ function setPoint(lambda,allowSnap=true){
 function setSpecial(){
  const target=specials[Number(el('special').value)];if(!target)return;exactLambda=null;
  let p=projectOnCut(target.x);
+ if(state.cutAnchors.length&&(p.distance>1e-6||p.lambda<0||p.lambda>1)){
+  if(state.cutAnchors.length===2){el('snapStatus').textContent='Das Ziel liegt außerhalb des durch zwei Anker festgelegten Schnitts. Bindungen lösen oder ändern.';return}
+  const origin=display(state.cutAnchors[0].x,state),d=display(target.x,state).map((v,i)=>v-origin[i]);
+  if(Math.hypot(...d)>1e-10){enforceAnchors(directionAngle(d));endpointControls();p=projectOnCut(target.x)}
+ }
  if(p.distance>1e-6||p.lambda<0||p.lambda>1){
   const direction=state.b.map((v,i)=>v-state.a[i]);
   let min=-Infinity,max=Infinity;
@@ -189,14 +209,15 @@ async function loadSystem(){
  const id=++loadId;sectionId++;surfaceId++;busy=true;controlsEnabled(false);el('dock').hidden=true;
  for(const id of ['applyCut','triangleMode','zoom','interval','ties','special','useSpecial','exactCompare','leftCompare','rightCompare']){el(id).disabled=false;el(id).hidden=false}
  el('resultsSection').hidden=false;el('temperatureWindow').disabled=false;el('endpointA').parentElement.parentElement.hidden=false;
- const key=el('system').value;showSystemInfo(key);state.salt=key==='salt';state.surface=null;
+ state.cutAnchors=[];anchorControls(true);
+ const key=el('system').value;showSystemInfo(key);state.salt=false;state.surface=null;el('phase3D').dataset.loadedSystem='';
  el('ternary').hidden=false;el('coolingSection').hidden=false;el('fractionSection').hidden=false;el('microstructureSection').hidden=false;el('spaceSection').hidden=false;
- if(state.salt){loadSalt();return}
+
  status('Gleichgewichtsmodell wird geladen und lokal entpackt …');
  const answer=await request('load',{key});
  if(id!==loadId)return;
- state.model=answer.model;el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
- state.a=state.binary?[0,1]:[0,0,1];state.b=state.binary?[1,0]:key==='pbsnbi'?[.611,.389,0]:[.08,.02,.9];
+ state.model=answer.model;el('coolingIntro').textContent=state.model.diagramModel?'Schematischer Verlauf aus Isothermen und geometrischer Mengenbilanz. Das normierte Wärmeabfuhrmaß enthält einen angenommenen latenten Anteil; es ist weder eine Zeit- noch eine Enthalpieprognose.':'Die horizontale Achse zeigt die entzogene molare Enthalpie. Bei konstanter molarer Kühlleistung ist sie proportional zur Zeit. Die vollständige Temperaturspanne bleibt sichtbar.';el('zoom').disabled=!!state.model.diagramModel;if(state.model.diagramModel){state.zoom='full';el('zoom').value='full'}el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
+ state.a=state.binary?[0,1]:state.model.diagramModel?[.6,0,.4]:[0,0,1];state.b=state.binary?[1,0]:state.model.diagramModel?[0,.6,.4]:key==='pbsnbi'?[.611,.389,0]:[.08,.02,.9];
  state.lambdas=[.35,.65];state.activeId='x0';state.visibleIds=new Set(['x0','x1']);exactLambda=null;state.selected=0;
  state.ti=nearest(state.model.T,state.binary?200:220);
  el('temperature').max=state.model.T.length-1;el('temperatureNumber').min=state.model.T[0];el('temperatureNumber').max=state.model.T.at(-1);el('ternary').hidden=state.binary;el('spaceSection').hidden=state.binary;
@@ -211,11 +232,11 @@ el('system').onchange=()=>loadSystem().catch(fail);
 el('basis').onchange=()=>{
  const oldPoints=state.points.slice(0,state.lambdas.length);state.basis=el('basis').value;
  if(state.model&&!state.salt)state.lambdas=oldPoints.map(x=>projectOnCut(x).lambda);
- if(state.salt)return renderSalt();
+
  endpointControls();
  rebuildSection().catch(fail);if(!state.binary)rebuildSurface().catch(fail);
 };
-el('style').onchange=()=>{state.style=el('style').value;state.salt?renderSalt():render()};
+el('style').onchange=()=>{state.style=el('style').value;render()};
 el('zoom').onchange=()=>{state.zoom=el('zoom').value;if(!busy)render()};
 el('triangleMode').onchange=()=>{state.triangleMode=el('triangleMode').value;if(!busy)render()};
 el('interval').onchange=()=>{state.interval=Number(el('interval').value);if(!busy)render()};
@@ -225,12 +246,32 @@ el('applyCut').onclick=()=>{
   const read=id=>{const v=[...el(id).querySelectorAll('input')].map(n=>Number(n.value)/100);if(Math.abs(v.reduce((s,v)=>s+v,0)-1)>.00001)throw Error('Die Anteile jedes Endpunkts müssen zusammen 100 % ergeben.');return fromDisplay(v)};
   const a=read('endpointA'),b=read('endpointB');
   if(a.reduce((s,v,i)=>s+(v-b[i])**2,0)<1e-12)throw Error('Die Schnittendpunkte müssen verschieden sein.');
-  state.a=a;state.b=b;el('cutError').textContent='';rebuildSection().catch(fail);
+  state.a=a;state.b=b;if(state.cutAnchors.length)enforceAnchors();endpointControls();el('cutError').textContent='';rebuildSection().catch(fail);
  }catch(error){el('cutError').textContent=error.message}
 };
+el('applyLocks').onclick=()=>{
+ try{
+  const selected=['lockTarget1','lockTarget2'].map((id,i)=>{
+   const value=el(id).value;if(!value)return null;
+   const ref=value.startsWith('ref:')?specials[Number(value.slice(4))]:null;
+   return {id:'A'+(i+1),x:(ref?.x||(value==='s1'?state.a:state.b)).slice(),label:ref?.name||('Freier Gehalt von '+(value==='s1'?'S₁':'S₂'))};
+  }).filter(Boolean);
+  constrainedCut(anchorTargets(selected),display(state.a,state),display(state.b,state));
+  state.cutAnchors=selected;if(selected.length)enforceAnchors();
+  endpointControls();el('cutError').textContent='';rebuildSection().catch(fail);
+ }catch(error){el('cutError').textContent=error.message}
+};
+el('clearLocks').onclick=()=>{state.cutAnchors=[];anchorControls(true);endpointControls();render()};
+function rotateAnchor(value,calculate){
+ if(state.cutAnchors.length!==1)return;
+ try{enforceAnchors(Math.max(0,Math.min(180,Number(value))));endpointControls();updatePoints();el('triangle').innerHTML=triangleChart(state);el('cutError').textContent='';if(calculate)rebuildSection().catch(fail)}catch(error){el('cutError').textContent=error.message;anchorControls()}
+}
+el('cutAngle').oninput=e=>rotateAnchor(e.target.value,false);
+el('cutAngle').onchange=e=>rotateAnchor(e.target.value,true);
+el('cutAngleNumber').onchange=e=>rotateAnchor(e.target.value,true);
 el('active').onchange=()=>selectPoint(el('active').value);
 el('dockPoint').onchange=()=>selectPoint(el('dockPoint').value);
-el('pointVisibility').onchange=e=>{const id=e.target.dataset.visiblePoint;if(!id)return;e.target.checked?state.visibleIds.add(id):state.visibleIds.delete(id);state.salt?renderSalt():render()};
+el('pointVisibility').onchange=e=>{const id=e.target.dataset.visiblePoint;if(!id)return;e.target.checked?state.visibleIds.add(id):state.visibleIds.delete(id);render()};
 el('add').onclick=()=>{
  if(state.lambdas.length>=4)return;state.lambdas.push(Math.min(1,(state.lambdas[state.selected]??(state.activeId==='s1'?0:1))+.05));state.selected=state.lambdas.length-1;state.activeId='x'+state.selected;state.visibleIds.add(state.activeId);setPoint(state.lambdas[state.selected],false);
 };
@@ -256,11 +297,12 @@ el('fractionMode').onchange=()=>{state.fractionMode=el('fractionMode').value;ren
 el('morphology').onchange=()=>{state.morphology=el('morphology').value;render()};
 el('temperatureNumber').onchange=()=>setTemperature(nearest(state.model.T,Number(el('temperatureNumber').value)));
 function fractionReadout(index){
+ if(state.profiles[state.selected][index]?.unavailable){el('fractionReadout').textContent='Außerhalb des durch Isothermen abgedeckten Modellbereichs.';return}
  const values=fractionValues(state,index);
  el('fractionReadout').innerHTML='<b>Ablesetemperatur '+fmt(state.model.T[index])+' °C</b><table><thead><tr><th>Phase</th><th>'+(state.basis==='mass'?'Massenanteil':'Stoffmengenanteil')+'</th></tr></thead><tbody>'+values.map(p=>'<tr><td style="color:'+p.color+'">'+escape(p.name)+'</td><td>'+fmt(p.value*100)+' %</td></tr>').join('')+'</tbody></table>';
 }
 function fractionIndex(event){const p=svgPoint(event,'fractions'),f=Math.max(0,Math.min(1,(p.x-70)/580));return nearest(state.model.T,state.window[1]-f*(state.window[1]-state.window[0]))}
-el('fractions').onpointerdown=event=>{if(busy||state.salt)return;el('fractions').setPointerCapture(event.pointerId);setTemperature(fractionIndex(event))};
+el('fractions').onpointerdown=event=>{if(busy)return;el('fractions').setPointerCapture(event.pointerId);setTemperature(fractionIndex(event))};
 el('fractions').onpointermove=event=>{if(busy||state.salt)return;if(el('fractions').hasPointerCapture(event.pointerId))setTemperature(fractionIndex(event));else fractionReadout(fractionIndex(event))};
 el('fractions').onpointerleave=()=>{if(!busy&&!state.salt)fractionReadout(state.ti)};
 function setTemperature(index){
@@ -276,6 +318,7 @@ el('triangle').onpointerdown=e=>{
  if(busy||state.salt)return;
  const marker=e.target.closest('[data-endpoint]');
  if(!marker)return;
+ if(state.cutAnchors.length===2){selectPoint(marker.dataset.endpoint==='S₁'?'s1':'s2');return}
  dragEndpoint=marker.dataset.endpoint==='S₁'?'a':'b';dragMoved=false;dragStart=[e.clientX,e.clientY];
  el('triangle').setPointerCapture(e.pointerId);
 };
@@ -285,7 +328,11 @@ function moveEndpoint(e){
  if(el('snap').checked){const match=specials.find(s=>{const q=trianglePoint(s.x,state);return Math.hypot(p.x-q[0],p.y-q[1])<12});if(match)x=match.x}
  const other=dragEndpoint==='a'?state.b:state.a;
  if(x.reduce((sum,v,i)=>sum+(v-other[i])**2,0)<1e-10)return;
- state[dragEndpoint]=x;updatePoints();endpointControls();el('triangle').innerHTML=triangleChart(state);
+ if(state.cutAnchors.length===1){
+  const anchor=display(state.cutAnchors[0].x,state),q=display(x,state),d=q.map((v,i)=>(dragEndpoint==='a'?-1:1)*(v-anchor[i]));
+  if(Math.hypot(...d)<1e-7)return;enforceAnchors(directionAngle(d));
+ }else state[dragEndpoint]=x;
+ updatePoints();endpointControls();el('triangle').innerHTML=triangleChart(state);
 }
 el('triangle').onpointermove=e=>{
  if(!dragEndpoint||!el('triangle').hasPointerCapture(e.pointerId))return;
@@ -344,7 +391,7 @@ function initializeLibrary(){
  const update=()=>{
   const previous=el('system').value;
   const matches=filterSystems({query:el('systemSearch').value,kind:el('systemKind').value,family:el('systemFamily').value,favorites:el('favoritesOnly').checked?favorites:null});
-  el('system').innerHTML=['ternary','binary'].map(kind=>'<optgroup label="'+(kind==='ternary'?'Ternäre Systeme':'Binäre Systeme')+'">'+matches.filter(s=>s.kind===kind).map(s=>'<option value="'+s.id+'">'+s.label+(s.id==='salt'?' · Referenz':'')+'</option>').join('')+'</optgroup>').join('');
+  el('system').innerHTML=['ternary','binary'].map(kind=>'<optgroup label="'+(kind==='ternary'?'Ternäre Systeme':'Binäre Systeme')+'">'+matches.filter(s=>s.kind===kind).map(s=>'<option value="'+s.id+'">'+s.label+(s.id==='salt'?' · Isothermenmodell':'')+'</option>').join('')+'</optgroup>').join('');
   el('systemCount').textContent=matches.length+' passende Systeme';
   if(!matches.length){el('system').innerHTML='<option value="" disabled>Keine passenden Systeme</option>';return}
   if(matches.some(s=>s.id===previous))el('system').value=previous;
@@ -356,9 +403,3 @@ function initializeLibrary(){
 }
 
 initializeLibrary();loadSystem().catch(fail);
-
-
-
-
-
-
