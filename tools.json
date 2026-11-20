@@ -289,7 +289,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Binäre und ternäre Phasendiagramme mit glatten Liquidus-Isothermen, Reaktionslinien, freien Gehaltsschnitten, 3D-Randdiagrammen und nachvollziehbarer Gefügebildung erkunden.",
+      "description": "Glatte Phasengrenzen, Literaturisothermen, geometrisches Salzmodell und freie Gehaltsschnitte mit festen Dreiecksankern erkunden; die Schnittliquiduslinie folgt in der 3D-Ansicht.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -305,7 +305,7 @@
         "Peritektikum"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "3327ad036a8b6453e0ffa1176dc662be457ce263",
+      "revision": "a9a905570b52a886bb1cf6c7541cd14642833a13",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -315,7 +315,6 @@
         "equilibrium.js",
         "render.js",
         "worker.js",
-        "salt.js",
         "export-menu.js",
         "sac-hulls.json.gz",
         "bisn-hulls.json.gz",
@@ -337,7 +336,16 @@
         "construction.js",
         "liquidus-geometry.js",
         "sac-liquidus.json.gz",
-        "pbsnbi-liquidus.json.gz"
+        "pbsnbi-liquidus.json.gz",
+        "diagram-model.js",
+        "smooth-fields.js",
+        "solidus-display.js",
+        "cut-constraints.js",
+        "salt-diagram.json.gz",
+        "sac-solidus.json.gz",
+        "pbsnbi-solidus.json.gz",
+        "bisn-solidus.json.gz",
+        "cusn-solidus.json.gz"
       ],
       "aliases": []
     },
