@@ -16,7 +16,7 @@ if key=='sac':points += [[.025,.009,.966],[.045,.025,.93],[.5,.48,.02],[.001,.00
 else:points += [[.3,.3,.4],[.05,.8,.15]]
 results=[]
 for x in points:
- lo=-10 if key=='pbsnbi' else 150;hi=350 if key=='pbsnbi' else 1100
+ bounds=json.load(gzip.open(root/(key+'-hulls.json.gz')))['T'];lo=bounds[0]-20;hi=bounds[-1]
  for _ in range(18):
   mid=(lo+hi)/2
   if liquid_amount(sets_at(x,mid))>1-1e-7:hi=mid

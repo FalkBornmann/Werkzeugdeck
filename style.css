@@ -28,3 +28,5 @@ body{padding-bottom:160px}
 #dock>#currentT{grid-area:value}
 #dock>#dockComposition{grid-area:composition;line-height:1.3}
 @media(max-width:600px){#dock{grid-template-areas:"point temperature value" "number number number" "composition composition composition"}}
+
+.system-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1rem}.system-guide article{border-left-color:#7a5a3c}.system-guide h3{font-size:1.1rem}.system-guide p{overflow-wrap:anywhere}

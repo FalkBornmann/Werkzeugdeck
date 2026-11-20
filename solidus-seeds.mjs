@@ -1,7 +1,7 @@
 import {readFileSync,writeFileSync} from 'node:fs';
 import {gunzipSync} from 'node:zlib';
 import {profile,thresholds} from './equilibrium.js';
-for(const key of ['sac','pbsnbi','bisn','cusn']){
+for(const key of (process.argv.length>2?process.argv.slice(2):['sac','pbsnbi','bisn','cusn'])){
  const m=JSON.parse(gunzipSync(readFileSync(key+'-hulls.json.gz'))),points=new Map();
  const add=x=>points.set(x.map(v=>v.toFixed(10)).join(','),x);
  if(m.components.length===3){

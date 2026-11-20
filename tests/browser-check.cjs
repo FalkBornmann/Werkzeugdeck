@@ -251,7 +251,7 @@ const server=require('node:http').createServer(async(req,res)=>{
  await page.locator('#phase3D').screenshot({path:path.join(out,'phase-space-fitted.png')});
  await page.locator('#systemSearch').fill('Bismut Blei');
  await page.waitForFunction(()=>document.querySelector('#system').value==='pbsnbi'&&document.querySelector('#status').textContent.includes('abgeschlossen'),null,{timeout:90000});
- assert.equal(await page.locator('#system option').count(),1);
+ assert.equal(await page.locator('#system option').count(),2);
  await page.locator('#systemSearch').fill('');
  await page.locator('#special').selectOption('0');await page.locator('#useSpecial').click();
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('abgeschlossen'));

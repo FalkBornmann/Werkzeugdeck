@@ -7,7 +7,7 @@ from scipy.spatial import ConvexHull
 from pycalphad import Database, calculate, Model, Workspace, variables as v
 root=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser()
-parser.add_argument("--system", choices=["sac","bisn","cusn","pbsnbi"], required=True)
+parser.add_argument("--system", choices=["sac","bisn","cusn","pbsnbi",*json.loads((root/"model-config.json").read_text())], required=True)
 parser.add_argument("--density", type=int, default=1600)
 parser.add_argument("--grid", type=int, default=60)
 parser.add_argument("--refine", action="store_true")
@@ -20,6 +20,11 @@ systems={
  "cusn":(["SN","CU"],[118.69,63.546],sorted(set(list(range(100,1121,5))+[226.8,415,638.4,756.5,796]))),
  "pbsnbi":(["BI","PB","SN"],[208.98,207.2,118.69],sorted(set(list(range(20,351,2))+[98.0,135.7]))),
 }
+extra_configs=json.loads((root/"model-config.json").read_text())
+for key,cfg in extra_configs.items():
+ temps=set(range(cfg["range"][0],cfg["range"][1]+1,cfg["range"][2]))|set(cfg["extra"])
+ if "fine" in cfg:temps.update(range(cfg["fine"][0],cfg["fine"][1]+1,cfg["fine"][2]))
+ systems[key]=(cfg["components"],cfg["masses"],sorted(temps))
 components,masses,temperatures=systems[options.system]
 comps=components+["VA"]
 seed=calculate(db,comps,list(db.phases),P=101325,T=500,output="GM",pdens=options.density)
@@ -39,22 +44,23 @@ if len(components)==3:
    values=np.hstack([grid,np.ones((len(grid),len(sites)-3))])
    point_sets[name]=np.vstack([point_sets[name],values])
 if options.refine and len(components)==3:
- cache=root/"qa"/(options.system+"-equilibrium-support-v2-"+hashlib.sha256(raw.encode()).hexdigest()[:10]+".npz")
+ cache=root/"qa"/(options.system+("-equilibrium-support-v3-" if options.system in ["agbisn","bicusn"] else "-equilibrium-support-v2-")+hashlib.sha256(raw.encode()).hexdigest()[:10]+".npz")
  cache.parent.mkdir(exist_ok=True)
  if cache.exists():
   supports=dict(np.load(cache))
  else:
   supports={name:[] for name in point_sets}
   w=Workspace(db,comps,list(db.phases),{v.P:101325,v.N:1,v.T:500,v.X(components[0]):.3,v.X(components[1]):.3})
-  step=50 if options.system=="sac" else 20
+  step=50 if max(temperatures)>500 else 20
   temperatures_to_refine=list(range(int(min(temperatures)),int(max(temperatures))+1,step))
+  if options.system in ["agbisn","bicusn"]: temperatures_to_refine=sorted(set(temperatures_to_refine+list(range(int(min(temperatures)),351,10))))
   sample_x=[[a/8,b/8,1-(a+b)/8] for a in range(9) for b in range(9-a)]
   # Additional dilute states, independent of any test compositions.
   sample_x += [[a,b,1-a-b] for a in [.005,.02,.05,.1] for b in [.005,.02,.05,.1]]
-  if options.system=="sac":
+  if options.system in ["sac","agbisn","bicusn"]:
    for absent in range(3):
-    for dilute in [.005,.02,.05,.1]:
-     for ratio in np.linspace(.05,.95,10):
+    for dilute in ([.001,.005,.01,.02,.05,.1] if options.system in ["agbisn","bicusn"] else [.005,.02,.05,.1]):
+     for ratio in (np.linspace(.025,.975,20) if options.system in ["agbisn","bicusn"] else np.linspace(.05,.95,10)):
       cx=[0.,0.,0.];cx[absent]=dilute;cx[(absent+1)%3]=(1-dilute)*ratio;cx[(absent+2)%3]=(1-dilute)*(1-ratio);sample_x.append(cx)
   for tc in temperatures_to_refine:
    for cx in sample_x:
@@ -86,7 +92,13 @@ for ti,temperature in enumerate(temperatures):
  valid=np.isfinite(g)&np.isfinite(h)&np.all(np.isfinite(x),axis=1)&(np.abs(x.sum(axis=1)-1)<1e-7)
  x,g,h,y,names=x[valid],g[valid],h[valid],y[valid],names[valid]
  if phase_names is None: phase_names=sorted(set(names))
- x[x<1e-10]=0;x[x>1-1e-10]=1
+ # Infinitesimal optimizer endpoint bounds are numerical limits, not extra phases.
+ x[x<1e-8]=0;x[x>1-1e-8]=1
+ x=np.round(x,10);x/=x.sum(axis=1)[:,None]
+ # At identical composition only the lowest Gibbs energy can enter the lower hull.
+ # Remove redundant coincident points before Qhull rather than perturbing the data.
+ order_g=np.argsort(g);_,unique=np.unique(x[order_g,:-1],axis=0,return_index=True)
+ keep=order_g[unique];x,g,h,y,names=x[keep],g[keep],h[keep],y[keep],names[keep]
  hull=ConvexHull(np.column_stack([x[:,:-1],g/10000]))
  facets=hull.simplices[hull.equations[:,-2]<-1e-9]
  used=np.unique(facets);lookup={int(index):j for j,index in enumerate(used)}
@@ -125,7 +137,8 @@ result=dict(version=3,components=components,masses=masses,T=temperatures,phases=
  sha256=hashlib.sha256(raw.encode()).hexdigest(),
  method="Gibbs-energy lower hull with homogeneous-midpoint curvature test for phase grouping",
  compositionResolution="Regular simplex plus phase samples and fine tin-rich supports; phase grouping preserves nonconvex chords")
-if options.system=="pbsnbi": result["phaseLabels"]={"FCC_A1":"α-Pb", "HCP_A3":"ε-Pb", "BCT_A5":"β-Sn", "RHOMBO_A7":"Bi"}
+if options.system=="pbsnbi": result["phaseLabels"]={"FCC_A1":"ÃƒÅ½Ã‚Â±-Pb", "HCP_A3":"ÃƒÅ½Ã‚Âµ-Pb", "BCT_A5":"ÃƒÅ½Ã‚Â²-Sn", "RHOMBO_A7":"Bi"}
+if options.system in extra_configs: result["phaseLabels"]=extra_configs[options.system].get("labels",{})
 target=root/(options.system+"-hulls.json.gz")
 with gzip.GzipFile(str(target), "wb",mtime=0) as f: f.write(json.dumps(result,separators=(",",":"),allow_nan=False).encode())
 print(target.name,target.stat().st_size,"bytes",flush=True)

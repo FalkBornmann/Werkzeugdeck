@@ -2,3 +2,7 @@ NIST-solder.tdb
 __pycache__/
 
 qa/
+
+# Large source intermediates; browser and tests use lossless temperature chunks.
+agbisn-hulls.json.gz
+bicusn-hulls.json.gz

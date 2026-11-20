@@ -4,7 +4,7 @@ Interaktiver Phasenatlas für Werkzeugdeck mit frei wählbaren Gehaltsschnitten.
 
 ## Metallmodelle
 
-Ag–Cu–Sn, Bi–Pb–Sn sowie Sn–Bi und Sn–Cu werden aus der NIST-Lotdatenbank (Stand 2017-08-04) berechnet. Beide Reinstoffenden sind enthalten. Der Browser bestimmt für jede frei gewählte Zusammensetzung die Phasenanteile anhand der unteren konvexen Gibbs-Energie-Hülle. Die Bilanz erfolgt im vollständigen Zusammensetzungsraum.
+Ag–Cu–Sn, Bi–Pb–Sn, Ag–Bi–Sn und Bi–Cu–Sn sowie Sn–Bi, Sn–Cu, Ag–Cu, Ag–Sn, Pb–Sn und Bi–Pb werden aus der NIST-Lotdatenbank (Stand 2017-08-04) berechnet. Beide Reinstoffenden sind enthalten. Der Browser bestimmt für jede frei gewählte Zusammensetzung die Phasenanteile anhand der unteren konvexen Gibbs-Energie-Hülle. Die Bilanz erfolgt im vollständigen Zusammensetzungsraum.
 
 - Umschaltung mol-% / Masse-% erhält die tatsächlichen Zusammensetzungen.
 - Freie ternäre Schnittendpunkte durch Zahleneingabe und gezieltes Ziehen der Markierungen. Klicks in freie Flächen verändern keine Punkte.
@@ -68,7 +68,7 @@ Reproduktion mit einer eigenen Kopie der Veröffentlichung:
 
 ## Glatte Anschmelzgrenzen und Felder
 
-Für die vier Metallmodelle werden zusätzlich direkte Flüssigauftretens-Gleichgewichte eingegrenzt. Ternäre Anschmelzäste werden nach ihrem festen Phasenbestand getrennt interpoliert; dadurch werden reale Reaktionssprünge nicht zu falschen Rampen verschmiert. Der lokale numerische Temperaturbereich prüft die Astzuordnung. Übrige Feldgrenzen werden mit einer Krümmungsstrafe gemeinsam geglättet. Liquidus, Anschmelzgrenze und Verzweigungsendpunkte haben Vorrang. Die benachbarten Flächen benutzen identische Randkurven.
+Für die Metallmodelle werden zusätzlich direkte Flüssigauftretens-Gleichgewichte eingegrenzt. Ternäre Anschmelzäste werden nach ihrem festen Phasenbestand getrennt interpoliert; dadurch werden reale Reaktionssprünge nicht zu falschen Rampen verschmiert. Der lokale numerische Temperaturbereich prüft die Astzuordnung. Übrige Feldgrenzen werden mit einer Krümmungsstrafe gemeinsam geglättet. Liquidus, Anschmelzgrenze und Verzweigungsendpunkte haben Vorrang. Die benachbarten Flächen benutzen identische Randkurven.
 
     node solidus-seeds.mjs
     python build-solidus.py sac
@@ -109,3 +109,41 @@ Nutzung als privates Lernprojekt. Quellen, Berechnungsgrenzen und Haftungshinwei
 ## Spätere Desktop-Richtung
 
 Eine gemeinsame Werkstoffkunde.exe soll den Legierungsatlas, den geplanten Aluminiumgefügerechner und geeignete weitere Werkstoffkunde-Module zusammenführen. Die aktuelle Ausbaustufe bleibt eine lokale Browseranwendung; es wird noch kein EXE-Paket erstellt. Online-Darstellung und spätere Desktop-Version sollen gemeinsame Datenformate und Diagrammkomponenten verwenden.
+## Erweiterte Systembibliothek
+
+Die sechs neuen Systeme verwenden dieselbe öffentlich verfügbare NIST-Datenbank. Ag–Cu, Ag–Sn, Pb–Sn und Bi–Pb besitzen bewertete binäre Beschreibungen. Ag–Bi–Sn und Bi–Cu–Sn sind laut NIST aus binären Beschreibungen extrapoliert; ihre ternäre Vorhersage ist nicht gleichbedeutend mit einer experimentellen Vollbewertung. Die gespeicherten NIST-Marker bleiben von der Rechnung getrennt. Beispielsweise führt die verwendete Beschreibung für Pb–Sn 182,2 °C als eutektische Referenz an.
+
+| System | Nutzen für Anwendung und Lehre |
+| --- | --- |
+| Ag–Cu | Hartlot; Eutektikum und zwei feste kfz-Mischkristalle |
+| Ag–Sn | Bleifreies Lot-Grundsystem, Ag₃Sn und Peritektika |
+| Pb–Sn | Klassischer eutektischer Weichlot-Vergleich mit begrenzter Löslichkeit |
+| Bi–Pb | Flüssigmetall-Kühlmittel; ε-Pb und Peritektikum |
+| Ag–Bi–Sn | Bi-haltiges Niedertemperaturlot mit Ag₃Sn |
+| Bi–Cu–Sn | Verbindung von Sn–Bi und Sn–Cu mit Cu–Sn-Verbindungen |
+
+Quellen der technischen Einordnung: [NIST-Lotdatenbank](https://www.metallurgy.nist.gov/phase/solder/solder.html), [Johnson Matthey · Ag–Cu-Hartlot](https://matthey.com/documents/161599/3919687/Argo-braze%2B72V%2Btechnical%2Bdatasheet%2Bfinal.pdf/68749e45-b12d-8174-4d5d-2ad0dba2f155), [NIST · bleifreie Lote](https://www.nist.gov/programs-projects/lead-free-solder) und [OECD/NEA · Flüssigblei und Blei-Bismut](https://www.oecd.org/content/dam/oecd/en/publications/reports/2015/11/handbook-on-lead-bismuth-eutectic-alloy-and-lead-properties-materials-compatibility-thermalhydraulics-and-technologies_44193663/42dcd531-en.pdf).
+
+Reproduktion der neuen Systeme:
+
+    python build-equilibria.py --system agcu --density 2200
+    python build-equilibria.py --system agsn --density 2200
+    python build-equilibria.py --system pbsn --density 2200
+    python build-equilibria.py --system bipb --density 2200
+    python build-equilibria.py --system agbisn --density 1600 --grid 60 --refine
+    python build-equilibria.py --system bicusn --density 1600 --grid 60 --refine
+    python split-hulls.py agbisn bicusn
+    node surface-seeds.mjs agbisn bicusn
+    node solidus-seeds.mjs agcu agsn pbsn bipb agbisn bicusn
+
+Danach je ternärem System build-liquidus.py, je System build-solidus.py und zusätzlich für die ternären Systeme build-solidus-branches.py ausführen. validate-additions.py erstellt 125 unabhängige Gleichgewichtszustände für die Mengenprüfung. validate-liquidus.py und validate-solidus.py erzeugen unabhängige Temperaturprüfpunkte; validate-solidus-display.mjs prüft die tatsächlich verwendete Anschmelzdarstellung.
+
+Die nächste Ausbaustufe ist in der sichtbaren, aufklappbaren Auswahlhilfe recherchiert: Al–Si, Cu–Ni, Al–Cu, Al–Mg–Si, Al–Cu–Si, Cu–Zn, Fe–C/Fe–Fe₃C und NaCl–KCl–MgCl₂. systems.js enthält Nutzen, benötigte Daten, Priorität und Quellen. Diese Kandidaten sind noch keine aktivierbaren Modelle. Isothermen erlauben einen geometrischen Einstieg, bestimmen aber weder alle Phasenmengen noch Abkühlzeiten oder die reale Morphologie.
+
+Die großen neuen ternären Pakete sind verlustfrei nach Temperaturzuständen aufgeteilt. Der Modellindex nennt die komprimierten Teile; nur das gewählte System wird geladen und lokal zusammengesetzt. Die monolithischen Generator-Zwischendateien sind nicht Teil der Veröffentlichung.
+
+### Prüfung der sechs Ergänzungen
+
+125 separat gelöste Gleichgewichtszustände prüfen die Phasenanteile; maximale absolute Abweichung der diskreten Hüllen in dieser Stichprobe: 0,362 Prozentpunkte. Komponenten- und Massenbilanzen werden zusätzlich geprüft. Für jede neue Anschmelzdarstellung sind 24 unabhängige Zusammensetzungen hinterlegt (144 insgesamt): maximale Abweichung 1,420 K. Je neuem ternärem Liquidusmodell prüfen 34 unabhängige Zusammensetzungen die Darstellung (68 insgesamt): Ag–Bi–Sn maximal 1,190 K, Bi–Cu–Sn maximal 3,842 K. Die Fehlergrenzen gelten für diese Stichproben gegenüber derselben NIST-Gibbs-Beschreibung und sind keine zugesicherte experimentelle Genauigkeit.
+
+Die neuen ternären Modelle enthalten systematisch verdichtete Gleichgewichtsstützstellen entlang aller verdünnten Ränder. Ag–Bi–Sn verwendet 3199 direkte Liquidusstützstellen; Bi–Cu–Sn verwendet 6889, einschließlich eines dichteren allgemeinen Dreiecksrasters und zusätzlicher Bi–Sn-Randprofile. Randkoordinaten, die Qhull durch Rundung wenige ulps außerhalb der Interpolationshülle einordnet, werden als infinitesimaler innerer Grenzwert derselben Fläche ausgewertet. Fehlende innere Daten werden nicht mit beliebigen Temperaturen aufgefüllt.

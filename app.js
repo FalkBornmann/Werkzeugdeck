@@ -3,7 +3,7 @@ import {temperatureWindow} from './temperature-window.js';
 import {constructionChart} from './construction.js';
 import {solidificationHistory} from './solidification.js';
 import {reactionReferences} from './reaction-data.js';
-import { systems, filterSystems } from './systems.js';
+import { systems, filterSystems, futureSystems } from './systems.js';
 import { phaseSpaceChart } from './phase-space.js';
 import { fractionsChart, fractionValues } from './fractions.js';
 import { microstructureChart } from './microstructure.js';
@@ -155,8 +155,9 @@ function referencePoints(){
  const mass=x=>toMoles(x,m.masses);
  if(state.binary){
   const pure=m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}));
-  if(el('system').value==='bisn')pure.push({name:'Eutektikum · NIST-Referenz 138,8 °C',x:mass([.4303,.5697])});
-  else pure.push({name:'Eutektikum · NIST-Referenz 226,8 °C',x:mass([.9911,.0089])},{name:'Cu₆Sn₅ · peritektische Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]},{name:'Peritektische Schmelze · NIST-Referenz 415 °C',x:mass([.8693,.1307])});
+  pure.push(...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · NIST-Referenz '+fmt(r.t)+' °C',x:r.x})));
+  if(m.system==='cusn')pure.push({name:'Cu₆Sn₅ · Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]});
+  if(m.system==='agsn')pure.push({name:'Ag₃Sn · Verbindung',x:[.75,.25]});
   return pure;
  }
  return [...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literatur '+fmt(r.t)+' °C',x:r.x})),
@@ -218,6 +219,7 @@ async function loadSystem(){
  if(id!==loadId)return;
  state.model=answer.model;el('coolingIntro').textContent=state.model.diagramModel?'Schematischer Verlauf aus Isothermen und geometrischer Mengenbilanz. Das normierte Wärmeabfuhrmaß enthält einen angenommenen latenten Anteil; es ist weder eine Zeit- noch eine Enthalpieprognose.':'Die horizontale Achse zeigt die entzogene molare Enthalpie. Bei konstanter molarer Kühlleistung ist sie proportional zur Zeit. Die vollständige Temperaturspanne bleibt sichtbar.';el('zoom').disabled=!!state.model.diagramModel;if(state.model.diagramModel){state.zoom='full';el('zoom').value='full'}el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
  state.a=state.binary?[0,1]:state.model.diagramModel?[.6,0,.4]:[0,0,1];state.b=state.binary?[1,0]:state.model.diagramModel?[0,.6,.4]:key==='pbsnbi'?[.611,.389,0]:[.08,.02,.9];
+ const preset=systems.find(s=>s.id===key)?.cut;if(preset){state.a=preset[0].slice();state.b=preset[1].slice()}
  state.lambdas=[.35,.65];state.activeId='x0';state.visibleIds=new Set(['x0','x1']);exactLambda=null;state.selected=0;
  state.ti=nearest(state.model.T,state.binary?200:220);
  el('temperature').max=state.model.T.length-1;el('temperatureNumber').min=state.model.T[0];el('temperatureNumber').max=state.model.T.at(-1);el('ternary').hidden=state.binary;el('spaceSection').hidden=state.binary;
@@ -389,6 +391,8 @@ function showSystemInfo(key){
  el('favorite').setAttribute('aria-pressed',String(favorites.includes(key)));el('favorite').textContent=favorites.includes(key)?'★ Favorit':'☆ Favorit';
 }
 function initializeLibrary(){
+ el('systemAdditions').innerHTML=systems.filter(s=>s.added).map(s=>'<article><h3>'+escape(s.label)+'</h3><p>'+escape(s.description)+'</p><p>'+escape(s.status)+' · <a href="'+s.source+'" target="_blank" rel="noopener">NIST-Diagramm</a></p></article>').join('');
+ el('futureSystems').innerHTML=futureSystems.map(s=>'<article><h3>'+escape(s.label)+' · '+s.kind+'</h3><p><b>Priorität '+s.priority+'</b> · '+escape(s.use)+'</p><p><b>Noch nötig:</b> '+escape(s.needs)+'</p><a href="'+s.source+'" target="_blank" rel="noopener">Fachquelle</a></article>').join('');
  const update=()=>{
   const previous=el('system').value;
   const matches=filterSystems({query:el('systemSearch').value,kind:el('systemKind').value,family:el('systemFamily').value,favorites:el('favoritesOnly').checked?favorites:null});

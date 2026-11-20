@@ -1,3 +1,4 @@
+import {systems} from './systems.js';
 import {diagramSetup,diagramLiquidus,solveDiagram} from './diagram-model.js';
 import { transitionEstimate } from './geometry.js';
 import { boundaryFromSeries } from './boundary.js';
@@ -53,7 +54,13 @@ self.onmessage=async({data:message})=>{
    let loaded,loadedAtlas=null;
    if(message.key==='salt')loaded=diagramSetup(await read('salt-diagram.json.gz'));
    else{
-    loaded=await read(message.key+'-hulls.json.gz');loaded.system=message.key;
+    const indexFile=systems.find(s=>s.id===message.key)?.hullIndex;
+    if(indexFile){
+     const response=await fetch(indexFile);if(!response.ok)throw Error('Modellindex konnte nicht geladen werden: '+indexFile);
+     const index=await response.json();loaded={...index.model,frames:[]};
+     for(const file of index.parts){const part=await read(file);loaded.frames.push(...part.frames)}
+    }else loaded=await read(message.key+'-hulls.json.gz');
+    loaded.system=message.key;
     loaded.solidusDisplay=await read(message.key+'-solidus.json.gz');
     if(loaded.components.length===3)loadedAtlas=await read(message.key+'-liquidus.json.gz');
    }

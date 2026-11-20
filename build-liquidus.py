@@ -15,7 +15,7 @@ from pycalphad.mapping.utils import update_cs_phase_frac
 sys.stdout.reconfigure(encoding="utf-8",errors="replace")
 root=Path(__file__).resolve().parent
 key=sys.argv[1]
-components=["AG","CU","SN"] if key=="sac" else ["BI","PB","SN"]
+components=json.load(gzip.open(root/(key+"-hulls.json.gz")))["components"]
 raw=(root/"NIST-solder.tdb").read_text()
 db=Database(StringIO(re.sub(r"DATABASE_INFO.*?!","",raw,flags=re.S).replace(",,N"," 6000 N")))
 seeds=json.loads((root/"qa"/(key+"-surface-seeds.json")).read_text())
@@ -94,6 +94,13 @@ for name in primary:
 n=240
 coords=np.array([[1-(i+j)/n,i/n] for j in range(n+1) for i in range(n+1-j)])
 reference=global_fit(coords)
+# Qhull may classify floating-point edge coordinates a few ulps outside the hull.
+# Evaluate only these boundary limits infinitesimally inside the same simplex.
+invalid=~np.isfinite(reference)
+if np.any(invalid):
+ reference[invalid]=global_fit(coords[invalid]*(1-3e-10)+1e-10)
+if not np.all(np.isfinite(reference)):raise ValueError("Non-finite interior liquidus interpolation")
+
 scores=np.full((len(coords),len(fits)),-1e6)
 for k,(name,fit,tree) in enumerate(fits):
  values=fit(coords);distance=tree.query(coords)[0]
