@@ -52,6 +52,11 @@ const root = path.resolve(__dirname, '..');
             mainTop:document.querySelector('main').getBoundingClientRect().top
           };
         });
+        if(tool.id==='gefuegerechner') {
+          const projection=await page.evaluate(()=>{const scene=document.querySelector('.scene-panel').getBoundingClientRect(),loupe=document.querySelector('.loupe-panel').getBoundingClientRect();return {sceneTop:scene.top,sceneBottom:scene.bottom,loupeTop:loupe.top,view:document.querySelector('#view').value,overflow:document.documentElement.scrollWidth>innerWidth};});
+          assert.equal(projection.view,'combined');assert.equal(projection.overflow,false);
+          if(viewport.width<620)assert.ok(projection.loupeTop>=projection.sceneBottom,'mobile loupe must stack below the workpiece');
+        }
         const color = themes[tool.domains[0]].dark;
         const expected = `rgb(${[1,3,5].map(offset=>parseInt(color.slice(offset,offset+2),16)).join(', ')})`;
         assert.equal(layout.themeLoaded,true,tool.id+' shared CSS not loaded');
