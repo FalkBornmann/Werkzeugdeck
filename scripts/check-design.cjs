@@ -56,6 +56,15 @@ const root = path.resolve(__dirname, '..');
           const projection=await page.evaluate(()=>{const scene=document.querySelector('.scene-panel').getBoundingClientRect(),loupe=document.querySelector('.loupe-panel').getBoundingClientRect();return {sceneTop:scene.top,sceneBottom:scene.bottom,loupeTop:loupe.top,view:document.querySelector('#view').value,overflow:document.documentElement.scrollWidth>innerWidth};});
           assert.equal(projection.view,'combined');assert.equal(projection.overflow,false);
           if(viewport.width<620)assert.ok(projection.loupeTop>=projection.sceneBottom,'mobile loupe must stack below the workpiece');
+          if(viewport.width>1050){
+            await page.locator('#run').click();await page.getByText('Berechnung abgeschlossen. Zeitregler und Ort wählen.',{exact:true}).waitFor();
+            await page.locator('#scene-title').scrollIntoViewIfNeeded();
+            const sidebar=await page.evaluate(()=>{const el=document.querySelector('.controls'),r=el.getBoundingClientRect(),dock=document.querySelector('.timeline-dock').getBoundingClientRect();return {position:getComputedStyle(el).position,top:r.top,bottom:r.bottom,dockTop:dock.top,scrollable:el.scrollHeight>el.clientHeight};});
+            assert.equal(sidebar.position,'sticky');assert.ok(sidebar.top>=0&&sidebar.top<30);assert.ok(sidebar.bottom<=sidebar.dockTop-10);assert.ok(sidebar.scrollable);
+            await page.locator('#material').focus();await page.locator('#scene').scrollIntoViewIfNeeded();
+            await page.screenshot({path:path.join(output,'gefuegerechner-sticky-desktop.png')});
+          }else assert.equal(await page.locator('.controls').evaluate(el=>getComputedStyle(el).position),'static');
+
         }
         const color = themes[tool.domains[0]].dark;
         const expected = `rgb(${[1,3,5].map(offset=>parseInt(color.slice(offset,offset+2),16)).join(', ')})`;
