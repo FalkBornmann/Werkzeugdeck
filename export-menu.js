@@ -104,9 +104,11 @@
     function refresh() {
       if (busy) return;
       const item = current();
-      for (const option of format.options) if (option.value === 'video') option.disabled = !videoType() || item.videoReady?.() === false;
-      save.disabled = item.enabled?.() === false || format.selectedOptions[0]?.disabled === true;
-      duration.hidden = format.value !== 'video';
+      for (const option of format.options) if (option.value === 'video') { const disabled = !videoType() || item.videoReady?.() === false; if (option.disabled !== disabled) option.disabled = disabled; }
+      const disabled = item.enabled?.() === false || format.selectedOptions[0]?.disabled === true;
+      if (save.disabled !== disabled) save.disabled = disabled;
+      const hidden = format.value !== 'video';
+      if (duration.hidden !== hidden) duration.hidden = hidden;
       hint.textContent = format.value === 'video' ? 'Der gesamte berechnete Verlauf wird auf die Filmlänge verdichtet. Tab aktiv halten. Während der Aufnahme sind die Eingaben gesperrt; Abbrechen stellt den vorherigen Zeitpunkt wieder her.' : 'PNG und SVG übernehmen den aktuell gewählten Darstellungszustand. Die Datei entsteht lokal auf deinem Gerät.';
     }
     object.addEventListener('change', refreshFormats);
