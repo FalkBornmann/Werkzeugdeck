@@ -138,7 +138,7 @@ Reproduktion der neuen Systeme:
 
 Danach je ternärem System build-liquidus.py, je System build-solidus.py und zusätzlich für die ternären Systeme build-solidus-branches.py ausführen. validate-additions.py erstellt 125 unabhängige Gleichgewichtszustände für die Mengenprüfung. validate-liquidus.py und validate-solidus.py erzeugen unabhängige Temperaturprüfpunkte; validate-solidus-display.mjs prüft die tatsächlich verwendete Anschmelzdarstellung.
 
-Die nächste Ausbaustufe ist in der sichtbaren, aufklappbaren Auswahlhilfe recherchiert: Al–Si, Cu–Ni, Al–Cu, Al–Mg–Si, Al–Cu–Si, Cu–Zn, Fe–C/Fe–Fe₃C und NaCl–KCl–MgCl₂. systems.js enthält Nutzen, benötigte Daten, Priorität und Quellen. Diese Kandidaten sind noch keine aktivierbaren Modelle. Isothermen erlauben einen geometrischen Einstieg, bestimmen aber weder alle Phasenmengen noch Abkühlzeiten oder die reale Morphologie.
+Als künftige Ausbaustufe sind Al–Mg–Si, Al–Cu–Si, Cu–Zn und Fe–C/Fe–Fe₃C in der sichtbaren, aufklappbaren Auswahlhilfe recherchiert. systems.js enthält Nutzen, benötigte Daten, Priorität und Quellen. Diese vier Kandidaten sind noch keine aktivierbaren Modelle. Al–Si, Cu–Ni, Al–Cu und NaCl–KCl–MgCl₂ sind inzwischen aktiv; die Modellgrundlagen stehen im folgenden Erweiterungsabschnitt. Isothermen erlauben einen geometrischen Einstieg, bestimmen aber weder alle Phasenmengen noch Abkühlzeiten oder die reale Morphologie.
 
 Die großen neuen ternären Pakete sind verlustfrei nach Temperaturzuständen aufgeteilt. Der Modellindex nennt die komprimierten Teile; nur das gewählte System wird geladen und lokal zusammengesetzt. Die monolithischen Generator-Zwischendateien sind nicht Teil der Veröffentlichung.
 
