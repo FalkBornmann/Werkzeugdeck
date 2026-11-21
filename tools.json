@@ -60,8 +60,8 @@
         "Nyquist",
         "Bode"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-      "revision": "89a0f2bcb62ad626aa312dfef270eb5e1e265d22",
+      "repository": "Werkzeugdeck/eis-fitting",
+      "revision": "c87837298fd2c6da34c6d62508b563d7dec90d21",
       "sourceDirectory": "Elektrochemie/Datenauswertung/EIS-Fitting",
       "assets": [
         "index.html",
@@ -102,8 +102,8 @@
         "Korrosion",
         "VoltaLab"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Potentialkurven",
-      "revision": "25e2d3edbdbe8428a5df69707c1f2456a121594c",
+      "repository": "Werkzeugdeck/potentialkurven",
+      "revision": "713f36326360d862dda981acee3df7532473addc",
       "sourceDirectory": "Elektrochemie/Datenauswertung/Potentialkurven",
       "assets": [
         "index.html",
@@ -137,8 +137,8 @@
         "Alltagsphysik",
         "KeksUndTee"
       ],
-      "repository": "FalkBornmann/KeksUndTee",
-      "revision": "b313f967f9be6f1a697998e85d2484946c2a6697",
+      "repository": "Werkzeugdeck/keks-und-tee",
+      "revision": "877bed9ee3fbb1eb8c61fd24e2964557e2111098",
       "sourceDirectory": "Theoretische Spielereien/KeksUndTee",
       "assets": [
         "index.html",
@@ -179,8 +179,8 @@
         "Mischtemperatur",
         "Alltagsphysik"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Kaffee-und-Milch",
-      "revision": "0e03a5bb7654aa6118db8f004bc90eae31272dde",
+      "repository": "Werkzeugdeck/kaffee-und-milch",
+      "revision": "2d623404113f82332ea72833fdac2903bd4eb884",
       "sourceDirectory": "Theoretische Spielereien/KaffeeUndMilch",
       "assets": [
         "index.html",
@@ -214,8 +214,8 @@
         "Additive",
         "Stofftransport"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Winand-Diagramm",
-      "revision": "2c9709e5eeb4ae1a084565d11d75e063f3b1a3c8",
+      "repository": "Werkzeugdeck/winand-diagramm",
+      "revision": "9b7d3bb9907f7fc9e80b0b63de020fb682e70a10",
       "sourceDirectory": "Elektrochemie/Simulation/Winand-Diagramm",
       "assets": [
         "index.html",
@@ -259,8 +259,8 @@
         "Platte",
         "Rundstab"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Gefuegerechner",
-      "revision": "9559cf899ba029dba82ed587a9442e2dd4ffcaa4",
+      "repository": "Werkzeugdeck/gefuegerechner",
+      "revision": "6bff38230ff8041cc7caa3a378947b036eac75bb",
       "sourceDirectory": "Werkstofftechnik/Simulation/Gefuegerechner",
       "assets": [
         "index.html",
@@ -320,8 +320,8 @@
         "Al–Cu–Mg",
         "Ag–Pb–Sn"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "db21c658747786c321b6b5c3c8ddef37ccc20a6a",
+      "repository": "Werkzeugdeck/legierungsatlas",
+      "revision": "b5f0ac3edebd017c8dd2924359adeacd1c5488d8",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -453,8 +453,8 @@
         "Sicherheit",
         "Grenzwerte"
       ],
-      "repository": "FalkBornmann/Werkzeugdeck-Abluftrechner",
-      "revision": "fae6bfae40a9337a64a124369edd697f05f23113",
+      "repository": "Werkzeugdeck/abluftrechner",
+      "revision": "77ab12184ee08db4167ce2040f86503707572aea",
       "sourceDirectory": "Beschichtungen/Abluftrechner",
       "assets": [
         "index.html",

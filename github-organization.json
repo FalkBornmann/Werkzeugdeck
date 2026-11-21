@@ -1,15 +1,6 @@
 {
   "organization": "Werkzeugdeck",
-  "status": "pending-creation",
+  "status": "active",
   "websiteRepository": "website",
-  "legacyRepositories": [
-    "FalkBornmann/Werkzeugdeck-EIS-Fitting",
-    "FalkBornmann/Werkzeugdeck-Potentialkurven",
-    "FalkBornmann/KeksUndTee",
-    "FalkBornmann/Werkzeugdeck-Kaffee-und-Milch",
-    "FalkBornmann/Werkzeugdeck-Winand-Diagramm",
-    "FalkBornmann/Werkzeugdeck-Gefuegerechner",
-    "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-    "FalkBornmann/Werkzeugdeck-Abluftrechner"
-  ]
+  "legacyRepositories": []
 }

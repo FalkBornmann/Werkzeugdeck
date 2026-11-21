@@ -6,17 +6,18 @@ Interaktive Werkzeuge zum Auswerten, Simulieren und Verstehen wissenschaftlicher
 
 Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung wird in einem eigenen Repository entwickelt. Der Build führt festgehaltene Tool-Versionen zur gemeinsamen Website zusammen.
 
-Die gemeinsame GitHub-Organisation wird derzeit eingerichtet. Neue Tool-Repositories gehören in die in `github-organization.json` festgelegte Organisation. [Einrichtungsstand und Regeln für Agenten](docs/GITHUB-ORGANISATION.md).
+Alle öffentlichen Werkzeugdeck-Anwendungen gehören zur [Organisation Werkzeugdeck](https://github.com/Werkzeugdeck). Dieses Repository enthält die Website. Neue Tool-Repositories werden ausschließlich in dieser Organisation angelegt. [Regeln und Ablauf für Agenten](docs/GITHUB-ORGANISATION.md).
 
 | Fachgebiet | Aufgabe | Werkzeug | Repository |
 | --- | --- | --- | --- |
-| Elektrochemie | Datenauswertung | EIS-Fitting | [Werkzeugdeck-EIS-Fitting](https://github.com/FalkBornmann/Werkzeugdeck-EIS-Fitting) |
-| Elektrochemie | Datenauswertung | Potentialkurven | [Werkzeugdeck-Potentialkurven](https://github.com/FalkBornmann/Werkzeugdeck-Potentialkurven) |
-| Elektrochemie | Simulation | Winand-Diagramm | [Werkzeugdeck-Winand-Diagramm](https://github.com/FalkBornmann/Werkzeugdeck-Winand-Diagramm) |
-| Beschichtungen | Simulation | Abluft beim Lackieren | [Werkzeugdeck-Abluftrechner](https://github.com/FalkBornmann/Werkzeugdeck-Abluftrechner) |
-| Wärmeübertragung | Simulation | Kaffee & Milch | [Werkzeugdeck-Kaffee-und-Milch](https://github.com/FalkBornmann/Werkzeugdeck-Kaffee-und-Milch) |
-| Stofftransport | Simulation | Keks und Tee | [KeksUndTee](https://github.com/FalkBornmann/KeksUndTee) |
-| Werkstofftechnik | Simulation | Gefügerechner für Stähle | [Werkzeugdeck-Gefuegerechner](https://github.com/FalkBornmann/Werkzeugdeck-Gefuegerechner) |
+| Elektrochemie | Datenauswertung | EIS-Fitting | [eis-fitting](https://github.com/Werkzeugdeck/eis-fitting) |
+| Elektrochemie | Datenauswertung | Potentialkurven | [potentialkurven](https://github.com/Werkzeugdeck/potentialkurven) |
+| Stofftransport | Simulation | Keks und Tee | [keks-und-tee](https://github.com/Werkzeugdeck/keks-und-tee) |
+| Wärmeübertragung | Simulation | Kaffee & Milch | [kaffee-und-milch](https://github.com/Werkzeugdeck/kaffee-und-milch) |
+| Elektrochemie | Simulation | Winand-Diagramm | [winand-diagramm](https://github.com/Werkzeugdeck/winand-diagramm) |
+| Werkstofftechnik | Simulation | Gefügerechner für Stähle | [gefuegerechner](https://github.com/Werkzeugdeck/gefuegerechner) |
+| Werkstofftechnik | Simulation | Legierungsatlas | [legierungsatlas](https://github.com/Werkzeugdeck/legierungsatlas) |
+| Beschichtungen | Simulation | Abluft beim Lackieren | [abluftrechner](https://github.com/Werkzeugdeck/abluftrechner) |
 
 „Theoretische Spielereien“ ist eine zusätzliche Sammlung und der vorausgewählte Einstieg. Fachgebiete, Aufgaben, Sammlungen und Suchbegriffe werden unabhängig gepflegt. Eine Anwendung kann mehreren Fachgebieten zugeordnet sein und behält ihre Adresse unter /tools/<id>/.
 

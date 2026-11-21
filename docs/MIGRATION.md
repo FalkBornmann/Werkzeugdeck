@@ -15,3 +15,10 @@ Das private Repository `EIS-Fitting` gehört nicht zur öffentlichen Werkzeugdec
 Tool-Arbeitskopien bleiben in ihren fachlich zugeordneten Ordnern. Alte ZIP-Veröffentlichungen werden unter `Archiv/Veröffentlichungen-2026-11-07/` gesammelt. Alte Arbeitskopien liegen unter `Archiv/`. Ausgeblendete Testabhängigkeiten und Arbeitskopien unter `.codex-repos/` sind lokale Hilfsdateien und vom Katalog-Repository ausgeschlossen.
 
 Die Website verwendet feste `/tools/`-Adressen und leitet die bisherigen Tool-Adressen weiter. Die Ordnerstruktur legt dadurch keine künftigen Fachgebiete fest.
+
+
+## Umzug in die Organisation am 21. November 2026
+
+Die aktive Organisation ist https://github.com/Werkzeugdeck. Website und Katalog liegen in `Werkzeugdeck/website`; alle acht verfügbaren Tools besitzen kurze Reponamen entsprechend ihrer Tool-ID. Repository-IDs und Commit-Historien wurden beim Transfer erhalten. Die Quelladressen, lokalen Git-Remotes, README-Verweise und Katalog-Pins wurden aktualisiert. `EIS-Fitting-Web` und `Eintunken` bleiben als archivierte GitHub-Pages-Weiterleitungen beim persönlichen Konto. Unabhängige private Projekte bleiben unverändert.
+
+Jedes Tool enthält nun eine eigene `AGENTS.md`. Neue Anwendungen gehören ausschließlich zur Organisation; Katalog und Build prüfen dies über `github-organization.json`. Ablauf: `docs/GITHUB-ORGANISATION.md`. Die Website bleibt unter https://werkzeugdeck.pages.dev/ erreichbar.
