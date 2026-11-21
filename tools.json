@@ -289,7 +289,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Elf Metall- und Salzsysteme mit glatten Phasengrenzen, freien Gehaltsschnitten, 3D-Liquidusfläche und lokaler Mengenrechnung vergleichen; Auswahlhilfe für weitere Werkstoffe.",
+      "description": "Fünfzehn Metall- und Salzsysteme lokal berechnen: Aluminium- und Cu–Ni-Modelle, rekonstruierte Chlorid-Isothermen, freie Schnitte, Gefügeskizzen und 3D-Liquidusflächen.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -306,10 +306,13 @@
         "Hartlot",
         "Weichlot",
         "Mischkristall",
-        "Bismut"
+        "Bismut",
+        "Aluminium",
+        "Cu–Ni",
+        "MgCl₂"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "a22e9a3dabb72b83498886407f4daa69a54b2e39",
+      "revision": "e65cd4405d467ac0edf354840200261806cb4d84",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -373,7 +376,14 @@
         "bicusn-hulls-part-4.json.gz",
         "bicusn-hulls-part-5.json.gz",
         "bicusn-liquidus.json.gz",
-        "bicusn-solidus.json.gz"
+        "bicusn-solidus.json.gz",
+        "alsi-hulls.json.gz",
+        "alsi-solidus.json.gz",
+        "alcu-hulls.json.gz",
+        "alcu-solidus.json.gz",
+        "cuni-hulls.json.gz",
+        "cuni-solidus.json.gz",
+        "nakmg-diagram.json.gz"
       ],
       "aliases": []
     },
