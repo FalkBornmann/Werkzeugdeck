@@ -43,14 +43,14 @@ Die Oberfläche folgt KeksUndTee: dunkelgrüner Kopfbereich, sandfarbene Akzente
 
 
 ## Werkzeugdeck-Katalog
-Dieses Repository enthält ausschließlich das Tool. Fachgebiete, Navigation, veröffentlichter Versionsstand und gemeinsame Auslieferung werden im [Werkzeugdeck-Katalog](https://github.com/FalkBornmann/Werkzeugdeck) gepflegt.
+Dieses Repository enthält ausschließlich das Tool. Fachgebiete, Navigation, veröffentlichter Versionsstand und gemeinsame Auslieferung werden im [Werkzeugdeck-Katalog](https://github.com/Werkzeugdeck/website) gepflegt.
 Online: https://werkzeugdeck.pages.dev/tools/eis-fitting/
 
 ## Grafikexport
 Die erzeugten Diagramme und Grafiken lassen sich als PNG und als echte SVG-Vektorgrafik speichern. SVG enthält skalierbare Linien, Flächen und Text. Beide Formate übernehmen den gewählten Darstellungszustand; Exporte entstehen lokal im Browser.
 
 ## Fachtheorie und einheitliche Bedienung
-[Fachtheorie öffnen](https://werkzeugdeck.pages.dev/bereiche/elektrochemie/theorie/) · [Design- und Exportvorgaben](https://github.com/FalkBornmann/Werkzeugdeck/blob/main/docs/DESIGN.md)
+[Fachtheorie öffnen](https://werkzeugdeck.pages.dev/bereiche/elektrochemie/theorie/) · [Design- und Exportvorgaben](https://github.com/Werkzeugdeck/website/blob/main/docs/DESIGN.md)
 Das gemeinsame Exportmenü bietet Darstellung, Dateityp und Speichern. PNG ist vorausgewählt; SVG enthält skalierbare Vektoren und Text.
 
 
