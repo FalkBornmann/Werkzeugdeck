@@ -42,7 +42,7 @@ Die Farbkarte mischt Gefügefarben nach lokalen Anteilen und interpoliert räuml
 Zusätzliche Tests prüfen schnellere Ecken gegenüber Flächenmitten, Einfluss der zweiten Kantenlänge, Symmetrie, räumliche/zeitliche Verfeinerung, Grenzfall der unendlich ausgedehnten Platte, Volumenmittel und Phasensummen bei der Interpolation. Die zeitliche Pfadzuordnung trennt Anlasshaltezeiten von isothermem Austenitzerfall. Mobile Orts- und Zeitsteuerung sowie Diagrammdialoge wurden im Browser geprüft.
 
 ## Fachtheorie und einheitliche Bedienung
-[Fachtheorie öffnen](https://werkzeugdeck.pages.dev/bereiche/werkstofftechnik/theorie/) · [Design- und Exportvorgaben](https://github.com/FalkBornmann/Werkzeugdeck/blob/main/docs/DESIGN.md)
+[Fachtheorie öffnen](https://werkzeugdeck.pages.dev/bereiche/werkstofftechnik/theorie/) · [Design- und Exportvorgaben](https://github.com/Werkzeugdeck/website/blob/main/docs/DESIGN.md)
 Das gemeinsame Exportmenü bietet Darstellung, Dateityp und Speichern. PNG ist vorausgewählt; SVG enthält skalierbare Vektoren und Text.
 Zeitabhängige Darstellungen können zusätzlich als lokales Video (WebM beziehungsweise MP4 nach Browserunterstützung) gespeichert werden. Die Filmlänge ist wählbar. Eingaben werden während der Aufnahme gesperrt; Abbrechen und Abschluss stellen den vorherigen Zeitpunkt wieder her.
 
