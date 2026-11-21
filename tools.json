@@ -321,7 +321,7 @@
         "Ag–Pb–Sn"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Legierungsatlas",
-      "revision": "027125834cb998375ea36c397a2553e8c6bae874",
+      "revision": "db21c658747786c321b6b5c3c8ddef37ccc20a6a",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -341,6 +341,7 @@
         "fractions.js",
         "microstructure.js",
         "axes.js",
+        "triangle-geometry.js",
         "boundary.js",
         "constituents.js",
         "phase-space.js",
