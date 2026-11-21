@@ -161,7 +161,8 @@ function referencePoints(){
   return pure;
  }
  return [...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literatur '+fmt(r.t)+' °C',x:r.x})),
- ...m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}))];
+ ...m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)})),
+ ...(systems.find(s=>s.id===m.system)?.specialPoints||[]).map(p=>({name:p.name,x:p.x||mass(p.mass)}))];
 }
 function projectOnCut(x){
  const a=display(state.a,state),b=display(state.b,state),p=display(x,state);
@@ -217,7 +218,7 @@ async function loadSystem(){
  status('Gleichgewichtsmodell wird geladen und lokal entpackt …');
  const answer=await request('load',{key});
  if(id!==loadId)return;
- state.model=answer.model;el('coolingIntro').textContent=state.model.diagramModel?'Schematischer Verlauf aus Isothermen und geometrischer Mengenbilanz. Das normierte Wärmeabfuhrmaß enthält einen angenommenen latenten Anteil; es ist weder eine Zeit- noch eine Enthalpieprognose.':'Die horizontale Achse zeigt die entzogene molare Enthalpie. Bei konstanter molarer Kühlleistung ist sie proportional zur Zeit. Die vollständige Temperaturspanne bleibt sichtbar.';el('zoom').disabled=!!state.model.diagramModel;if(state.model.diagramModel){state.zoom='full';el('zoom').value='full'}el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
+ state.model=answer.model;el('coolingIntro').textContent=state.model.diagramModel?'Schematischer Verlauf aus Isothermen und geometrischer Mengenbilanz. Das normierte Wärmeabfuhrmaß enthält einen angenommenen latenten Anteil; es ist weder eine Zeit- noch eine Enthalpieprognose.':'Die horizontale Achse zeigt die entzogene molare Enthalpie. Bei konstanter molarer Kühlleistung ist sie proportional zur Zeit. Die vollständige Temperaturspanne bleibt sichtbar.';const canTinZoom=!state.model.diagramModel&&state.model.components.length===3&&state.model.components[2]==='SN';el('zoom').disabled=!canTinZoom;el('zoom').closest('label').hidden=!canTinZoom;if(!canTinZoom){state.zoom='full';el('zoom').value='full'}el('windowMin').value=state.model.T[0];el('windowMax').value=state.model.T.at(-1);state.binary=state.model.components.length===2;
  state.a=state.binary?[0,1]:state.model.diagramModel?[.6,0,.4]:[0,0,1];state.b=state.binary?[1,0]:state.model.diagramModel?[0,.6,.4]:key==='pbsnbi'?[.611,.389,0]:[.08,.02,.9];
  const preset=systems.find(s=>s.id===key)?.cut;if(preset){state.a=preset[0].slice();state.b=preset[1].slice()}
  state.lambdas=[.35,.65];state.activeId='x0';state.visibleIds=new Set(['x0','x1']);exactLambda=null;state.selected=0;
@@ -388,6 +389,7 @@ try{favorites=JSON.parse(localStorage.getItem('atlas-favorites')||'[]')}catch{}
 function showSystemInfo(key){
  const system=systems.find(s=>s.id===key);if(!system)return;
  el('systemInfo').innerHTML='<b>'+escape(system.status)+'</b> · '+escape(system.description)+' <a href="'+system.source+'" target="_blank" rel="noopener">Fachquelle</a>';
+ if(['almgsi','alcusi','alcumg','agpbsn'].includes(key))el('systemInfo').insertAdjacentHTML('beforeend',' <span>Numerische Übersicht: Phasenmengen können um mehrere Prozentpunkte abweichen. Unter 0,2 mol-% werden Beiträge nur in den Mengenwerten geführt; Anschmelzlinien stammen aus separaten Direktrechnungen.</span>');
  el('favorite').setAttribute('aria-pressed',String(favorites.includes(key)));el('favorite').textContent=favorites.includes(key)?'★ Favorit':'☆ Favorit';
 }
 function initializeLibrary(){

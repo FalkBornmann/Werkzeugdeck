@@ -11,7 +11,7 @@ export function prepareSection(state){
  if(cached&&cached.surface===state.surface)return cached.columns;
  const overview=state.model.diagramModel?state.columns.map((column,i)=>column.series.map((sample,j)=>{
   if(sample.unavailable)return sample;
-  const kind=s=>s.liquid>1-1e-7?2:s.liquid>1e-7?1:0,votes=new Map();
+  const kind=s=>s.liquid>1-(s.phaseTolerance??1e-7)?2:s.liquid>(s.phaseTolerance??1e-7)?1:0,votes=new Map();
   for(let k=Math.max(0,i-4);k<=Math.min(state.columns.length-1,i+4);k++){
    const s=state.columns[k].series[j];if(!s.unavailable&&kind(s)===kind(sample))votes.set(s.signature,(votes.get(s.signature)||0)+1);
   }

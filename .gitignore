@@ -6,3 +6,9 @@ qa/
 # Large source intermediates; browser and tests use lossless temperature chunks.
 agbisn-hulls.json.gz
 bicusn-hulls.json.gz
+
+# New ternaries use the same lossless browser chunk loader.
+almgsi-hulls.json.gz
+alcusi-hulls.json.gz
+alcumg-hulls.json.gz
+agpbsn-hulls.json.gz

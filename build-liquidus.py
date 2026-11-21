@@ -15,14 +15,16 @@ from pycalphad.mapping.utils import update_cs_phase_frac
 sys.stdout.reconfigure(encoding="utf-8",errors="replace")
 root=Path(__file__).resolve().parent
 key=sys.argv[1]
-components=json.load(gzip.open(root/(key+"-hulls.json.gz")))["components"]
-raw=(root/"NIST-solder.tdb").read_text()
+model=json.load(gzip.open(root/(key+"-hulls.json.gz")))
+components=model["components"]
+raw=(root/model.get("database","NIST-solder.tdb")).read_text(encoding="utf-8-sig")
 db=Database(StringIO(re.sub(r"DATABASE_INFO.*?!","",raw,flags=re.S).replace(",,N"," 6000 N")))
+active=model.get("activePhases",list(db.phases))
 seeds=json.loads((root/"qa"/(key+"-surface-seeds.json")).read_text())
 cache=root/"qa"/(key+"-saturation-points-v2.json")
 solver=Solver(remove_metastable=False)
 base={v.P:101325,v.N:1}
-w=Workspace(db,components+["VA"],list(db.phases),{**base,v.T:800,v.X(components[0]):.3,v.X(components[1]):.3})
+w=Workspace(db,components+["VA"],active,{**base,v.T:800,v.X(components[0]):.3,v.X(components[1]):.3})
 def cond(x,t):
  return {**base,v.T:t+273.15,**{v.X(c):x[i] for i,c in enumerate(components[:-1])}}
 def sets_at(x,t):
@@ -42,7 +44,7 @@ def saturation(x,tc,solid0):
  try:
   result=solver.solve([liquid,solid],conditions)
   t=float(liquid.dof[list(liquid.phase_record.state_variables).index(v.T)]-273.15)
-  if result.converged and -50<t<1300 and np.max(np.abs(np.array(liquid.X)-x))<1e-6:
+  if result.converged and -50<t<max(model["T"])+100 and np.max(np.abs(np.array(liquid.X)-x))<1e-6:
    return dict(t=t,branch=branch_name(solid),solid=list(np.array(solid.X)),raw=solid.phase_record.phase_name)
  except Exception:pass
  return None
@@ -89,7 +91,7 @@ for name in primary:
  if len(data)<4:continue
  _,idx=np.unique(np.round(data[:,:2],10),axis=0,return_index=True);data=data[idx]
  if len(data)<4 or np.linalg.matrix_rank(data[:,:2]-data[:,:2].mean(axis=0))<2:continue
- fits.append((name,RBFInterpolator(data[:,:2],data[:,2],kernel="thin_plate_spline",smoothing=1e-7,degree=1),cKDTree(data[:,:2])))
+ fits.append((name,RBFInterpolator(data[:,:2],data[:,2],kernel="thin_plate_spline",smoothing=1e-7,degree=1,neighbors=min(80,len(data)) if key in ["almgsi","alcusi","alcumg","agpbsn"] else None),cKDTree(data[:,:2])))
  branch_points.append(data)
 n=240
 coords=np.array([[1-(i+j)/n,i/n] for j in range(n+1) for i in range(n+1-j)])

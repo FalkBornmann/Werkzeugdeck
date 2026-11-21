@@ -28,5 +28,23 @@
     "license": "CC-BY-4.0",
     "mirror": "https://orchid-project.org/data/databases/sgte-binary/CuNi-92Mey-LB.tdb",
     "modified": false
+  },
+  {
+    "file": "COST507-original.tdb",
+    "sha256": "80363e1de4aa1ee0750df28ef48e1524ef64b7988d6517649fff1c991e3ed641",
+    "assessment": "COST 507, Round II January 1999, I. Ansara, A.T. Dinsdale, M.H. Rand (eds.)",
+    "source": "https://www.opencalphad.com/databases/COST507.zip",
+    "license": "Freely usable according to original DATABASE_INFO; no CC license asserted",
+    "modified": false,
+    "adapter": null
+  },
+  {
+    "file": "COST507-compatible.tdb",
+    "sha256": "6673e92947761ab4a3198eb4c5a22552272e678e5ce9b1245c910cc1c879afb5",
+    "assessment": "COST 507, Round II January 1999, I. Ansara, A.T. Dinsdale, M.H. Rand (eds.)",
+    "source": "https://www.opencalphad.com/databases/COST507.zip",
+    "license": "Freely usable according to original DATABASE_INFO; no CC license asserted",
+    "modified": true,
+    "adapter": "build-cost507-source.py"
   }
 ]

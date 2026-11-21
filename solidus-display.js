@@ -11,7 +11,17 @@ export function displayedSolidus(model,x,root,series){
  const key=solidSignature(series[root.index-1],model),values=data.branches?.[key]||data.nodes;
  let surfaces=cache.get(data);if(!surfaces){surfaces=new Map();cache.set(data,surfaces)}
  if(!surfaces.has(key))surfaces.set(key,{n:data.n,nodes:values.map(value=>({value}))});
- const s=surfaces.get(key),t=surfaceTemperature(s,x);
+ const s=surfaces.get(key);let t=surfaceTemperature(s,x);
+ const fit=model.directBoundaries&&data.directFits?.[key];
+ if(fit){
+  if(Number.isFinite(fit.constant))t=fit.constant;
+  else if(Math.min(...fit.centers.map(c=>Math.hypot(c[0]-x[0],c[1]-x[1])))<.18){
+   t=fit.poly[0]+fit.poly[1]*(x[0]-fit.shift[0])/fit.scale[0]+fit.poly[2]*(x[1]-fit.shift[1])/fit.scale[1];
+   fit.centers.forEach((c,i)=>{const r=Math.hypot(c[0]-x[0],c[1]-x[1]);if(r>0)t+=fit.weights[i]*r*r*Math.log(r)});
+   t=Math.max(fit.low,Math.min(fit.high,t));
+  }
+  if(Number.isFinite(t))return t;
+ }
  // A branch interpolation cannot override evidence of a different local onset interval.
  return Number.isFinite(t)&&t>=root.bracket[0]-3&&t<=root.bracket[1]+3?t:root.temperature;
 }

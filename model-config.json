@@ -246,5 +246,235 @@
     "labels": {
       "FCC_A1": "α (kfz)"
     }
+  },
+  "almgsi": {
+    "components": [
+      "AL",
+      "MG",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      24.305,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      1500
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; ternär bewertet",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALMG_BETA",
+      "ALMG_EPS",
+      "ALMG_GAMMA",
+      "DIAMOND_A4",
+      "MG2SI"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "DIAMOND_A4": "Si",
+      "MG2SI": "Mg₂Si",
+      "ALMG_BETA": "β-Al₃Mg₂",
+      "ALMG_EPS": "ε-Al–Mg",
+      "ALMG_GAMMA": "γ-Al₁₂Mg₁₇"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "alcusi": {
+    "components": [
+      "AL",
+      "CU",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      63.546,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      1500
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; binär extrapoliert",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALCU_DELTA",
+      "ALCU_EPSILON",
+      "ALCU_ETA",
+      "ALCU_THETA",
+      "ALCU_ZETA",
+      "GAMMA_D83",
+      "GAMMA_H",
+      "BCC_A2",
+      "DIAMOND_A4",
+      "CU19SI6_ETA",
+      "CU33SI7_DELTA",
+      "CU4SI_EPSILON",
+      "CU56SI11_GAMMA"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "BCC_A2": "β (krz)",
+      "DIAMOND_A4": "Si",
+      "ALCU_THETA": "θ-Al₂Cu",
+      "ALCU_DELTA": "δ-Al₂Cu₃",
+      "ALCU_EPSILON": "ε-AlCu",
+      "ALCU_ETA": "η-AlCu",
+      "ALCU_ZETA": "ζ-Al₉Cu₁₁",
+      "GAMMA_D83": "γ-Al₄Cu₉ (D83)",
+      "GAMMA_H": "γ-Al–Cu (hdp)",
+      "CU19SI6_ETA": "η-Cu₁₉Si₆",
+      "CU33SI7_DELTA": "δ-Cu₃₃Si₇",
+      "CU4SI_EPSILON": "ε-Cu₄Si",
+      "CU56SI11_GAMMA": "γ-Cu₅₆Si₁₁"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "alcumg": {
+    "components": [
+      "AL",
+      "CU",
+      "MG"
+    ],
+    "masses": [
+      26.98154,
+      63.546,
+      24.305
+    ],
+    "range": [
+      25,
+      1120,
+      10
+    ],
+    "extra": [
+      1120
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; ternär bewertet",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALMG_BETA",
+      "ALMG_EPS",
+      "ALMG_GAMMA",
+      "ALCU_DELTA",
+      "ALCU_EPSILON",
+      "ALCU_ETA",
+      "ALCU_THETA",
+      "ALCU_ZETA",
+      "GAMMA_D83",
+      "GAMMA_H",
+      "BCC_A2",
+      "LAVES_C14",
+      "LAVES_C15",
+      "LAVES_C36",
+      "CUMG2",
+      "SPHASE",
+      "QPHASE",
+      "VPHASE",
+      "TAU"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "BCC_A2": "β (krz)",
+      "ALMG_BETA": "β-Al₃Mg₂",
+      "ALMG_EPS": "ε-Al–Mg",
+      "ALMG_GAMMA": "γ-Al₁₂Mg₁₇",
+      "ALCU_THETA": "θ-Al₂Cu",
+      "ALCU_DELTA": "δ-Al₂Cu₃",
+      "ALCU_EPSILON": "ε-AlCu",
+      "ALCU_ETA": "η-AlCu",
+      "ALCU_ZETA": "ζ-Al₉Cu₁₁",
+      "GAMMA_D83": "γ-Al₄Cu₉ (D83)",
+      "GAMMA_H": "γ-Al–Cu (hdp)",
+      "LAVES_C14": "Laves C14",
+      "LAVES_C15": "Laves C15",
+      "LAVES_C36": "Laves C36",
+      "CUMG2": "CuMg₂",
+      "SPHASE": "S-Al₂CuMg",
+      "QPHASE": "Q-Al₇Cu₃Mg₆",
+      "VPHASE": "V-Al₅Cu₆Mg₂",
+      "TAU": "T-(Al,Cu)₄₉Mg₃₂"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "agpbsn": {
+    "components": [
+      "AG",
+      "PB",
+      "SN"
+    ],
+    "masses": [
+      107.87,
+      207.2,
+      118.69
+    ],
+    "range": [
+      40,
+      1000,
+      10
+    ],
+    "extra": [
+      177.3,
+      307.2,
+      307.8
+    ],
+    "fine": [
+      160,
+      330,
+      2
+    ],
+    "source": "NIST solder database (2017), ternary extrapolation from binary assessments",
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
   }
 }

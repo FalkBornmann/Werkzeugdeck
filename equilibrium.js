@@ -85,14 +85,14 @@ export function solve(model, compositionValue, ti) {
   const massSum=phases.reduce((s,p)=>s+p.mass,0);
   phases.forEach(p=>p.mass/=massSum);
   const liquid=phases.filter(p=>p.raw==='LIQUID').reduce((s,p)=>s+p.fraction,0);
-  return {phases,liquid,enthalpy,signature:phases.map(p=>p.name).sort().join(' + '),face,weights};
+  return {phases,liquid,phaseTolerance:model.phaseTolerance??EPS,enthalpy,signature:phases.filter(p=>p.fraction>=(model.phaseTolerance??EPS)).map(p=>p.name).sort().join(' + '),face,weights};
 }
 export function profile(model,x) {
   return model.T.map((temperature,ti)=>({temperature, ...solve(model,x,ti)}));
 }
 export function thresholds(series) {
-  const liquid=series.findIndex(s=>s.phases&&s.liquid>EPS);
-  const all=series.findIndex(s=>s.phases&&s.liquid>1-EPS);
+  const liquid=series.findIndex(s=>s.phases&&s.liquid>(s.phaseTolerance??EPS));
+  const all=series.findIndex(s=>s.phases&&s.liquid>1-(s.phaseTolerance??EPS));
   const bracket=i=>i<0 ? null : [series[Math.max(0,i-1)].temperature,series[i].temperature];
   return {solidus:bracket(liquid), liquidus:bracket(all)};
 }

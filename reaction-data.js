@@ -1,6 +1,9 @@
 import {toMoles} from './equilibrium.js';
 // Published NIST invariant liquid compositions, in mass fractions. Reference markers are not fitted observations.
 const tables={
+ agpbsn:[['E','E',177.3,[.015,.3634,.6216],'L → Ag₃Sn + (Pb) + β-Sn'],['U₁','U',307.8,[.018,.9802,.0018],'L + (Ag) → (Pb) + ζ-Ag'],['U₂','U',307.2,[.0138,.9618,.0244],'L + ζ-Ag → (Pb) + Ag₃Sn']],
+ alcusi:[['E (Lit.)','E',524,[.6725,.275,.0525],'L → α-Al + Si + θ-Al₂Cu · Literaturvergleich, kein angepasster Modellanker']],
+
  alsi:[['E','E',577,[.874,.126],'L → α-Al + Si · Literatur-Näherungswert']],
  alcu:[['E','E',548,[.67,.33],'L → α-Al + θ-Al₂Cu · Literatur-Näherungswert']],
  cuni:[],

@@ -1,7 +1,7 @@
 import { transitionEstimate } from './geometry.js';
 import { profile, EPS } from './equilibrium.js';
 export function boundaryFromSeries(series,kind='liquidus'){
- const predicate=s=>s?.phases&&(kind==='liquidus'?s.liquid>1-EPS:s.liquid>EPS);
+ const predicate=s=>s?.phases&&(kind==='liquidus'?s.liquid>1-(s.phaseTolerance??EPS):s.liquid>(s.phaseTolerance??EPS));
  const roots=[];
  for(let i=1;i<series.length;i++)if(!!predicate(series[i])!==!!predicate(series[i-1])){
   const lower=series[i-1].temperature,upper=series[i].temperature;

@@ -1,3 +1,4 @@
+import {elementSymbol} from './symbols.js';
 import {systems} from './systems.js';
 import {diagramSetup,diagramLiquidus,solveDiagram} from './diagram-model.js';
 import { transitionEstimate } from './geometry.js';
@@ -26,7 +27,7 @@ function makeSurface(){
  let k=0;
  for(let j=0;j<=n;j++)for(let i=0;i<=n-j;i++){
   const [value,branch]=atlas.nodes[k],id=atlas.branches[branch],raw=id.split('#')[0];
-  const primary=phaseName(raw,model)+(raw==='FCC_A1'?' ('+({AG:'Ag',CU:'Cu',PB:'Pb'}[id.split('#')[1]]||'')+')':'');
+  const primary=phaseName(raw,model)+(raw==='FCC_A1'?' ('+elementSymbol(id.split('#')[1]||'')+')':'');
   map.set(i+','+j,k++);nodes.push({x:[1-(i+j)/n,i/n,j/n],value,primary});
  }
  const mesh=(step,target)=>{for(let j=0;j<n;j+=step)for(let i=0;i<n-j;i+=step){

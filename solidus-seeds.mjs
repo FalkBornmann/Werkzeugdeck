@@ -3,12 +3,14 @@ import {gunzipSync} from 'node:zlib';
 import {profile,thresholds} from './equilibrium.js';
 for(const key of (process.argv.length>2?process.argv.slice(2):['sac','pbsnbi','bisn','cusn'])){
  const m=JSON.parse(gunzipSync(readFileSync(key+'-hulls.json.gz'))),points=new Map();
+ if(['almgsi','alcusi','alcumg','agpbsn'].includes(key))Object.assign(m,{phaseTolerance:.002,directBoundaries:true});
  const add=x=>points.set(x.map(v=>v.toFixed(10)).join(','),x);
  if(m.components.length===3){
   const n=40;for(let j=0;j<=n;j++)for(let i=0;i<=n-j;i++)add([1-(i+j)/n,i/n,j/n]);
   for(let e=0;e<3;e++)for(let i=0;i<=160;i++){const x=[0,0,0];x[e]=i/160;x[(e+1)%3]=1-i/160;add(x)}
+  if(['almgsi','alcusi','alcumg','agpbsn'].includes(key))for(let major=0;major<3;major++)for(const a of [0,.001,.003,.005,.01,.02,.04,.075,.1])for(const b of [0,.001,.003,.005,.01,.02,.04,.075,.1]){const x=[0,0,0];x[major]=1-a-b;x[(major+1)%3]=a;x[(major+2)%3]=b;add(x)}
  }else for(let i=0;i<=240;i++)add([i/240,1-i/240]);
  const rows=[...points.values()].map(x=>({x,bracket:thresholds(profile(m,x)).solidus}));
- writeFileSync('qa/'+key+'-solidus-seeds.json',JSON.stringify({components:m.components,T:m.T,database:m.database,excludedPhases:m.excludedPhases,seeds:rows}));
+ writeFileSync('qa/'+key+'-solidus-seeds.json',JSON.stringify({components:m.components,T:m.T,database:m.database,excludedPhases:m.excludedPhases,activePhases:m.activePhases,seeds:rows}));
  console.log(key,rows.length);
 }

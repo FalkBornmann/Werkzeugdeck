@@ -15,6 +15,11 @@ for(const key of (process.argv.length>2?process.argv.slice(2):['sac','pbsnbi']))
    const x=[0,0,0];x[trace]=dilute;x[(trace+1)%3]=(1-dilute)*j/80;x[(trace+2)%3]=(1-dilute)*(1-j/80);add(x);
   }
  }
+ if(['almgsi','alcusi','alcumg','agpbsn'].includes(key))for(let trace=0;trace<3;trace++){
+  for(const dilute of [.0001,.0005,.001,.003,.005,.01,.02,.04,.075,.1])for(let j=0;j<=60;j++){
+   const x=[0,0,0];x[trace]=dilute;x[(trace+1)%3]=(1-dilute)*j/60;x[(trace+2)%3]=(1-dilute)*(1-j/60);add(x);
+  }
+ }
  for(const r of reactionReferences({...m,system:key}))add(r.x);
  const rows=[...map.values()].map(x=>({x,bracket:thresholds(profile(m,x)).liquidus}));
  writeFileSync('qa/'+key+'-surface-seeds.json',JSON.stringify(rows));

@@ -54,7 +54,7 @@ export function microstructureChart(state) {
   const phases = sample.phases.map(p => ({
     ...p, share: state.basis === 'mass' ? p.mass : p.fraction, color: phaseColor(p.name),
   })).sort((a, b) => b.share - a.share);
-  const liquid = phases.find(p => p.raw === 'LIQUID');
+  const liquid = phases.find(p => p.raw === 'LIQUID' && p.fraction >= (state.model.phaseTolerance ?? 1e-7));
   const solids = phases.filter(p => p.raw !== 'LIQUID');
   const peritectic=formation.peritectic;
   const eutectic=sample.liquid<1e-7?formation.constituent:null;

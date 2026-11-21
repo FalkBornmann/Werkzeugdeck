@@ -21,7 +21,7 @@ for i,q in enumerate(rows):
 cache.write_text(json.dumps(rows))
 out=json.load(gzip.open(key+'-solidus.json.gz'));n=out['n']
 coords=np.array([[1-(i+j)/n,i/n] for j in range(n+1) for i in range(n+1-j)])
-branches={}
+branches={};direct_fits={}
 for name in sorted(set(q.get('signature','') for q in rows)):
  data=np.array([[*q['x'][:2],q['t']] for q in rows if q.get('signature')==name and q['t'] is not None])
  if not len(data):continue
@@ -31,7 +31,10 @@ for name in sorted(set(q.get('signature','') for q in rows)):
   fit=RBFInterpolator(data[:,:2],data[:,2],kernel='thin_plate_spline',smoothing=1e-5,degree=1)
   values=fit(coords);values=np.clip(values,min(data[:,2]),max(data[:,2]))
  else:values=data[idx,2]
+ if np.ptp(data[:,2])<.1:direct_fits[name]={'constant':float(np.median(data[:,2]))}
+ elif len(data)>=4 and np.linalg.matrix_rank(data[:,:2]-data[:,:2].mean(axis=0))==2:
+  direct_fits[name]={'centers':data[:,:2].tolist(),'weights':fit._coeffs[:len(data),0].tolist(),'poly':fit._coeffs[len(data):,0].tolist(),'shift':fit._shift.tolist(),'scale':fit._scale.tolist(),'low':float(min(data[:,2])),'high':float(max(data[:,2]))}
  branches[name]=[round(float(t),5) if d<.18 else None for t,d in zip(values,distance)]
-out['branches']=branches;out['method']='Direct liquid onset, branch-aware C1 reconstruction; solid-assemblage branches retained'
+out['directFits']=direct_fits;out['branches']=branches;out['method']='Direct liquid onset, branch-aware C1 reconstruction; solid-assemblage branches retained'
 with gzip.GzipFile(str(root/(key+'-solidus.json.gz')),'wb',mtime=0) as f:f.write(json.dumps(out,separators=(',',':'),allow_nan=False).encode())
 print(key,'solidus branches',len(branches),flush=True)
