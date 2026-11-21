@@ -1,5 +1,9 @@
 # Werkzeugdeck
 
+- Neue öffentliche Werkzeugdeck-Tool-Repositories gehören in die GitHub-Organisation aus `github-organization.json`, nicht in das persönliche Konto. Den Einrichtungsstatus und Ablauf in `docs/GITHUB-ORGANISATION.md` prüfen. Solange die Organisation noch nicht angelegt oder für den Agenten nicht zugänglich ist, lokal vorbereiten und die konkrete Einschränkung melden; kein persönliches Ersatz-Repository und keine zweite Organisation anlegen. Bestehende persönliche Repositories sind nur während der dokumentierten Migration zugelassen. Jedes neue Tool übernimmt diese Regel in eine eigene `AGENTS.md`, damit sie auch in einem separaten Checkout gilt.
+
+- Microsoft Edge in diesem Projekt nicht verwenden, starten oder automatisieren. Keine Zugriffs- oder Genehmigungsanfragen für Microsoft Edge stellen; der Nutzer lehnt diese grundsätzlich ab. Dies gilt auch für einen Edge-Start über Playwright, `msedge.exe` oder `EIS_BROWSER`. Für Browserprüfungen den In-App-Browser oder einen eigenständigen Chromium-Testbrowser verwenden. Wenn keine erlaubte Alternative verfügbar ist, die Einschränkung benennen und die übrigen Prüfungen fortsetzen, ohne erneut Edge-Zugriff anzufragen.
+
 - Jedes neue Tool erhält eine sichtbare Fußzeile nach dem Muster von Potentialkurven. Verlinke das Werkzeugdeck und die passende Kategorie und kennzeichne das Angebot als privates Projekt in Entwicklung.
 - Ergänze unter „Nutzungshinweise und Haftung“ den Zweck, die Grenzen der Auswertung, den Hinweis zur unabhängigen Prüfung und den Haftungstext.
 - Beschreibe KI-Einsatz, Verarbeitung der Messdaten und Exporte sowie Hosting und externe Bibliotheken entsprechend dem tatsächlichen Verhalten des jeweiligen Tools.

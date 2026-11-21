@@ -1,4 +1,6 @@
 import {activityIcon, themes} from './design.mjs';
+import {readFileSync} from 'node:fs';
+const repositoryPolicy = JSON.parse(readFileSync(new URL('../github-organization.json', import.meta.url), 'utf8'));
 export const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 export function validateCatalog(catalog) {
@@ -15,6 +17,9 @@ export function validateCatalog(catalog) {
     if (tool.collections.some(id => !collectionIds.has(id))) throw new Error(`Unknown collection: ${tool.id}`);
     if (tool.status === 'planned') continue;
     if (!/^[\w-]+\/[\w.-]+$/.test(tool.repository) || !/^[a-f0-9]{40}$/.test(tool.revision)) throw new Error(`Missing pinned source: ${tool.id}`);
+    const owner = tool.repository.split('/')[0];
+    const migrationException = repositoryPolicy.status === 'pending-creation' || repositoryPolicy.status === 'migrating';
+    if (owner.toLowerCase() !== repositoryPolicy.organization.toLowerCase() && !(migrationException && repositoryPolicy.legacyRepositories.includes(tool.repository))) throw new Error(`Create tool repositories in organization ${repositoryPolicy.organization}: ${tool.id}`);
     if (!tool.assets.includes('index.html') || tool.assets.some(asset => !/^[\w.-]+$/.test(asset))) throw new Error(`Invalid assets: ${tool.id}`);
   }
 }

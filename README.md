@@ -6,6 +6,8 @@ Interaktive Werkzeuge zum Auswerten, Simulieren und Verstehen wissenschaftlicher
 
 Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung wird in einem eigenen Repository entwickelt. Der Build führt festgehaltene Tool-Versionen zur gemeinsamen Website zusammen.
 
+Die gemeinsame GitHub-Organisation wird derzeit eingerichtet. Neue Tool-Repositories gehören in die in `github-organization.json` festgelegte Organisation. [Einrichtungsstand und Regeln für Agenten](docs/GITHUB-ORGANISATION.md).
+
 | Fachgebiet | Aufgabe | Werkzeug | Repository |
 | --- | --- | --- | --- |
 | Elektrochemie | Datenauswertung | EIS-Fitting | [Werkzeugdeck-EIS-Fitting](https://github.com/FalkBornmann/Werkzeugdeck-EIS-Fitting) |

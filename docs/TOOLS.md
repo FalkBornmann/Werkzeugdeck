@@ -2,6 +2,8 @@
 
 Ein Tool besitzt ein eigenes Repository und eine dauerhafte ID. Die öffentliche Adresse lautet `/tools/<id>/`. Fachliche Umordnungen verändern diese Adresse nicht.
 
+Neue Repositories werden ausschließlich in der in `github-organization.json` festgelegten Organisation erstellt. Einrichtungsstand und Ablauf: [GitHub Organisation](GITHUB-ORGANISATION.md). Bei noch nicht angelegter Organisation oder fehlendem Zugriff kein persönliches Ersatz-Repository erstellen. Jedes Tool erhält eine eigene `AGENTS.md` auf Basis von `templates/tool-AGENTS.md`.
+
 ## Kategorien
 
 - `domains` beschreibt Fachgebiete wie Elektrochemie, Stofftransport oder Beschichtungen. Mehrere Zuordnungen sind möglich.
