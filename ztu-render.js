@@ -7,7 +7,7 @@ export const powerLabel=exponent=>'10'+[...String(exponent)].map(x=>superscript[
 function txt(c,s,x,y,color='#202821',size=17){c.fillStyle=color;c.font=size+'px sans-serif';c.fillText(s,x,y);}
 function stroke(c,points,color='#222',width=2,dash=[]){if(points.length<2)return;c.beginPath();c.moveTo(...points[0]);for(const p of points.slice(1))c.lineTo(...p);c.strokeStyle=color;c.lineWidth=width;c.setLineDash(dash);c.stroke();c.setLineDash([]);}
 function polygon(c,points){c.beginPath();c.moveTo(...points[0]);for(const p of points.slice(1))c.lineTo(...p);c.closePath();}
-function hatch(c,points,type,monochrome){if(points.length<3)return;polygon(c,points);c.fillStyle=monochrome?'#f5f5f5':({FP:'#d8e9d1',B:'#d2e7f2',M:'#f4d8d0'})[type];c.fill();
+function hatch(c,points,type,monochrome){if(points.length<3)return;polygon(c,points);c.fillStyle=monochrome?'#f5f5f5':({F:'#f2e4bb',FP:'#d8e9d1',B:'#d2e7f2',M:'#f4d8d0'})[type];c.fill();
  if(!monochrome)return;c.save();polygon(c,points);c.clip();
  if(type==='M'){for(let x=86;x<1007;x+=13)for(let y=110;y<411;y+=13){c.beginPath();c.arc(x,y,1.1,0,2*Math.PI);c.fillStyle='#777';c.fill();}}
  else for(let x=-350;x<1450;x+=12){const points=type==='FP'?[[x,410],[x+300,110]]:[[x,110],[x+300,410]];stroke(c,points,'#999',.75);}
@@ -33,9 +33,9 @@ export function renderZtu(c,v){const {m,diagram,ztu='ttt',monochrome=false,resul
  axis(c,1,442,'Zeit in Sekunden [s]');axis(c,60,500,'Zeit in Minuten [min]');axis(c,3600,558,'Zeit in Stunden [h]');
  if(!m.kinetic||diagram.unavailableReason){txt(c,diagram.unavailableReason?'Keine vollständige Austenitisierung für dieses Modell.':'Kein geeignetes numerisches ZTU-Datenset hinterlegt.',180,240,'#555',20);txt(c,'Startbedingungen und Originalreferenzen unterhalb der Grafik prüfen.',180,272,'#555',16);}
  c.save();c.beginPath();c.rect(a.left,a.top,a.right-a.left,a.bottom-a.top);c.clip();
- const colors=monochrome?{FP:'#111',B:'#111',M:'#111'}:{FP:'#426c32',B:'#236b91',M:'#a53b2d'};const labels=[];
+ const colors=monochrome?{F:'#555',FP:'#111',B:'#111',M:'#111'}:{F:'#8a6a2b',FP:'#426c32',B:'#236b91',M:'#a53b2d'};const labels=[];
  if(m.kinetic&&!diagram.unavailableReason){if(ztu==='ttt'){
- for(const [type,key,label,Tlabel] of [['FP','P','Ferrit + Perlit',640],['B','B','Bainit',430]]){
+ for(const [type,key,label,Tlabel] of [['F','F','Ferrit · Vorreaktion',critical(m).a1-20],['FP','P','Ferrit + Perlit · Perlitpfad',640],['B','B','Bainit',430]]){
  const pts=diagram.ttt.filter(p=>p.type===key);if(pts.length<2)continue;const left=pts.map(p=>point(p.t1,p.T)),right=pts.map(p=>point(p.t99,p.T));hatch(c,[...left,...right.toReversed()],type,monochrome);stroke(c,left,colors[type],2.5);stroke(c,right,colors[type],2.5,[8,5]);const p=pts.reduce((best,p)=>Math.abs(p.T-Tlabel)<Math.abs(best.T-Tlabel)?p:best);labels.push([label,timePosition(Math.sqrt(p.t1*p.t99))-label.length*4,y(p.T)-5]);
  }
  const ms=critical(m).ms;if(ms>0){hatch(c,[[a.left,y(ms)],[a.right,y(ms)],[a.right,a.bottom],[a.left,a.bottom]],'M',monochrome);labels.push(['Martensit + Rest-Austenit',110,y(Math.max(45,ms*.35))]);}
@@ -56,5 +56,5 @@ export function renderZtu(c,v){const {m,diagram,ztu='ttt',monochrome=false,resul
  }
  stroke(c,[[85,609],[132,609]],'#222',2.5);txt(c,'Eintritt: 1 %',142,615,'#222',16);stroke(c,[[330,609],[377,609]],'#222',2.5,[8,5]);txt(c,'Austritt: 99 %',387,615,'#222',16);
  if(paths.length){stroke(c,[[600,609],[635,609]],'#111',2.5,[12,3,2,3]);txt(c,'Kern',642,615,'#222',14);stroke(c,[[700,609],[735,609]],monochrome?'#555':'#a45520',2.5,[3,4]);txt(c,'Fläche',742,615,'#222',14);if(result.shape==='plate'){stroke(c,[[815,609],[850,609]],monochrome?'#888':'#206a92',2.5,[8,3]);txt(c,'Ecke',857,615,'#222',14);}}
- txt(c,showProcess&&processScope==='full'?'Gesamtprozess: Zeit ab Prozessstart · Aufheizen und Anlassen dienen hier nur der Orientierung.':showProcess&&ztu==='ttt'&&!paths.length?'Keine passende isotherme Umwandlungshaltephase: zur Abkühlung die CCT-Ansicht wählen.':ztu==='ttt'?'TTT: Anteil der isolierten Reaktion; Martensit hängt von der Unterkühlung ab.':'CCT: 1/99 % des bis 20 °C entstehenden Bestandteils je Kühlrate, nicht des Gesamtgefüges.',85,642,'#444',14);
+ txt(c,showProcess&&processScope==='full'?'Gesamtprozess: Zeit ab Prozessstart · Aufheizen und Anlassen dienen hier nur der Orientierung.':showProcess&&ztu==='ttt'&&!paths.length?'Keine passende isotherme Umwandlungshaltephase: zur Abkühlung die CCT-Ansicht wählen.':ztu==='ttt'?'TTT: isolierte Reaktionspotenziale; Ferritmenge zusätzlich durch Kohlenstoffbilanz begrenzt.':'CCT: 1/99 % des bis 20 °C entstehenden Bestandteils je Kühlrate, nicht des Gesamtgefüges.',85,642,'#444',14);
 }

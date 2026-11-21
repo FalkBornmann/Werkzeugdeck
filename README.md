@@ -12,7 +12,7 @@ Quellen, Modellgleichungen, Koeffizienten, Werkstoffbedingungen, Nutzungshinweis
 
 ## Numerik
 
-Platte: implizite 2D-Finite-Volumen-Wärmeleitung über einen symmetrischen Viertelquerschnitt mit 20 × 20 Zellen und zwei frei wählbaren Kantenlängen. Beide äußeren Ränder geben Wärme ab; Ecken kühlen dadurch in zwei Richtungen. Lösung durch implizites Richtungssplitting erster Ordnung. Rundstab: 20 radiale Zellen, langer Stab ohne Stirnflächen. Konstante thermische Lehrwerte, Robin-Rand und Symmetrie im Kern. Konservative Wärmeflüsse; Volumenmittel bei Zylinder mit Ringgewichtung. Heuristische additive Umwandlungskinetik, Andrews/Hersteller-Ms, Koistinen–Marburger nur bei neuem Temperaturminimum. Sofortige Austenitisierung über oberer Modellgrenze +10 K. Anlassdosis und Härtemischung sind eigene illustrative Annahmen. Keine Rückkopplung der Umwandlungswärme.
+Platte: implizite 2D-Finite-Volumen-Wärmeleitung über einen symmetrischen Viertelquerschnitt mit 20 × 20 Zellen und zwei frei wählbaren Kantenlängen. Beide äußeren Ränder geben Wärme ab; Ecken kühlen dadurch in zwei Richtungen. Lösung durch implizites Richtungssplitting erster Ordnung. Rundstab: 20 radiale Zellen, langer Stab ohne Stirnflächen. Konstante Referenzwerte oder temperaturabhängige Lehrprofile, Robin-Rand und Symmetrie im Kern. Konservative Wärmeflüsse; Volumenmittel bei Zylinder mit Ringgewichtung. Heuristische additive Umwandlungskinetik, Andrews/Hersteller-Ms, Koistinen–Marburger nur bei neuem Temperaturminimum. Zeitabhängige Teil-/Voll-Austenitisierung über eigene ZTA-Zeitkonstanten. Anlassdosis und Härtemischung sind eigene illustrative Annahmen. Optionale explizite Rückkopplung der Umwandlungswärme als Sensitivitätsmodus.
 
 ## Prüfen
 
@@ -24,7 +24,7 @@ Alle sieben eigenen Grafiken: PNG und echte SVG-Vektoren mit identischer Zeichen
 
 ## ZTU-Darstellung
 
-Gefüllte Bereiche mit Start-/Endgrenzen. TTT: 1/99 % der isolierten Reaktion. CCT: 1/99 % des bei 20 °C erreichten Endanteils je Bestandteil und Kühlrate; nur Bestandteile ab 1 % Endanteil. Diese Darstellung ist ausdrücklich kein 99-%-Gesamtgefüge-Kriterium. Drei äquivalente logarithmische Zeitachsen in s, min und h verwenden Zehnerpotenzen. Schwarz-Weiß-Auswahl gilt für alle lokalen Grafiken und ihre PNG-/SVG-Exporte; ZTU-Flächen erhalten Vektorschraffuren bzw. Punktmuster. Sechs separate Gefügeskizzen erklären idealisierte Morphologien ohne reale Kornberechnung.
+Gefüllte Bereiche mit Start-/Endgrenzen. TTT: 1/99 % der isolierten Reaktion. CCT: 1/99 % des bei 20 °C erreichten Endanteils je Bestandteil und Kühlrate; nur Bestandteile ab 1 % Endanteil. Diese Darstellung ist ausdrücklich kein 99-%-Gesamtgefüge-Kriterium. Drei äquivalente logarithmische Zeitachsen in s, min und h verwenden Zehnerpotenzen. Schwarz-Weiß-Auswahl gilt für alle lokalen Grafiken und ihre PNG-/SVG-Exporte; ZTU-Flächen erhalten Vektorschraffuren bzw. Punktmuster. Neun separate Gefügeskizzen erklären idealisierte Morphologien ohne reale Kornberechnung.
 
 ## Zeitsteuerung
 Bei aktivem Simulationsverlauf läuft die Zeitsteuerung am unteren Bildschirmrand mit. Derselbe Regler steuert alle Grafiken. Die vorhandenen Wiedergabe- und Positionsfunktionen sind auch beim Betrachten weiter unten liegender Diagramme erreichbar. Die Leiste passt sich Mobilgeräten an und lässt sich mit Tastatur und Touch bedienen.
@@ -45,3 +45,15 @@ Zusätzliche Tests prüfen schnellere Ecken gegenüber Flächenmitten, Einfluss 
 [Fachtheorie öffnen](https://werkzeugdeck.pages.dev/bereiche/werkstofftechnik/theorie/) · [Design- und Exportvorgaben](https://github.com/FalkBornmann/Werkzeugdeck/blob/main/docs/DESIGN.md)
 Das gemeinsame Exportmenü bietet Darstellung, Dateityp und Speichern. PNG ist vorausgewählt; SVG enthält skalierbare Vektoren und Text.
 Zeitabhängige Darstellungen können zusätzlich als lokales Video (WebM beziehungsweise MP4 nach Browserunterstützung) gespeichert werden. Die Filmlänge ist wählbar. Eingaben werden während der Aufnahme gesperrt; Abbrechen und Abschluss stellen den vorherigen Zeitpunkt wieder her.
+
+## Modellüberarbeitung 21. November 2026
+
+Feste Konvention in reference.js (727 °C / 0,76 % C / Ferrit 0,022 % / Zementit 6,67 %), getrennt von unveränderten Herstellerreferenzen. Zeitabhängige Austenitisierung, qualitative Homogenisierung/Kornindex, getrennte Ferritkinetik und konservative Kohlenstoffreservoirs in metallurgy.js. Neue Martensitbeiträge erben keine Anlassdosis; ein exponentielles Härtemoment verfolgt unterschiedliche Bildungszeiten. Die gradeabhängigen Arrhenius-Parameter sind ausdrücklich unkalibriert.
+
+Morphologie: grober/feiner Perlit, oberer/unterer Bainit und subkritische Einformung als Lehrindizes; eigene Vektorskizzen und lokale Bestands-/Phasenaufschlüsselung. Der P-Sammelbestand umfasst auch eingeformtes Ferrit–Zementit-Gefüge. B/TM werden mangels Karbiddaten nicht in scheinbar exakte Phasenmengen zerlegt.
+
+Thermisch: konstante Basis oder normierte k(T)/cp(T)-Sensitivitätsprofile. Medienauswahl pro Schritt mit eigenen Öl-/Wasser-h(T)-Lehrprofilen. Umwandlungswärme ±80 kJ/kg als separater, standardmäßig ausgeschalteter expliziter Sensitivitätsmodus. Stoffdaten- und Quellschritt sind nicht experimentell validiert.
+
+reference-cases.js enthält unveränderliche, belegte Produktbereiche von Ovako für C45/42CrMo4 samt fehlenden Metadaten und einer Kalibrierfähigkeitssperre. Es gibt weiterhin KEINEN vollständigen experimentellen Prozess-/Gefügereferenzfall. Keine Anpassung oder unabhängige Validierung behaupten. HB und HV nicht gleichsetzen. Messdaten für ZTA, Anlasskurven, Sekundärhärtung und Medien fehlen weiterhin. Jominy wurde nicht erweitert.
+
+JSON-Schema 3 enthält Referenzversion, Modelloptionen, lokale Kohlenstoffreservoirs und Historienindizes; CSV enthält C-Bilanz und Historiendaten. Alle Grafiken inklusive lokaler Bestandsansicht bieten lokale PNG-/Vektor-SVG-Ausgabe über das gemeinsame Exportmenü, dynamische Ansichten zusätzlich Video.

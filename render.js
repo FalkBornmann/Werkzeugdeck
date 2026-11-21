@@ -1,3 +1,5 @@
+import {REFERENCE,upperBoundary} from './reference.js';
+import {phaseBreakdown,morphology,austeniteCarbon} from './metallurgy.js';
 import {probeIndex,profileIndices,fieldColor} from './spatial.js';
 import {renderZtu} from './ztu-render.js';
 import {renderSchematic} from './schematic-render.js';
@@ -20,9 +22,27 @@ function legend(c,items){let x=95;for(const [label,color] of items){c.fillStyle=
 export function render(kind,c,v){if(v.monochrome&&!v._ink)return render(kind,inkContext(c),{...v,_ink:true});const {m,diagram,result,index=0,probe=0,profileY=0,view='temperature',ztu='ttt'}=v;const f=result?.frames[Math.min(index,result.frames.length-1)];const stamp=m.name+(f?' · t = '+fmt(f.time)+' s':'');
  if(kind==='ztu')return renderZtu(c,v);
  if(kind==='schematic')return renderSchematic(c,v);
+ if(kind==='microstructure'){
+ c.fillStyle='#fff';c.fillRect(0,0,W,H);text(c,'Lokales Gefüge · '+stamp,22,30,'#163f31',21);
+ text(c,'Bestandteile ≠ Phasen ≠ Morphologie · Mengenmodell mit gleicher Referenzdichte',22,57,'#675f4d',15);
+ if(!f||!m.kinetic){text(c,'Nach der Berechnung: lokale Bestandteile, Bilanz und Morphologie.',40,130);return;}
+ const s=f.states[probeIndex(result,probe,profileY)],mo=morphology(s),parts=phaseBreakdown(s,m);let x=32;
+ for(const k of PHASES){c.fillStyle=COLORS[k];c.fillRect(x,85,s[k]*1000,42);if(s[k]>.055)text(c,k+' '+Math.round(s[k]*100)+' %',x+4,112,'#111',15);x+=s[k]*1000;}
+ text(c,'Phasenauflösung: Ferrit + Zementit innerhalb von Perlit; Bainit / angelassener M bleiben offen.',32,157,'#253d34',15);
+ text(c,'γ '+fmt(parts.austenite*100)+' % · M '+fmt(parts.martensite*100)+' % · α '+fmt(parts.ferriticMatrix*100)+' % · Fe₃C '+fmt(parts.cementite*100)+' %',32,188);
+ text(c,'Mehrphasig, nicht weiter aufgelöst: Bainit '+fmt(parts.bainiteUnresolved*100)+' % · angel. M '+fmt(parts.temperedUnresolved*100)+' %',32,216,'#53645b',15);
+ const tendency=(z,low,high)=>z===null?'nicht vorhanden':z<.33?low:z>.67?high:'gemischte Morphologie';
+ text(c,'Perlit: '+tendency(mo.finePearlite,'eher grob','eher fein')+' · Bainit: '+tendency(mo.lowerBainite,'eher oberer Bainit','eher unterer Bainit'),32,253);
+ text(c,'Zementit in Perlit: '+tendency(mo.spheroidized,'überwiegend lamellar','überwiegend eingeformt'),32,282);
+ text(c,'Austenit: '+(s.A>.001?'Cγ ≈ '+fmt(austeniteCarbon(s,m))+' Massen-% · Homogenisierung '+Math.round(100*mo.homogeneity)+' % (Lehrindex)':'aktuell praktisch nicht vorhanden'),32,313,'#53645b',15);
+ text(c,'Austenit-Kornindex '+fmt(mo.grainIndex)+' (dimensionslos; keine Korngröße in µm) · Anlassdosis '+fmt(s.temperDose),32,342,'#53645b',15);
+ text(c,'Morphologie und Indizes sind qualitative Lehrprognosen. Skizzen unten erklären die Form, ohne Maßstab.',32,390,'#72572b',15);
+ return;
+ }
+
  if(kind==='equilibrium'){
  const a=axes(c,'Eisen–Zementit-Diagramm · Stahlausschnitt',2.1,1250,{ymin:20,xlabel:'Kohlenstoff [Massen-%]',ylabel:'Temperatur [°C]',note:'Vereinfachte Gleichgewichtsgrenzen · kein Zeitmodell · für legierte Stähle nur Orientierung'});
- const pts=[];for(let C=.02;C<=.76;C+=.01)pts.push([a.x(C),a.y(910-203*Math.sqrt(C))]);line(c,pts,'#235846',3);line(c,[[a.x(.76),a.y(727)],[a.x(2.1),a.y(727+220*(2.1-.76))]],'#235846',3);line(c,[[a.x(0),a.y(727)],[a.x(2.1),a.y(727)]],'#235846',2);line(c,[[a.x(2),85],[a.x(2),365]],'#986d37',1,[5,5]);
+ const pts=[];for(let C=.02;C<=.76;C+=.01)pts.push([a.x(C),a.y(upperBoundary(C))]);line(c,pts,'#235846',3);line(c,[[a.x(.76),a.y(727)],[a.x(2.1),a.y(727+220*(2.1-.76))]],'#235846',3);line(c,[[a.x(0),a.y(727)],[a.x(2.1),a.y(727)]],'#235846',2);line(c,[[a.x(2),85],[a.x(2),365]],'#986d37',1,[5,5]);
  text(c,'Austenit γ',420,130);text(c,'α + γ',125,175);text(c,'γ + Fe₃C',790,165);text(c,'Ferrit + Perlit',180,300);text(c,'Perlit + Zementit',650,300);text(c,'A₁ ≈ 727 °C',82,a.y(727)-7,'#235846',14);
  const T=f?f.temps[probeIndex(result,probe,profileY)]:m.aust;line(c,[[a.x(m.c),85],[a.x(m.c),365]],'#9a6540',1,[4,4]);dot(c,a.x(m.c),a.y(T),'#c86146');text(c,stamp+' · '+fmt(T)+' °C',95,402,'#a34f36',15);return;
  }
@@ -35,12 +55,12 @@ export function render(kind,c,v){if(v.monochrome&&!v._ink)return render(kind,ink
  if(kind==='fractions'){
  const a=axes(c,'Gefügeanteile über die Zeit · '+m.name,(result?.total||3600)/60,100,{xlabel:'Prozesszeit [min]',ylabel:'Modellanteil [%]',note:'Volumengewichtetes Mittel · Gefügebestandteile; Perlit und Bainit sind selbst mehrphasig'});
  if(!result||!m.kinetic){text(c,m.kinetic?'Simulation starten, um Gefügeanteile zu sehen.':'Keine quantitativen Gefügeanteile für diesen Werkstoff.',200,220,'#72572b',20);return;}
- for(const key of PHASES.filter(k=>k!=='K'))line(c,result.frames.map(p=>[a.x(p.time/60),a.y(100*p.mean[key])]),COLORS[key],2);line(c,[[a.x(f.time/60),85],[a.x(f.time/60),365]],'#333',1,[4,4]);legend(c,PHASES.filter(k=>k!=='K').map(k=>[k==='TM'?'angel. M':k,COLORS[k]]));return;
+ for(const key of PHASES)line(c,result.frames.map(p=>[a.x(p.time/60),a.y(100*p.mean[key])]),COLORS[key],2);line(c,[[a.x(f.time/60),85],[a.x(f.time/60),365]],'#333',1,[4,4]);legend(c,PHASES.map(k=>[k==='TM'?'angel. M':k,COLORS[k]]));return;
  }
  if(kind==='profile'){
  const a=axes(c,'Ortsprofil · '+stamp,(result?.size||20)/2,view==='temperature'?1250:100,{xlabel:'Horizontaler Abstand vom Kern [mm]',ylabel:view==='temperature'?'Temperatur [°C]':'Modellanteil [%]',note:result?.shape==='plate'?'Horizontaler Schnitt · Höhe Mitte → Rand: '+Math.round(profileY*100)+' %':'Radialer Schnitt durch den Rundstab'});
  if(!result){text(c,'Nach der Berechnung: Temperatur- und Gefügeprofile.',230,220,'#72572b',20);return;}
- const indices=profileIndices(result,profileY),keys=view==='temperature'?['T']:m.kinetic?(view==='phases'?PHASES.filter(k=>k!=='K'):[view]):[];
+ const indices=profileIndices(result,profileY),keys=view==='temperature'?['T']:m.kinetic?(view==='phases'?PHASES:[view]):[];
  for(const key of keys)line(c,indices.map(i=>[a.x(result.grid[i].x*1000),a.y(key==='T'?f.temps[i]:100*f.states[i][key])]),key==='T'?'#c86146':COLORS[key],3);
  const i=probeIndex(result,probe,profileY);line(c,[[a.x(result.grid[i].x*1000),85],[a.x(result.grid[i].x*1000),365]],'#111',1,[4,4]);if(view!=='temperature'&&!m.kinetic)text(c,'Gefügeprofil mangels Kinetikdaten nicht verfügbar.',230,220,'#72572b',20);if(keys.length>1)legend(c,keys.map(k=>[k==='TM'?'angel. M':k,COLORS[k]]));return;
  }
