@@ -125,7 +125,7 @@ function render(){
  el('legend').innerHTML=result.legend.map(name=>'<span><i class="swatch" style="background:'+fieldColor(name)+'"></i>'+escape(name)+'</span>').join('');
  if(!state.binary){el('triangle').innerHTML=triangleChart(state);el('reactionReferences').hidden=!state.reactionLines;el('reactionReferences').innerHTML='<summary>Reaktionspunkte · Literaturwerte</summary><table><thead><tr><th>Punkt</th><th>Temperatur / °C</th><th>Reaktion beim Abkühlen</th></tr></thead><tbody>'+reactionReferences(state.model).map(e=>'<tr><td>'+e.label+'</td><td>'+fmt(e.t)+'</td><td>'+escape(e.reaction)+'</td></tr>').join('')+'</tbody></table><p>Die Markierungen zeigen Literaturzusammensetzungen der Schmelze. Modellinterpolation und Literaturwerte können abweichen. U bezeichnet eine Übergangsreaktion.</p>'}
  el('phase3D').innerHTML=state.binary?'':phaseSpaceChart(state);el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);el('microstructure').innerHTML=microstructureChart(state);el('construction').innerHTML=constructionChart(state);renderFormation();fractionReadout(state.ti);renderResults();
- el('resolution').textContent=state.model.diagramModel?'Geometrische Rekonstruktion aus Literaturisothermen. Endglieder als feste Bilanzpunkte; größtmöglicher geometrisch zulässiger Schmelzanteil. Keine CALPHAD- oder Wärmestromrechnung. Oberhalb 74 mol-% AlCl₃ keine Auswertung; Gas und Flüssig–Flüssig-Entmischung sind nicht modelliert.':'Numerisches NIST-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
+ el('resolution').textContent=state.model.diagramModel?(state.model.diagramNote||'Geometrische Rekonstruktion aus Literaturisothermen. Endglieder als feste Bilanzpunkte; größtmöglicher geometrisch zulässiger Schmelzanteil. Keine CALPHAD- oder Wärmestromrechnung. Oberhalb 74 mol-% AlCl₃ keine Auswertung; Gas und Flüssig–Flüssig-Entmischung sind nicht modelliert.'):'Numerisches CALPHAD-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
  el('cutDescription').textContent=state.binary ? 'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt '+elementSymbol(state.model.components[0])+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
 }
 
@@ -137,7 +137,7 @@ async function rebuildSection(){
  state.columns=answer.columns;
  updateProfiles();
  busy=false;controlsEnabled(true);el('dock').hidden=false;
- status(state.model.diagramModel?'Geometrisches Isothermenmodell lokal berechnet · Robelin et al., Abb. 21. Stoffbilanz erfüllt; Phasenmengen und Wärmeabfuhrmaß sind Modellgrößen.':'Berechnung auf deinem Gerät abgeschlossen. Schnittendpunkte und Legierungspunkte sind frei wählbar.');
+ status(state.model.diagramModel?'Geometrisches Isothermenmodell lokal berechnet · '+(state.model.sourceLabel||'Robelin et al., Abb. 21')+'. Stoffbilanz erfüllt; Phasenmengen und Wärmeabfuhrmaß sind Modellgrößen.':'Berechnung auf deinem Gerät abgeschlossen. Schnittendpunkte und Legierungspunkte sind frei wählbar.');
  render();
 }
 async function rebuildSurface(){
@@ -151,11 +151,11 @@ async function rebuildSurface(){
 }
 function referencePoints(){
  const m=state.model;
- if(m.diagramModel)return [...m.diagram.references.map(r=>({name:r.label+' · '+r.reaction+' · '+fmt(r.t)+' °C',x:r.x})),{name:'NaAlCl₄ · 156,7 °C',x:[.5,0,.5]},{name:'KAlCl₄ · 257,3 °C',x:[0,.5,.5]}];
+ if(m.diagramModel)return [...m.diagram.references.map(r=>({name:r.label+' · '+r.reaction+' · '+fmt(r.t)+' °C',x:r.x})),...(m.diagram.specialPoints||[{name:'NaAlCl₄ · 156,7 °C',x:[.5,0,.5]},{name:'KAlCl₄ · 257,3 °C',x:[0,.5,.5]}])];
  const mass=x=>toMoles(x,m.masses);
  if(state.binary){
   const pure=m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}));
-  pure.push(...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · NIST-Referenz '+fmt(r.t)+' °C',x:r.x})));
+  pure.push(...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literaturreferenz '+fmt(r.t)+' °C',x:r.x})));
   if(m.system==='cusn')pure.push({name:'Cu₆Sn₅ · Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]});
   if(m.system==='agsn')pure.push({name:'Ag₃Sn · Verbindung',x:[.75,.25]});
   return pure;
@@ -391,12 +391,12 @@ function showSystemInfo(key){
  el('favorite').setAttribute('aria-pressed',String(favorites.includes(key)));el('favorite').textContent=favorites.includes(key)?'★ Favorit':'☆ Favorit';
 }
 function initializeLibrary(){
- el('systemAdditions').innerHTML=systems.filter(s=>s.added).map(s=>'<article><h3>'+escape(s.label)+'</h3><p>'+escape(s.description)+'</p><p>'+escape(s.status)+' · <a href="'+s.source+'" target="_blank" rel="noopener">NIST-Diagramm</a></p></article>').join('');
+ el('systemAdditions').innerHTML=systems.filter(s=>s.latest||s.added).sort((a,b)=>Number(!!b.latest)-Number(!!a.latest)).map(s=>'<article><h3>'+escape(s.label)+'</h3><p>'+escape(s.description)+'</p><p>'+escape(s.status)+' · <a href="'+s.source+'" target="_blank" rel="noopener">Fachquelle</a></p></article>').join('');
  el('futureSystems').innerHTML=futureSystems.map(s=>'<article><h3>'+escape(s.label)+' · '+s.kind+'</h3><p><b>Priorität '+s.priority+'</b> · '+escape(s.use)+'</p><p><b>Noch nötig:</b> '+escape(s.needs)+'</p><a href="'+s.source+'" target="_blank" rel="noopener">Fachquelle</a></article>').join('');
  const update=()=>{
   const previous=el('system').value;
   const matches=filterSystems({query:el('systemSearch').value,kind:el('systemKind').value,family:el('systemFamily').value,favorites:el('favoritesOnly').checked?favorites:null});
-  el('system').innerHTML=['ternary','binary'].map(kind=>'<optgroup label="'+(kind==='ternary'?'Ternäre Systeme':'Binäre Systeme')+'">'+matches.filter(s=>s.kind===kind).map(s=>'<option value="'+s.id+'">'+s.label+(s.id==='salt'?' · Isothermenmodell':'')+'</option>').join('')+'</optgroup>').join('');
+  el('system').innerHTML=['ternary','binary'].map(kind=>'<optgroup label="'+(kind==='ternary'?'Ternäre Systeme':'Binäre Systeme')+'">'+matches.filter(s=>s.kind===kind).map(s=>'<option value="'+s.id+'">'+s.label+((s.id==='salt'||s.diagramFile)?' · Isothermenmodell':'')+'</option>').join('')+'</optgroup>').join('');
   el('systemCount').textContent=matches.length+' passende Systeme';
   if(!matches.length){el('system').innerHTML='<option value="" disabled>Keine passenden Systeme</option>';return}
   if(matches.some(s=>s.id===previous))el('system').value=previous;

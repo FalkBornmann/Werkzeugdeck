@@ -8,10 +8,10 @@ from pycalphad import Database,Workspace,variables as v
 sys.stdout.reconfigure(encoding='utf-8')
 root=Path(__file__).resolve().parent;key=sys.argv[1]
 data=json.loads((root/'qa'/(key+'-solidus-seeds.json')).read_text())
-components=data['components'];raw=(root/'NIST-solder.tdb').read_text()
+components=data['components'];raw=(root/data.get('database','NIST-solder.tdb')).read_text(encoding='utf-8-sig')
 db=Database(StringIO(re.sub(r'DATABASE_INFO.*?!','',raw,flags=re.S).replace(',,N',' 6000 N')))
 def conditions(x,t):return {v.P:101325,v.N:1,v.T:t+273.15,**{v.X(c):x[i] for i,c in enumerate(components[:-1])}}
-w=Workspace(db,components+['VA'],list(db.phases),conditions([1/len(components)]*len(components),300))
+w=Workspace(db,components+['VA'],[p for p in db.phases if p not in data.get('excludedPhases',[])],conditions([1/len(components)]*len(components),300))
 def liquid(x,t):
  w.conditions=conditions(x,t)
  return sum(cs.NP for cs in w.get_composition_sets() if cs.phase_record.phase_name=='LIQUID')

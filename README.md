@@ -147,3 +147,24 @@ Die großen neuen ternären Pakete sind verlustfrei nach Temperaturzuständen au
 125 separat gelöste Gleichgewichtszustände prüfen die Phasenanteile; maximale absolute Abweichung der diskreten Hüllen in dieser Stichprobe: 0,362 Prozentpunkte. Komponenten- und Massenbilanzen werden zusätzlich geprüft. Für jede neue Anschmelzdarstellung sind 24 unabhängige Zusammensetzungen hinterlegt (144 insgesamt): maximale Abweichung 1,420 K. Je neuem ternärem Liquidusmodell prüfen 34 unabhängige Zusammensetzungen die Darstellung (68 insgesamt): Ag–Bi–Sn maximal 1,190 K, Bi–Cu–Sn maximal 3,842 K. Die Fehlergrenzen gelten für diese Stichproben gegenüber derselben NIST-Gibbs-Beschreibung und sind keine zugesicherte experimentelle Genauigkeit.
 
 Die neuen ternären Modelle enthalten systematisch verdichtete Gleichgewichtsstützstellen entlang aller verdünnten Ränder. Ag–Bi–Sn verwendet 3199 direkte Liquidusstützstellen; Bi–Cu–Sn verwendet 6889, einschließlich eines dichteren allgemeinen Dreiecksrasters und zusätzlicher Bi–Sn-Randprofile. Randkoordinaten, die Qhull durch Rundung wenige ulps außerhalb der Interpolationshülle einordnet, werden als infinitesimaler innerer Grenzwert derselben Fläche ausgewertet. Fehlende innere Daten werden nicht mit beliebigen Temperaturen aufgefüllt.
+
+## Erweiterung: Al–Si, Al–Cu, Cu–Ni und NaCl–KCl–MgCl₂
+
+Vier weitere aktive Systeme, insgesamt 15. Die drei neuen binären Modelle verwenden die unveränderten offenen SGTE-Parameter in sources/; Lizenz, Originalbewertungen und Hashes stehen in sources/NOTICE.md und sources/PROVENANCE.json. Sie verwenden denselben Gibbs-Hüllkern, keine ideal angenommenen Liquiduskurven. AL2CU_PRIME wird ausgeschlossen. Direkte binäre Liquidusdaten werden zusätzlich mit build-binary-liquidus.py berechnet und in der Solidus-Darstellungsdatei gespeichert. Das verändert vorhandene Modelle ohne diese Zusatzdaten nicht.
+
+NaCl–KCl–MgCl₂ ist eine geometrische Übersicht aus farbkalibrierten Literaturisothermen und näherungsweise digitalisierten Reaktionsgrenzen (Villada et al. 2022, Abb. 4, Tabellen 1/3). 2807 numerische Kontrollen und 7390 Flächenpunkte bilden die Darstellung. Lokale Thin-Plate-Interpolation, Mediane konstanter Farbbänder, Ausreißerunterdrückung bei überlagerten Markierungen und tabellierte Anker sind zusätzliche Aufbereitungsschritte. Die Untergrenze 385,4 °C vermeidet sub-minimale Temperaturen und kann breite Talbereiche erzeugen. Eine experimentelle Fehlergrenze dieser Rekonstruktion ist nicht bestimmt.
+
+Feste Bilanzpunkte sind NaCl, KCl, MgCl₂, NaMgCl₃, KMgCl₃, Na₂MgCl₄, K₂MgCl₄ und K₃Mg₂Cl₇. Korrespondierende Doppelchloride werden näherungsweise zu linearen Na/K-Mischkristallfamilien zusammengefasst. Der geometrisch größte zulässige Flüssiganteil erfüllt Komponenten- und Massenbilanz, ist aber kein ternäres thermodynamisches Gleichgewicht. Das NaCl/KCl-Mischungsverhalten nutzt weiterhin die explizite Näherung nach Robelin, Eq.13. Schematisches Wärmeabfuhrmaß und Gefügeformen sind nicht kalibriert. Die fünf DSC-Zusammensetzungen mit Onset/Endwerten bei 10 K/min bleiben separate Vergleichspunkte; Gas, Feuchtigkeit/Hydrolyse und Korrosion fehlen.
+
+Reproduktion nach Vorbereitung der Abhängigkeiten:
+
+    python build-equilibria.py --system alsi --density 2200
+    python build-equilibria.py --system alcu --density 2200
+    python build-equilibria.py --system cuni --density 2200
+    node solidus-seeds.mjs alsi alcu cuni
+
+Danach für jeden Schlüssel build-solidus.py und build-binary-liquidus.py ausführen. validate-materials.py erzeugt unabhängige Direktreferenzen. build-nakmg-diagram.py path/to/Villada2022.pdf rekonstruiert das Salzmodell aus der Original-PDF; die Quellenabbildung wird nicht veröffentlicht.
+
+90 unabhängige Direktzustände prüfen die neuen binären Phasenmengen (maximal 0,173 Prozentpunkte in dieser Stichprobe). An 60 zusätzlichen Zusammensetzungen werden jeweils Anschmelz- und Liquidusgrenzen geprüft: Al–Si max. 0,002/0,004 K, Al–Cu max. 4,694/0,064 K und Cu–Ni max. 0,003/0,004 K. Dies ist eine numerische Prüfung gegen denselben Stoffdatensatz, keine unabhängige experimentelle Validierung. Beim geometrischen Salzmodell werden positive Mengen, Komponentenerhaltung, beide Prozentbasen und monotones Aufschmelzen geprüft.
+
+Die Salzfläche wird als gemeinsame skalare Fläche geglättet (normierter Gaußfilter, gröberes C1-Stütznetz). Primärfelder werden schematisch über den digitalisierten Reaktionsgraphen klassifiziert. Die drei binären Ränder werden formtreu an Endglieder und tabellierte invariante Schmelzgehalte angepasst; nicht belegte lokale Maxima werden nicht erfunden. Das ist eine zusätzliche Modellannahme.

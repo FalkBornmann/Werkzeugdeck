@@ -17,7 +17,7 @@
       779.1
     ],
     "labels": {
-      "FCC_A1": "\u03b1 (kfz)"
+      "FCC_A1": "α (kfz)"
     }
   },
   "agsn": {
@@ -63,8 +63,8 @@
       182.2
     ],
     "labels": {
-      "FCC_A1": "\u03b1-Pb",
-      "BCT_A5": "\u03b2-Sn"
+      "FCC_A1": "α-Pb",
+      "BCT_A5": "β-Sn"
     }
   },
   "bipb": {
@@ -86,8 +86,8 @@
       185
     ],
     "labels": {
-      "FCC_A1": "\u03b1-Pb",
-      "HCP_A3": "\u03b5-Pb",
+      "FCC_A1": "α-Pb",
+      "HCP_A3": "ε-Pb",
       "RHOMBO_A7": "Bi"
     }
   },
@@ -149,5 +149,102 @@
       280,
       2
     ]
+  },
+  "alsi": {
+    "components": [
+      "AL",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      577,
+      660.32,
+      1414
+    ],
+    "fine": [
+      560,
+      590,
+      1
+    ],
+    "database": "sources/AlSi-14Lia.tdb",
+    "source": "Liang & Schmid-Fetzer (2014), SGTE/Hallstedt (2025), CC BY 4.0",
+    "labels": {
+      "FCC_A1": "α-Al",
+      "DIAMOND_A4": "Si"
+    }
+  },
+  "alcu": {
+    "components": [
+      "AL",
+      "CU"
+    ],
+    "masses": [
+      26.98154,
+      63.546
+    ],
+    "range": [
+      25,
+      1120,
+      5
+    ],
+    "extra": [
+      548,
+      660.32,
+      1084.62
+    ],
+    "fine": [
+      535,
+      560,
+      1
+    ],
+    "database": "sources/AlCu-04Wit.tdb",
+    "source": "Witusiewicz et al. (2004), SGTE/Hallstedt (2025), CC BY 4.0",
+    "excludePhases": [
+      "AL2CU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "AL2CU_C16": "θ-Al₂Cu",
+      "ALCU_ETA": "η-AlCu",
+      "AL9CU11": "Al₉Cu₁₁",
+      "ALCU_B82": "AlCu (B82)",
+      "AL2CU3": "Al₂Cu₃",
+      "AL4CU9_D83": "γ-Al₄Cu₉ (D83)",
+      "AL4CU9_D82": "γ-Al₄Cu₉ (D82)",
+      "HCP_A3": "Al–Cu-MK (hdp)",
+      "BCC_A2": "β-Al–Cu (krz)"
+    }
+  },
+  "cuni": {
+    "components": [
+      "CU",
+      "NI"
+    ],
+    "masses": [
+      63.546,
+      58.69
+    ],
+    "range": [
+      25,
+      1515,
+      10
+    ],
+    "extra": [
+      1084.62,
+      1455
+    ],
+    "database": "sources/CuNi-92Mey-LB.tdb",
+    "source": "an Mey (1992), SGTE/Hallstedt (2025), CC BY 4.0",
+    "labels": {
+      "FCC_A1": "α (kfz)"
+    }
   }
 }

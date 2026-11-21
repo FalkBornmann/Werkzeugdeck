@@ -138,8 +138,8 @@ export function triangleChart(state){
   body+='<path data-cut-anchor="'+anchor.id+'" d="M'+p[0]+' '+(p[1]-9)+'L'+(p[0]+9)+' '+p[1]+'L'+p[0]+' '+(p[1]+9)+'L'+(p[0]-9)+' '+p[1]+'Z" fill="#513821" stroke="white" stroke-width="2"><title>'+escape(anchor.label)+'</title></path>'+text(p[0]-10,p[1]-13,anchor.id==='A1'?'A₁':'A₂',14,'end');
  }
  body+=triangleAxes(state);
- if(model.diagramModel&&state.zoom==='full')body+=text(410,97,'Nicht berechnet: AlCl₃-reiche Spitze',11,'middle');
- body+=text(410,516,''+(model.diagramModel?'Geometrisches Isothermenmodell':'NIST-Gleichgewichtsmodell')+' · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
+ if(model.diagramModel&&state.zoom==='full'&&(model.diagram.maxAl||model.diagram.unsupportedLabel))body+=text(410,97,model.diagram.unsupportedLabel||'Nicht berechnet: AlCl₃-reiche Spitze',11,'middle');
+ body+=text(410,516,''+(model.diagramModel?'Geometrisches Isothermenmodell':'CALPHAD-Gleichgewichtsmodell')+' · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
  return svg(body,820,535,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
 }
 export function curvesChart(state){

@@ -52,7 +52,8 @@ self.onmessage=async({data:message})=>{
    latestLoad=message.id;
    const read=async name=>{const r=await fetch(name);if(!r.ok)throw Error('Modelldatei konnte nicht geladen werden: '+name);return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()};
    let loaded,loadedAtlas=null;
-   if(message.key==='salt')loaded=diagramSetup(await read('salt-diagram.json.gz'));
+   const diagramFile=systems.find(s=>s.id===message.key)?.diagramFile;
+   if(message.key==='salt'||diagramFile)loaded=diagramSetup(await read(diagramFile||'salt-diagram.json.gz'));
    else{
     const indexFile=systems.find(s=>s.id===message.key)?.hullIndex;
     if(indexFile){

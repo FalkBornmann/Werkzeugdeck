@@ -1,4 +1,4 @@
-import {displayedSolidus} from './solidus-display.js';
+import {displayedSolidus,displayedBinaryLiquidus} from './solidus-display.js';
 import {smoothFieldBoundaries} from './smooth-fields.js';
 import { boundaryFromSeries, surfaceTemperature } from './boundary.js';
 import { elementSymbol } from './symbols.js';
@@ -27,6 +27,10 @@ export function prepareSection(state){
     for(const band of bands)if(!band.allLiquid){band.lower=Math.min(band.lower,t);band.upper=Math.min(band.upper,t)}
     for(let j=0;j<bands.length-1;j++)if(bands[j].allLiquid!==bands[j+1].allLiquid){bands[j].upper=t;bands[j+1].lower=t}
    }
+  }
+  if(state.binary&&roots.liquidus.length===1){
+   const t=displayedBinaryLiquidus(state.model,column.x);
+   if(Number.isFinite(t))roots.liquidus[0].temperature=t;
   }
   if(state.model.solidusDisplay&&roots.solidus.length===1){
    const t=displayedSolidus(state.model,column.x,roots.solidus[0],column.series);

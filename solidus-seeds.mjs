@@ -9,6 +9,6 @@ for(const key of (process.argv.length>2?process.argv.slice(2):['sac','pbsnbi','b
   for(let e=0;e<3;e++)for(let i=0;i<=160;i++){const x=[0,0,0];x[e]=i/160;x[(e+1)%3]=1-i/160;add(x)}
  }else for(let i=0;i<=240;i++)add([i/240,1-i/240]);
  const rows=[...points.values()].map(x=>({x,bracket:thresholds(profile(m,x)).solidus}));
- writeFileSync('qa/'+key+'-solidus-seeds.json',JSON.stringify({components:m.components,T:m.T,seeds:rows}));
+ writeFileSync('qa/'+key+'-solidus-seeds.json',JSON.stringify({components:m.components,T:m.T,database:m.database,excludedPhases:m.excludedPhases,seeds:rows}));
  console.log(key,rows.length);
 }

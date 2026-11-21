@@ -15,3 +15,9 @@ export function displayedSolidus(model,x,root,series){
  // A branch interpolation cannot override evidence of a different local onset interval.
  return Number.isFinite(t)&&t>=root.bracket[0]-3&&t<=root.bracket[1]+3?t:root.temperature;
 }
+export function displayedBinaryLiquidus(model,x){
+ const data=model.solidusDisplay,values=data?.liquidusNodes;
+ if(model.components.length!==2||!values)return null;
+ const p=Math.max(0,Math.min(1,x[0]))*data.n,i=Math.min(data.n-1,Math.floor(p)),f=p-i;
+ return values[i]*(1-f)+values[i+1]*f;
+}

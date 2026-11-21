@@ -12,17 +12,17 @@ function weights(vertices,x){
 }
 function setup(model){
  if(caches.has(model))return caches.get(model);
- const surface=model.diagram,bins=Array.from({length:576},()=>[]);
+ const surface=model.diagram,solidPoints=surface.skeleton||skeleton,solidNames=surface.solidNames||names,solidRegions=surface.regions||regions,bins=Array.from({length:576},()=>[]);
  for(const face of surface.triangles){
   const ns=face.map(i=>surface.nodes[i]);if(ns.some(n=>n.value===null))continue;
   const lo=[0,1].map(k=>Math.max(0,Math.floor(Math.min(...ns.map(n=>n.x[k]))*24)));
   const hi=[0,1].map(k=>Math.min(23,Math.floor(Math.max(...ns.map(n=>n.x[k]))*24)));
   for(let a=lo[0];a<=hi[0];a++)for(let b=lo[1];b<=hi[1];b++)bins[b*24+a].push(ns);
  }
- const state={bins,frames:new Map(),samples:new Map()};caches.set(model,state);return state;
+ const state={bins,skeleton:solidPoints,names:solidNames,regions:solidRegions,frames:new Map(),samples:new Map()};caches.set(model,state);return state;
 }
 export function diagramLiquidus(model,x){
- if(x[2]>model.diagram.maxAl+1e-8)return null;
+ if(x[2]>(model.diagram.maxThird??model.diagram.maxAl??1)+1e-8)return null;
  const {bins}=setup(model),ns=bins[Math.min(23,Math.floor(x[1]*24))*24+Math.min(23,Math.floor(x[0]*24))]||[];
  for(const nodes of ns){const w=weights(nodes.map(n=>n.x),x);if(Math.min(...w)>=-1e-8)return w.reduce((s,v,i)=>s+v*nodes[i].value,0)}
  return null;
@@ -43,6 +43,7 @@ function solidGap(t){
 }
 function frame(model,ti){
  const cache=setup(model);if(cache.frames.has(ti))return cache.frames.get(ti);
+ const {skeleton,names,regions}=cache;
  const t=model.T[ti],segments=regions.map(()=>[]);
  for(const face of model.diagram.triangles){
   const nodes=face.map(i=>model.diagram.nodes[i]);if(nodes.some(n=>n.value===null))continue;
@@ -64,11 +65,12 @@ function frame(model,ti){
 export function diagramSetup(diagram){
  const temps=new Set();for(let t=40;t<=850;t+=5)temps.add(t);
  for(const t of [91.4,108.7,130.1,132.1,133.2,156.7,241.47,257.3])for(const d of [-.02,0,.02])temps.add(Number((t+d).toFixed(2)));
- return {system:'salt',diagramModel:true,components:diagram.components,masses:diagram.masses,T:[...temps].sort((a,b)=>a-b),pressure:100000,diagram,phases:['LIQUID','ALKALI','NaAlCl₄','KAlCl₄','AlCl₃']};
+ return {system:diagram.system||'salt',diagramModel:true,components:diagram.components,masses:diagram.masses,T:diagram.T||[...temps].sort((a,b)=>a-b),pressure:100000,diagram,phases:['LIQUID',...(diagram.solidNames||names)],source:diagram.source,diagramNote:diagram.note,sourceLabel:diagram.sourceLabel};
 }
 export function solveDiagram(model,x,ti){
  const t=model.T[ti],key=ti+':'+x.map(v=>v.toFixed(8)).join(','),cache=setup(model);
  if(cache.samples.has(key))return cache.samples.get(key);
+ const {skeleton,names,regions}=cache;
  const TL=diagramLiquidus(model,x);
  if(TL===null)return {phases:[],liquid:null,enthalpy:NaN,signature:'Nicht durch Projektion abgedeckt',unavailable:true};
  let list=[],fraction=0,liquidX=x;
@@ -107,6 +109,16 @@ export function solveDiagram(model,x,ti){
      {raw:'ALKALI',name:'KCl-reicher MK',fraction:total*(1-share),x:[f.gap[0],1-f.gap[0],0]});
    }else list.push({raw:'ALKALI',name:'NaCl–KCl-MK',fraction:total,x:[ratio,1-ratio,0]});
   }
+ }
+ if(model.diagram.families){
+  const grouped=[];
+  for(const p of list.filter(p=>p.fraction>EPS)){
+   const family=model.diagram.families[p.raw],raw=family||p.raw;
+   const existing=grouped.find(q=>q.raw===raw);
+   if(existing){const n=existing.fraction+p.fraction;existing.x=existing.x.map((v,i)=>(v*existing.fraction+p.x[i]*p.fraction)/n);existing.fraction=n}
+   else grouped.push({...p,raw,name:family||p.name,x:p.x.slice()});
+  }
+  list=grouped;
  }
  list=list.filter(p=>p.fraction>EPS);
  const sum=list.reduce((s,p)=>s+p.fraction,0);list.forEach(p=>p.fraction/=sum);

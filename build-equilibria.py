@@ -7,12 +7,14 @@ from scipy.spatial import ConvexHull
 from pycalphad import Database, calculate, Model, Workspace, variables as v
 root=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser()
-parser.add_argument("--system", choices=["sac","bisn","cusn","pbsnbi",*json.loads((root/"model-config.json").read_text())], required=True)
+parser.add_argument("--system", choices=["sac","bisn","cusn","pbsnbi",*json.loads((root/"model-config.json").read_text(encoding="utf-8"))], required=True)
 parser.add_argument("--density", type=int, default=1600)
 parser.add_argument("--grid", type=int, default=60)
 parser.add_argument("--refine", action="store_true")
 options=parser.parse_args()
-raw=(root/"NIST-solder.tdb").read_text()
+config=json.loads((root/"model-config.json").read_text(encoding="utf-8")).get(options.system,{})
+database_file=config.get("database","NIST-solder.tdb")
+raw=(root/database_file).read_text(encoding="utf-8-sig")
 db=Database(StringIO(re.sub(r"DATABASE_INFO.*?!","",raw,flags=re.S).replace(",,N"," 6000 N")))
 systems={
  "sac":(["AG","CU","SN"],[107.87,63.546,118.69],sorted(set(list(range(100,1101,10))+list(range(200,241,2))+[215.9,217.2]))),
@@ -20,14 +22,15 @@ systems={
  "cusn":(["SN","CU"],[118.69,63.546],sorted(set(list(range(100,1121,5))+[226.8,415,638.4,756.5,796]))),
  "pbsnbi":(["BI","PB","SN"],[208.98,207.2,118.69],sorted(set(list(range(20,351,2))+[98.0,135.7]))),
 }
-extra_configs=json.loads((root/"model-config.json").read_text())
+extra_configs=json.loads((root/"model-config.json").read_text(encoding="utf-8"))
 for key,cfg in extra_configs.items():
  temps=set(range(cfg["range"][0],cfg["range"][1]+1,cfg["range"][2]))|set(cfg["extra"])
  if "fine" in cfg:temps.update(range(cfg["fine"][0],cfg["fine"][1]+1,cfg["fine"][2]))
  systems[key]=(cfg["components"],cfg["masses"],sorted(temps))
 components,masses,temperatures=systems[options.system]
 comps=components+["VA"]
-seed=calculate(db,comps,list(db.phases),P=101325,T=500,output="GM",pdens=options.density)
+available_phases=[p for p in db.phases if p not in config.get("excludePhases",[])]
+seed=calculate(db,comps,available_phases,P=101325,T=500,output="GM",pdens=options.density)
 point_sets={}
 for name,bounds in seed.attrs["phase_indices"].items():
  size=len(Model(db,comps,name).site_fractions)
@@ -50,7 +53,7 @@ if options.refine and len(components)==3:
   supports=dict(np.load(cache))
  else:
   supports={name:[] for name in point_sets}
-  w=Workspace(db,comps,list(db.phases),{v.P:101325,v.N:1,v.T:500,v.X(components[0]):.3,v.X(components[1]):.3})
+  w=Workspace(db,comps,available_phases,{v.P:101325,v.N:1,v.T:500,v.X(components[0]):.3,v.X(components[1]):.3})
   step=50 if max(temperatures)>500 else 20
   temperatures_to_refine=list(range(int(min(temperatures)),int(max(temperatures))+1,step))
   if options.system in ["agbisn","bicusn"]: temperatures_to_refine=sorted(set(temperatures_to_refine+list(range(int(min(temperatures)),351,10))))
@@ -133,7 +136,7 @@ for ti,temperature in enumerate(temperatures):
  frames.append(dict(vertices=vertices,faces=[[lookup[int(i)] for i in facet] for facet in facets],groups=groups))
  if ti%10==0: print(options.system,ti+1,len(temperatures),len(vertices),round(time.time()-start,1),flush=True)
 result=dict(version=3,components=components,masses=masses,T=temperatures,phases=phase_names,frames=frames,
- pressure=101325,density=options.density,grid=options.grid,refined=options.refine,source="NIST solder database, update 2017-08-04",
+ pressure=101325,density=options.density,grid=options.grid,refined=options.refine,source=config.get("source","NIST solder database, update 2017-08-04"),database=database_file,excludedPhases=config.get("excludePhases",[]),
  sha256=hashlib.sha256(raw.encode()).hexdigest(),
  method="Gibbs-energy lower hull with homogeneous-midpoint curvature test for phase grouping",
  compositionResolution="Regular simplex plus phase samples and fine tin-rich supports; phase grouping preserves nonconvex chords")

@@ -61,11 +61,11 @@ test('new binary eutectic onset matches its published reference within 3 K',()=>
  }
 });
 test('library filters search technical uses and keep future systems out of the calculator',()=>{
- assert.equal(systems.length,11);assert.equal(systems.filter(s=>s.kind==='binary').length,6);
+ assert.equal(systems.length,15);assert.equal(systems.filter(s=>s.kind==='binary').length,9);
  assert.ok(filterSystems({query:'Hartlot'}).some(s=>s.id==='agcu'));
  assert.ok(filterSystems({query:'Bismut',kind:'ternary'}).some(s=>s.id==='agbisn'));
- assert.ok(filterSystems({family:'salt'}).every(s=>s.id==='salt'));
- assert.equal(futureSystems.length,8);
+ assert.deepEqual(filterSystems({family:'salt'}).map(s=>s.id).sort(),['nakmg','salt']);
+ assert.equal(futureSystems.length,4);
  assert.deepEqual(filterSystems({query:'Bismut Blei'}).map(s=>s.id).sort(),['bipb','pbsnbi']);
  assert.ok(filterSystems({query:'Bi'}).every(s=>s.label.includes('Bi')));
  assert.equal(filterSystems({query:'AlCl3'})[0].id,'salt');
