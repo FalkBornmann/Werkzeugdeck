@@ -53,6 +53,46 @@ function tafelIntersection(cathode, anode) {
     ? { e, logJ } : null;
 }
 
+function faradayRate(current, molarMass, electrons, density, efficiency, hours, area) {
+  if (![current, molarMass, electrons, density, hours].every(v => Number.isFinite(v) && v > 0) ||
+      !Number.isInteger(electrons) || !Number.isFinite(efficiency) || efficiency < 0 || efficiency > 1) return null;
+  const massFlux = current * molarMass * efficiency / (electrons * 96485.33212);
+  return {
+    annualDepth: massFlux / density * 10 * 365.25 * 86400,
+    depth: massFlux / density * 10 * hours * 3600,
+    mass: area > 0 ? massFlux * area * hours * 3600 : NaN
+  };
+}
+
+function windowSensitivity(points, bounds, ordinate) {
+  const variants = (lower, upper, sign) => {
+    const center = (lower + upper) / 2;
+    const half = (upper - lower) / 2;
+    const fits = [];
+    for (const shift of [-0.01, 0, 0.01]) {
+      for (const scale of [0.8, 1, 1.2]) {
+        const lo = center + shift - half * scale, hi = center + shift + half * scale;
+        const branch = points.filter(p => p.i * sign > 0);
+        if (!branch.length || lo < Math.min(...branch.map(p => p.e)) || hi > Math.max(...branch.map(p => p.e))) continue;
+        const fit = tafelFit(points, lo, hi, sign, ordinate);
+        if (fit && fit.r2 >= 0.95) fits.push(fit);
+      }
+    }
+    return fits;
+  };
+  const results = [];
+  for (const cathode of variants(bounds[0], bounds[1], -1)) {
+    for (const anode of variants(bounds[2], bounds[3], 1)) {
+      const cross = tafelIntersection(cathode, anode);
+      if (!cross) continue;
+      const separation = (anode.slope - cathode.slope) *
+        Math.min(cross.e - cathode.nearest, anode.nearest - cross.e);
+      if (separation >= 1) results.push({ e: cross.e, j: 10 ** cross.logJ, a: anode.beta, c: cathode.beta });
+    }
+  }
+  return results;
+}
+
 if (typeof document !== "undefined") {
   const get = id => document.getElementById(id);
   const value = id => get(id).value;
@@ -67,6 +107,8 @@ if (typeof document !== "undefined") {
   let curve, selected, fileName;
   let plotState;
   let automaticWindows = new Map();
+  let currentCorrosion = null;
+  let currentTafel = null;
   let loadVersion = 0;
   const polar = () => value("mode") !== "time";
   const log = () => value("mode") === "tafel";
@@ -197,6 +239,39 @@ if (typeof document !== "undefined") {
       context.stroke();
     }
     if (log()) {
+      if (get("showModel").checked) {
+        const e0 = volts("modelPotential"), j0 = number("modelCurrent") * 1e-6;
+        const ba = volts("modelAnode"), bc = volts("modelCathode");
+        if (Number.isFinite(e0) && j0 > 0 && ba > 0 && bc > 0) {
+          const base = Math.log10(j0);
+          const models = [
+            ["#b14b2a", e => base + (e - e0) / ba],
+            ["#7444a3", e => base - (e - e0) / bc],
+            ["#243746", e => {
+              const a = base + (e - e0) / ba, c = base - (e - e0) / bc;
+              return Math.max(a, c) + Math.log10(-Math.expm1(-Math.abs(a - c) * Math.LN10));
+            }]
+          ];
+          for (const [color, model] of models) {
+            context.strokeStyle = color;
+            context.setLineDash([3, 5]);
+            context.beginPath();
+            let connected = false;
+            for (let step = 0; step <= 400; step++) {
+              const e = xmin + (xmax - xmin) * step / 400;
+              const ordinate = model(e);
+              if (!Number.isFinite(ordinate)) { connected = false; continue; }
+              context[connected ? "lineTo" : "moveTo"](px(e), py(ordinate));
+              connected = true;
+            }
+            context.stroke();
+          }
+          context.fillStyle = "#243746";
+          context.font = "14px system-ui";
+          context.textAlign = "left";
+          context.fillText("Lehrmodell · anodisch orange · kathodisch violett · |Summe| dunkel", left + 5, bottom - 12);
+        }
+      }
       context.setLineDash([4, 5]);
       context.strokeStyle = "#00736f";
       context.fillStyle = "#00736f";
@@ -228,6 +303,15 @@ if (typeof document !== "undefined") {
   }
 
   function render() {
+    currentCorrosion = null;
+    currentTafel = null;
+    get("stabilityResult").textContent = "";
+    get("regionResult").textContent = "";
+    get("extendedAnalysis").hidden = !polar();
+    get("checkStability").disabled = !log();
+    get("showModel").disabled = !log();
+    get("modelStatus").textContent = get("showModel").checked && log()
+      ? "Lehrmodell im Diagramm und in den Bildexporten. Orange = anodisch, violett = kathodisch, dunkel = Nettostrombetrag." : "";
     const limits = polar() ? "Potential (mV)" : "Zeit (s)";
     get("lowerLabel").textContent = limits + " von";
     get("upperLabel").textContent = limits + " bis";
@@ -273,6 +357,7 @@ if (typeof document !== "undefined") {
           const a = number("betaA") / 1000, c = number("betaC") / 1000;
           if (a > 0 && c > 0) {
             const b = a * c / (Math.LN10 * (a + c));
+            currentCorrosion = b / normalized;
             details.push("Stern–Geary B " + show(b * 1000) + " mV", "jₖₒᵣᵣ " + show(b / normalized) + " A/cm²");
           }
         } else if (value("area")) details.push("Die exponierte Fläche muss positiv sein.");
@@ -292,6 +377,8 @@ if (typeof document !== "undefined") {
         if (cathode && anode) {
           corrosion = tafelIntersection(cathode, anode);
           if (corrosion) {
+            currentTafel = { cathode, anode, corrosion };
+            currentCorrosion = 10 ** corrosion.logJ;
             const { e, logJ } = corrosion;
             fits[0] = { ...cathode, upper: e };
             fits[1] = { ...anode, lower: e };
@@ -304,10 +391,84 @@ if (typeof document !== "undefined") {
       }
     }
     get("result").textContent = details.join(" · ");
+    get("adoptModel").disabled = !currentTafel;
+    updateRate();
     get("csv").disabled = !selected.length;
     get("png").disabled = (value("view") === "window" && !selected.length) || (log() && !(area() > 0 && factor()));
     get("svg").disabled = get("png").disabled;
     draw(curve.points, fits, corrosion);
+  }
+
+  function updateRate() {
+    const manual = value("rateSource") === "manual";
+    get("rateCurrent").disabled = !manual;
+    const current = manual ? number("rateCurrent") * 1e-6 : currentCorrosion;
+    const rate = faradayRate(current, number("molarMass"), number("electrons"),
+      number("materialDensity"), number("efficiency") / 100, number("duration"), area());
+    get("rateResult").textContent = rate
+      ? "j = " + show(current * 1e6) + " µA/cm² · mittlerer Abtrag " + show(rate.annualDepth) +
+        " mm/Jahr · für die Dauer " + show(rate.depth) + " mm · Massenverlust " +
+        (Number.isFinite(rate.mass) ? show(rate.mass * 1000) + " mg" : "Fläche erforderlich")
+      : "Positive Stromdichte, Molmasse, ganzzahlige Elektronenzahl, Dichte und Dauer sowie Auflösungsanteil 0–100 % erforderlich.";
+  }
+
+  get("checkStability").addEventListener("click", () => {
+    if (!currentTafel) {
+      get("stabilityResult").textContent = "Zuerst zwei gültige Tafel-Fenster auswählen.";
+      return;
+    }
+    const variants = windowSensitivity(selected, ["cMin", "cMax", "aMin", "aMax"].map(volts), y);
+    const range = key => extent(variants, point => point[key]);
+    if (!variants.length) {
+      get("stabilityResult").textContent = "Keine Variante erfüllt die Automatik-Kriterien. Prüfe die Fenster.";
+      return;
+    }
+    const [jmin, jmax] = range("j"), [emin, emax] = range("e");
+    const [amin, amax] = range("a"), [cmin, cmax] = range("c");
+    get("stabilityResult").textContent = variants.length + " von 81 Fensterpaaren geeignet · E " +
+      show(emin * 1000) + " bis " + show(emax * 1000) + " mV · j " + show(jmin * 1e6) +
+      " bis " + show(jmax * 1e6) + " µA/cm² · Faktor " + show(jmax / jmin) +
+      " · β anodisch " + show(amin) + "–" + show(amax) + " · β kathodisch " +
+      show(cmin) + "–" + show(cmax) + " mV/Dekade. Auswahlabhängige Spannweite.";
+  });
+  get("checkRegion").addEventListener("click", () => {
+    const points = selected.filter(p => p.i !== 0);
+    const out = get("regionResult");
+    if (!(area() > 0 && factor()) || points.length < 6 ||
+        points.some(p => Math.sign(p.i) !== Math.sign(points[0].i))) {
+      out.textContent = "Für die Prüfung Fläche und Einheit bestätigen und mindestens sechs Punkte eines Stromvorzeichens auswählen.";
+      return;
+    }
+    const ordinate = p => Math.log10(Math.abs(density(p)));
+    const [lo, hi] = extent(points, p => p.e);
+    if (!(hi > lo)) { out.textContent = "Eine positive Potentialspanne auswählen."; return; }
+    const mid = (lo + hi) / 2;
+    const left = points.filter(p => p.e <= mid), right = points.filter(p => p.e > mid);
+    if (left.length < 3 || right.length < 3) { out.textContent = "Beide Fensterhälften benötigen drei Punkte."; return; }
+    const fit = regression(points, p => p.e, ordinate);
+    const a = regression(left, p => p.e, ordinate), b = regression(right, p => p.e, ordinate);
+    const [min, max] = extent(points, ordinate);
+    out.textContent = "Änderung " + show(max - min) + " Dekaden · R² " + show(fit.r2) +
+      " · Halbfenster-Steigungen " + show(a.slope) + " / " + show(b.slope) + " Dekaden/V. " +
+      (max - min <= 0.15 ? "Plateau-Hinweis (Spannweite ≤ 0,15 Dekaden). Grenzstrom oder Passivität fachlich prüfen." :
+        Math.abs(a.slope - b.slope) > 0.3 * Math.max(Math.abs(a.slope), Math.abs(b.slope))
+          ? "Krümmungshinweis (Steigungsunterschied > 30 %). Tafel-Eignung prüfen."
+          : "Kein Plateau- oder Krümmungshinweis nach diesen heuristischen Schwellen.");
+  });
+  get("adoptModel").addEventListener("click", () => {
+    if (!currentTafel) return;
+    get("modelPotential").value = currentTafel.corrosion.e * 1000;
+    get("modelCurrent").value = 10 ** currentTafel.corrosion.logJ * 1e6;
+    get("modelAnode").value = currentTafel.anode.beta;
+    get("modelCathode").value = currentTafel.cathode.beta;
+    get("showModel").checked = true;
+    render();
+  });
+  for (const id of ["rateSource", "rateCurrent", "molarMass", "electrons", "materialDensity", "efficiency", "duration"]) {
+    get(id).addEventListener("input", updateRate);
+  }
+  for (const id of ["showModel", "modelPotential", "modelCurrent", "modelAnode", "modelCathode"]) {
+    get(id).addEventListener("input", render);
   }
 
   get("file").addEventListener("change", async () => {
