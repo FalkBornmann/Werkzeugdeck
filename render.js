@@ -72,9 +72,9 @@ export function render(kind,c,v){if(v.monochrome&&!v._ink)return render(kind,ink
  const i=probeIndex(result,probe,profileY);line(c,[[a.x(probe*result.size/2),85],[a.x(probe*result.size/2),365]],'#111',1,[4,4]);if(view!=='temperature'&&!m.kinetic)text(c,'Gefügeprofil mangels Kinetikdaten nicht verfügbar.',230,220,'#72572b',20);if(keys.length>1)legend(c,keys.map(k=>[k==='TM'?'angel. M':k,COLORS[k]]));return;
  }
  if(kind==='scene'){
- c.fillStyle='#fff';c.fillRect(0,0,W,H);text(c,(result?.shape==='rod'?'Rundstab · radialer Querschnitt':'Platte · zweidimensionaler Querschnitt')+' · '+stamp,22,30,'#163f31',21);text(c,view==='temperature'?'Temperaturfeld [°C] · interpolierte Zellwerte':['texture','combined'].includes(view)?'Schematische Gefügeprojektion · ortsfestes Muster · ohne Maßstab':view==='phases'?'Lokale Gefügeanteile als graduelle Farbmischung · keine reale Kornsimulation':LABELS[view]+' · lokaler Anteil [%]',22,55,'#675f4d',16);
+ c.fillStyle='#fff';c.fillRect(0,0,W,H);text(c,(result?.shape==='rod'?'Rundstab · radialer Querschnitt':'Platte · zweidimensionaler Querschnitt')+' · '+stamp,22,30,'#163f31',21);text(c,view==='temperature'?'Temperaturfeld [°C] · interpolierte Zellwerte':['texture','combined'].includes(view)?'Schematische Gefügeprojektion · Musterfeinheit '+(v.grainDetail||1)+'× · ohne Maßstab':view==='phases'?'Lokale Gefügeanteile als graduelle Farbmischung · keine reale Kornsimulation':LABELS[view]+' · lokaler Anteil [%]',22,55,'#675f4d',16);
  if(!result){text(c,'Geometrie wählen und Simulation starten.',250,220,'#72572b',23);return;}
- if(['texture','combined'].includes(view)&&m.kinetic){paintTexture(c,result,f,sceneGeometry(result),{combined:view==='combined'});}
+ if(['texture','combined'].includes(view)&&m.kinetic){paintTexture(c,result,f,sceneGeometry(result),{combined:view==='combined',grainDetail:v.grainDetail||1});}
  else if(result.shape==='rod'){
  for(let i=99;i>=0;i--){c.beginPath();c.arc(540,230,150*(i+1)/100,0,2*Math.PI);c.fillStyle=fieldColor(result,f,(i+.5)/100,0,view);c.fill();}
  }else{
