@@ -3,6 +3,7 @@ import {svg,text,line,fieldColor,display,fmt,pointColors} from './render.js';
 import {elementSymbol} from './symbols.js';
 import {phaseBands,bandTracks,ribbonPath,smoothGraph} from './geometry.js';
 import {liquidusGeometry} from './liquidus-geometry.js';
+import {ternaryPlanePoint} from './triangle-geometry.js';
 const edgeCache=new WeakMap();
 function binaryFields(edge){
  if(edgeCache.has(edge))return edgeCache.get(edge);
@@ -14,7 +15,7 @@ export function phaseSpaceChart(state){
  if(!surface)return svg(text(40,55,'Liquidusfläche wird lokal geladen …',18),900,560);
  const low=state.model.T[0],high=state.model.T.at(-1),yaw=(state.camera?.yaw||0)*Math.PI/180,pitch=(state.camera?.pitch||28)*Math.PI/180;
  const rawProject=(x,t)=>{
-  const d=display(x,state),u=(d[1]+d[2]*.5-.5)*600,v=(d[2]-1/3)*300*Math.sqrt(3),z=(t-low)/(high-low)*320;
+  const d=ternaryPlanePoint(display(x,state)),u=(d[0]-.5)*600,v=(d[1]-Math.sqrt(3)/6)*600,z=(t-low)/(high-low)*320;
   const rx=u*Math.cos(yaw)-v*Math.sin(yaw),ry=u*Math.sin(yaw)+v*Math.cos(yaw);
   return [rx,-ry*Math.sin(pitch)-z*Math.cos(pitch),ry*Math.cos(pitch)-z*Math.sin(pitch)];
  };

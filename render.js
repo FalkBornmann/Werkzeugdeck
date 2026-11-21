@@ -1,6 +1,7 @@
 import {liquidusGeometry} from './liquidus-geometry.js';
 import {reactionReferences} from './reaction-data.js';
 import { triangleAxes } from './axes.js';
+import { triangleLayout, triangleDisplayPoint, triangleDisplayInverse } from './triangle-geometry.js';
 import { residualPath } from './boundary.js';
 import { joinContours, roundContour, simplifyContour } from './geometry.js';
 import { elementSymbol } from './symbols.js';
@@ -30,11 +31,11 @@ export function compositionLabel(x,state){
 }
 export function trianglePoint(x,state){
  const v=display(x,state);
- if(state.zoom==='tin')return [65+690*(v[0]+v[1]*.5)/.1,425-360*v[1]/.1];
- return [65+690*(v[1]+v[2]*.5),425-360*v[2]];
+ if(state.zoom==='tin')return triangleDisplayPoint([1-(v[0]+v[1])/.1,v[0]/.1,v[1]/.1]);
+ return triangleDisplayPoint(v);
 }
 export function triangleInverse(px,py,state){
- const q=(425-py)/360,p=(px-65)/690-q*.5;
+ const [,p,q]=triangleDisplayInverse(px,py);
  return state.zoom==='tin'?[p*.1,q*.1,1-(p+q)*.1]:[1-p-q,p,q];
 }
 function path(points){return points.map((p,i)=>(i?'L':'M')+p.join(' ')).join('')+'Z'}
@@ -45,7 +46,8 @@ function faceSignature(model,nodes){
 export function triangleChart(state){
  const {model,surface,ti}=state;
  let body=text(65,24,state.triangleMode==='projection'?'Liquidusprojektion':'Isothermer Schnitt · '+fmt(model.T[ti])+' °C',19);
- const outline=[[65,425],[755,425],[410,65]];
+ const {top,bottom}=triangleLayout;
+ const outline=[[1,0,0],[0,1,0],[0,0,1]].map(triangleDisplayPoint);
  body+='<defs><clipPath id="triangleClip"><path d="'+path(outline)+'"/></clipPath></defs><g clip-path="url(#triangleClip)">';
  const labels=new Map();
  if(state.triangleMode==='isothermal'&&model.diagramModel){
@@ -58,7 +60,7 @@ export function triangleChart(state){
   frame.faces.forEach(face=>{
    const nodes=face.map(i=>frame.vertices[i]);
    const points=nodes.map(n=>trianglePoint(composition(model,n),state));
-   if(Math.max(...points.map(p=>p[0]))<65||Math.min(...points.map(p=>p[0]))>755||Math.max(...points.map(p=>p[1]))<65||Math.min(...points.map(p=>p[1]))>425)return;
+   if(Math.max(...points.map(p=>p[0]))<65||Math.min(...points.map(p=>p[0]))>755||Math.max(...points.map(p=>p[1]))<top||Math.min(...points.map(p=>p[1]))>bottom)return;
    const signature=faceSignature(model,nodes);
    const f=nodes.filter(n=>model.phases[n[0]]==='LIQUID').length/nodes.length;
    body+='<path d="'+path(points)+'" fill="'+(state.style==='liquid'?liquidColor(f):fieldColor(signature))+'"/>';
@@ -108,9 +110,9 @@ export function triangleChart(state){
  if(state.triangleMode==='projection')for(const [name,label] of labels)if(label.count>16)body+='<g style="paint-order:stroke;stroke:white;stroke-width:4px">'+text(label.sumX/label.count,label.sumY/label.count,name,13,'middle')+'</g>';
  for(let k=1;k<10;k++){
   const f=k/10;
-  body+=line(65+690*f,425,410+345*f,65+360*f,'#706354',.4);
-  body+=line(65+345*f,425-360*f,755-345*f,425-360*f,'#706354',.4);
-  body+=line(755-690*f,425,410-345*f,65+360*f,'#706354',.4);
+  body+=line(...triangleDisplayPoint([1-f,f,0]),...triangleDisplayPoint([0,f,1-f]),'#706354',.4);
+  body+=line(...triangleDisplayPoint([1-f,0,f]),...triangleDisplayPoint([0,1-f,f]),'#706354',.4);
+  body+=line(...triangleDisplayPoint([f,1-f,0]),...triangleDisplayPoint([f,0,1-f]),'#706354',.4);
  }
  if(state.triangleMode==='isothermal'){
   for(const [name,label] of labels)if(label.centers?.length>15){const mean=[0,1].map(k=>label.centers.reduce((s,p)=>s+p[k],0)/label.centers.length),p=label.centers.reduce((a,b)=>Math.hypot(b[0]-mean[0],b[1]-mean[1])<Math.hypot(a[0]-mean[0],a[1]-mean[1])?b:a);body+='<g style="paint-order:stroke;stroke:white;stroke-width:3px">'+text(...p,name,11,'middle')+'</g>'}
@@ -139,8 +141,8 @@ export function triangleChart(state){
  }
  body+=triangleAxes(state);
  if(model.diagramModel&&state.zoom==='full'&&(model.diagram.maxAl||model.diagram.unsupportedLabel))body+=text(410,97,model.diagram.unsupportedLabel||'Nicht berechnet: AlCl₃-reiche Spitze',11,'middle');
- body+=text(410,516,''+(model.diagramModel?'Geometrisches Isothermenmodell':'CALPHAD-Gleichgewichtsmodell')+' · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
- return svg(body,820,535,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
+ body+=text(410,bottom+91,''+(model.diagramModel?'Geometrisches Isothermenmodell':'CALPHAD-Gleichgewichtsmodell')+' · Achsen in '+(state.basis==='mass'?'Masse-%':'mol-%'),12,'middle');
+ return svg(body,820,bottom+110,'Gehaltsdreieck mit Isothermen und freier Schnittlinie');
 }
 export function curvesChart(state){
  const profiles=state.profiles;

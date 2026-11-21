@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { joinContours, roundContour, smoothGraph, transitionEstimate, phaseBands } from '../geometry.js';
 import { elementSymbol } from '../symbols.js';
-import { compositionLabel } from '../render.js';
+import { compositionLabel, trianglePoint, triangleInverse } from '../render.js';
+import { triangleDisplayPoint, ternaryPlanePoint } from '../triangle-geometry.js';
 import { solve, profile, nearest } from '../equilibrium.js';
 import { fractionValues } from '../fractions.js';
 import { microstructureChart } from '../microstructure.js';
@@ -40,5 +41,25 @@ test('fraction readout and microstructure share model values on both bases and a
   for(const p of current.phases)assert.ok(Math.abs(values.find(v=>v.name===p.name).value-(basis==='mass'?p.mass:p.fraction))<1e-10);
   const image=microstructureChart(state);assert.ok(image.includes(basis==='mass'?'Masse-%':'mol-%'));assert.ok(!/<image|NaN|Infinity/.test(image));
   if(temperature===400){assert.equal(current.phases.length,1);assert.ok(image.includes('Einphasige Schmelze'))}
+ }
+});
+
+// Distortion also changes screen-space picking and snapping, so test both geometry and inverse.
+test('2D triangle and 3D composition plane have three equal sides', () => {
+ const corners=[[1,0,0],[0,1,0],[0,0,1]];
+ for(const project of [triangleDisplayPoint,ternaryPlanePoint]){
+  const p=corners.map(project),lengths=p.map((a,i)=>Math.hypot(a[0]-p[(i+1)%3][0],a[1]-p[(i+1)%3][1]));
+  assert.ok(lengths.every(l=>Math.abs(l-lengths[0])<1e-10));
+ }
+});
+test('triangle picking round-trips compositions on both bases and in the tin zoom', () => {
+ const model={masses:[107.8682,63.546,118.71]};
+ for(const basis of ['mole','mass'])for(const zoom of ['full','tin']){
+  const state={model,basis,zoom};
+  for(const x of [[1,0,0],[0,1,0],[0,0,1],[.02,.03,.95],[.2,.3,.5]]){
+   const actual=triangleInverse(...trianglePoint(x,state),state);
+   const weights=x.map((v,i)=>basis==='mass'?v*model.masses[i]:v),total=weights.reduce((a,b)=>a+b,0);
+   weights.forEach((v,i)=>assert.ok(Math.abs(actual[i]-v/total)<1e-12));
+  }
  }
 });
