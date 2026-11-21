@@ -102,7 +102,7 @@
         "VoltaLab"
       ],
       "repository": "FalkBornmann/Werkzeugdeck-Potentialkurven",
-      "revision": "646ed4e1a39317a794cdad518a5bab58aa840802",
+      "revision": "25e2d3edbdbe8428a5df69707c1f2456a121594c",
       "sourceDirectory": "Elektrochemie/Datenauswertung/Potentialkurven",
       "assets": [
         "index.html",
