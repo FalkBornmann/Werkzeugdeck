@@ -1,6 +1,7 @@
 import {KEYS,LABELS,COLORS,index,REFERENCE,referenceHV,clamp} from './materials.js';
 import {probeIndex} from './model.js';
-export const FIGURES=[['thermal','Temperaturverlauf'],['reservoirs','Reservoirentwicklung am gewählten Ort'],['hardening','Aushärtung: Kern, Rand und Mittel'],['field','Bauteilquerschnitt'],['micro','Ausscheidungen · schematische Vergrößerung']];
+import {METRICS,geometry,probe,profile,compareSeries} from './analysis.js';
+export const FIGURES=[['thermal','Temperaturverlauf'],['reservoirs','Reservoirentwicklung am gewählten Ort'],['hardening','Aushärtung: Kern, Rand und Mittel'],['comparison','Vollständige Prozessvergleiche'],['field','Bauteilquerschnitt'],['profile','Ortsprofil auf der Schnittlinie'],['micro','Ausscheidungen · schematische Vergrößerung']];
 export function timeLabel(s){return s<120?s.toFixed(1)+' s':s<7200?(s/60).toFixed(1)+' min':s<172800?(s/3600).toFixed(2)+' h':(s/86400).toFixed(2)+' Tage';}
 function line(c,points,color,width=3,dash=[]){c.strokeStyle=color;c.lineWidth=width;c.setLineDash(dash);c.beginPath();points.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.stroke();c.setLineDash([]);}
 function text(c,value,x,y,size=18,color='#453c30'){c.font=size+'px system-ui';c.fillStyle=color;c.fillText(value,x,y);}
@@ -8,9 +9,9 @@ function base(c,title,subtitle){c.fillStyle='#fff';c.fillRect(0,0,1000,560);text
 function chart(c,{title,subtitle,series,maxX,maxY,ylabel,xlabel,marker,dots=[]}){
  base(c,title,subtitle);const box={x:85,y:108,w:865,h:330};const X=x=>box.x+box.w*x/maxX,Y=y=>box.y+box.h-box.h*y/maxY;
  for(let j=0;j<=5;j++){const y=maxY*j/5;line(c,[[box.x,Y(y)],[950,Y(y)]],'#e9e1d4',1);text(c,y.toFixed(maxY<=100?0:1),28,Y(y)+6,15);}
- for(let j=0;j<=4;j++)text(c,(maxX*j/4).toFixed(maxX>50?0:1),X(maxX*j/4)-8,466,15);
+ for(let j=0;j<=4;j++)text(c,(maxX*j/4).toFixed(maxX>=50?0:maxX>=1?1:maxX>=.1?2:3),X(maxX*j/4)-8,466,15);
  text(c,ylabel,85,94,16);text(c,xlabel,720,495,16);
- series.forEach((s,i)=>{line(c,s.values.map(p=>[X(p[0]),Y(p[1])]),s.color,3,s.dash);const x=32+(i%3)*320,y=514+Math.floor(i/3)*19;line(c,[[x,y-5],[x+22,y-5]],s.color,3,s.dash);text(c,s.name,x+28,y,14);});
+ series.forEach((s,i)=>{line(c,s.values.map(p=>[X(p[0]),Y(p[1])]),s.color,3,s.dash);const x=32+(i%3)*320,y=514+Math.floor(i/3)*19;line(c,[[x,y-5],[x+22,y-5]],s.color,3,s.dash);text(c,s.name.length>33?s.name.slice(0,30)+'…':s.name,x+28,y,14);});
  if(marker!==undefined)line(c,[[X(marker),108],[X(marker),438]],'#292723',2,[6,5]);
  for(const d of dots){c.fillStyle='#513821';c.beginPath();c.arc(X(d[0]),Y(d[1]),5,0,2*Math.PI);c.fill();}
 }
@@ -20,20 +21,36 @@ export function render(c,id,r,frameIndex=0,options={}){
   chart(c,{title:'Literaturreferenz · 175 °C',subtitle:'He et al. (2019) · vier Textwerte; lineare Verbindung, kein Kinetikfit',series:[{name:'Literatur · HV 0,5',color:'#865b2e',values:REFERENCE.map(p=>[p.h,p.hv])}],maxX:96,maxY:150,ylabel:'Vickershärte [HV 0,5]',xlabel:'Auslagerungszeit [h]',marker:referenceHV(t)===null?undefined:t,dots:REFERENCE.map(p=>[p.h,p.hv])});
   c.fillStyle='#fff';c.fillRect(20,523,960,30);text(c,'Quelle: doi.org/10.3390/met9020173 · keine Übertragung auf freie Prozesse',32,544,15);return;
  }
+ if(id==='comparison'){
+  const series=compareSeries(r,options.comparisons||[],options),metric=METRICS[options.compareMetric||'index'],relative=options.compareAxis==='relative';
+  if(!series.length){base(c,'Vollständige Prozessvergleiche','Prozess berechnen und bis zu vier Verläufe merken.');return;}
+  const names={mean:'Volumenmittel',core:'Kern',edge:'Rand / Ecke',probe:'gleiche relative Position'};
+  chart(c,{title:'Prozessvergleich · '+metric.label,subtitle:(relative?'Relative Prozesszeit: gleiche Fortschrittsanteile, unterschiedliche reale Zeiten':'Absolute Prozesszeit: Kurven enden mit ihrem jeweiligen Prozess')+' · '+names[options.compareLocation||'mean'],series,maxX:relative?100:Math.max(...series.map(s=>s.result.total))/3600,maxY:metric.max,ylabel:metric.label+' ['+metric.unit+']',xlabel:relative?'Prozessfortschritt [%]':'Prozesszeit [h]',marker:r?(relative?100*r.frames[frameIndex].time/r.total:r.frames[frameIndex].time/3600):undefined});return;
+ }
  if(!r){base(c,FIGURES.find(f=>f[0]===id)?.[1]||'Aluminium','Prozess einstellen und berechnen.');return;}
  const f=r.frames[frameIndex],p=probeIndex(r,options.x||0,options.y||0),s=f.states[p],xMax=r.total/3600;
- const subtitle=timeLabel(f.time)+' · '+f.label+' · Ort x = '+Math.round((options.x||0)*100)+' %, y = '+Math.round((options.y||0)*100)+' %';
+ const point=probe(r,options.x||0,options.y||0);
+ const subtitle=timeLabel(f.time)+' · '+f.label+' · Zellmitte x = '+point.xMM.toFixed(2)+' mm, y = '+point.yMM.toFixed(2)+' mm';
  const values=fn=>r.frames.map(v=>[v.time/3600,fn(v)]);
  if(id==='thermal')chart(c,{title:'Medium und Bauteil',subtitle,series:[{name:'Medium',color:'#8c7c68',dash:[6,4],values:values(v=>v.bath)},{name:'Kern',color:'#b44c39',values:values(v=>v.temps[0])},{name:'Rand / Ecke',color:'#347c9d',values:values(v=>v.temps.at(-1))}],maxX:xMax,maxY:600,ylabel:'Temperatur [°C]',xlabel:'Prozesszeit [h]',marker:f.time/3600});
  if(id==='reservoirs')chart(c,{title:'Verteilung des Modellreservoirs',subtitle,series:KEYS.map(k=>({name:LABELS[k],color:COLORS[k],values:values(v=>100*v.states[p][k])})),maxX:xMax,maxY:100,ylabel:'Reservoiranteil [%] · keine Phasenanteile',xlabel:'Prozesszeit [h]',marker:f.time/3600});
  if(id==='hardening')chart(c,{title:'Illustrativer Aushärtungsindex',subtitle,series:[{name:'Kern',color:'#b44c39',values:values(v=>index(v.states[0]))},{name:'Rand / Ecke',color:'#347c9d',values:values(v=>index(v.states.at(-1)))},{name:'Volumenmittel',color:'#326a50',values:values(v=>v.meanIndex)}],maxX:xMax,maxY:100,ylabel:'Index [0–100] · keine Härte / Warmfestigkeit',xlabel:'Prozesszeit [h]',marker:f.time/3600});
+ if(id==='profile'){
+  const metric=METRICS[options.profileMetric||'temperature'];
+  chart(c,{title:'Ortsprofil · '+metric.label,subtitle:timeLabel(f.time)+' · Schnitt bei y = '+point.yMM.toFixed(2)+' mm · Werte an Zellmitten',series:[{name:metric.label,color:'#3c7497',values:profile(r,f,options.y||0,options.profileMetric||'temperature').map(p=>[p.x,p.value])}],maxX:r.parameters.size/2,maxY:metric.max,ylabel:metric.label+' ['+metric.unit+']',xlabel:r.parameters.shape==='rod'?'Radius r [mm]':'Abstand x von der Mitte [mm]',marker:point.xMM});
+ }
  if(id==='field'){
+  const g=geometry(r.parameters);
   const temp=options.field!=='index',limit=temp?550:100;const val=i=>temp?f.temps[i]:index(f.states[i]);
   const color=v=>{const z=clamp(v/limit);return 'rgb('+Math.round(231-50*z)+','+Math.round(239-151*z)+','+Math.round(245-208*z)+')';};
   base(c,temp?'Temperatur im Querschnitt':'Aushärtungsindex im Querschnitt',subtitle);
   if(r.parameters.shape==='rod'){for(let j=r.nx-1;j>=0;j--){c.fillStyle=color(val(j));c.beginPath();c.arc(410,290,180*(j+1)/r.nx,0,2*Math.PI);c.fill();}text(c,'Durchmesser '+r.parameters.size+' mm · radial',150,490,17);}
   else {const ratio=r.parameters.size/r.parameters.height,w=Math.min(640,330*ratio),h=w/ratio,left=410-w/2,top=290-h/2;for(let iy=0;iy<r.ny*2;iy++)for(let ix=0;ix<r.nx*2;ix++){const gx=Math.floor(Math.abs(ix+.5-r.nx)),gy=Math.floor(Math.abs(iy+.5-r.ny));c.fillStyle=color(val(gy*r.nx+gx));c.fillRect(left+ix*w/(2*r.nx),top+iy*h/(2*r.ny),w/(2*r.nx)+.2,h/(2*r.ny)+.2);}text(c,r.parameters.size+' × '+r.parameters.height+' mm · langer Körper',150,490,17);}
   for(let j=0;j<100;j++){c.fillStyle=color((99-j)/99*limit);c.fillRect(835,110+j*3.3,32,3.5);}text(c,String(limit),880,125,18);text(c,'0',880,440,18);text(c,temp?'°C':'Index',832,475,18);
+  const mx=g.shape==='rod'?g.cx+g.radius*point.x:g.cx+g.w/2*point.x,my=g.shape==='rod'?g.cy:g.cy+g.h/2*point.y;
+  if(g.shape==='plate'){line(c,[[g.left,my],[g.left+g.w,my]],'#302b25',2,[7,4]);line(c,[[g.left,2*g.cy-my],[g.left+g.w,2*g.cy-my]],'#302b25',1,[3,4]);}
+  else line(c,[[g.cx,g.cy],[g.cx+g.radius,g.cy]],'#302b25',2,[7,4]);
+  line(c,[[mx-8,my],[mx+8,my]],'#fff',6);line(c,[[mx,my-8],[mx,my+8]],'#fff',6);line(c,[[mx-8,my],[mx+8,my]],'#201f1c',2);line(c,[[mx,my-8],[mx,my+8]],'#201f1c',2);
   text(c,'Ableseort: '+val(p).toFixed(1)+(temp?' °C':' / 100'),32,96,18);
  }
  if(id==='micro'){

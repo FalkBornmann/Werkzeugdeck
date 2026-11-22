@@ -22,4 +22,4 @@ export function run(p,{n=12}={}){
  }
  return {version:VERSION,parameters:p,nx,ny,grid,frames,total,material:MATERIAL};
 }
-export function probeIndex(result,x=.5,y=.5){const ix=Math.round(Math.max(0,Math.min(1,x))*(result.nx-1)),iy=Math.round(Math.max(0,Math.min(1,y))*(result.ny-1));return iy*result.nx+ix;}
+export function probeIndex(result,x=.5,y=.5){const ix=Math.min(result.nx-1,Math.floor(Math.max(0,Math.min(1,x))*result.nx)),iy=Math.min(result.ny-1,Math.floor(Math.max(0,Math.min(1,y))*result.ny));return iy*result.nx+ix;}

@@ -17,8 +17,8 @@ Verbindung ist lineare Interpolation, kein Kinetikfit. Referenzdaten kalibrieren
 Keine unabhängige experimentelle Validierung vorhanden.
 
 ## Bedienung und Daten
-Prozessvorlagen und frei editierbare Schritte (0–550 °C, 1 s bis insgesamt 14 Tage, höchstens 16 Schritte), Geometrie, Ausgangszustand, synchronisierte Zeit und Ortsregler, vergrößerte Diagramme, vier Endzustandsvergleiche. Neu eingestellte Parameter entwerten das alte Ergebnis.
-PNG und echte SVG sämtlicher sechs Grafiken verwenden dieselbe Zeichenroutine. Video läuft über das gemeinsame lokale Exportmenü, ermittelt das Format zur Laufzeit und enthält Zeit/Modellhinweis. CSV enthält alle gespeicherten Zeiten/Zellen; JSON Parameter, Hinweise und Ergebnisse. Import vertraut nur validierten Parametern und verlangt Neuberechnung. Keine Datenspeicherung oder Messdatenübertragung.
+Prozessvorlagen und frei editierbare Schritte (0–550 °C, 1 s bis insgesamt 14 Tage, höchstens 16 Schritte), Geometrie, Ausgangszustand, synchronisierte Zeit und Ortsregler, vergrößerte Diagramme, vier vollständige Prozessvergleiche. Neu eingestellte Parameter entwerten das alte Ergebnis.
+PNG und echte SVG sämtlicher acht Grafiken verwenden dieselbe Zeichenroutine. Video läuft über das gemeinsame lokale Exportmenü, ermittelt das Format zur Laufzeit und enthält Zeit/Modellhinweis. CSV enthält alle gespeicherten Zeiten/Zellen; JSON im Format 2 alle Prozessparameter, Vergleichsnamen und Darstellungsoptionen. Import validiert Parameter und berechnet aktuellen Prozess sowie gespeicherte Vergleiche mit dem aktuellen Modell neu. Alte Format-1-Dateien bleiben lesbar. Keine Datenspeicherung oder Messdatenübertragung.
 
 ## Prüfen
 Node >=20: node --test tests/*.test.mjs
@@ -27,3 +27,8 @@ Tests prüfen Bilanzen, thermische Schranken, Verfeinerung, Zeitschrittsensitivi
 
 ## Veröffentlichung
 Eigenes Organisationsrepository Werkzeugdeck/aluminiumgefuegerechner, feste Revision im Website-Katalog. Fachtheorie und Gestaltung im Website-Repository verknüpfen. Keine automatischen Offlinepakete oder Downloads.
+
+## Ortsprofile und vollständige Vergleiche
+Querschnitt und Profil sind mit Maus, Touch und Pfeiltasten bedienbar. Zellmitten in Millimetern, gespiegelte Schnittlinien und Kreuzmarker stimmen mit Ablesetext und Ausscheidungsansicht überein. Die Farbwahl steuert tatsächlich Temperatur beziehungsweise Index. Profile zeigen Temperatur, Index oder einzelne Reservoiranteile; zwischen Zellmittelwerten wird nur für die Linie verbunden.
+Bis zu vier benannte vollständige Prozesse bleiben unabhängig vom aktuellen Entwurf gespeichert, einschließlich aller Parameter und Ergebnisse. Anzeigen stellt den Prozess ohne erneute Rechnung wieder her. Unterschiede in Geometrie, Ausgangszustand und Schritten bleiben einsehbar. Vergleichskurven bieten gleiche reale Prozesszeit oder gleichen relativen Fortschritt. Nach Prozessende keine Kurvenverlängerung. Zeitmarkierungswerte werden nur zwischen vorhandenen Frames linear interpoliert; gleiche relative Orte liegen bei anderen Geometrien an anderen Millimeterkoordinaten.
+Alle acht Grafiken inklusive Profil und Vergleich bieten PNG und echte SVG; berechnete Zeitverläufe außerdem Video. Separate Vergleichs-CSV enthält sämtliche gespeicherten Zeitpunkte aller Kurven für den gewählten Auswerteort und benennt reale Zeit und Fortschritt. Projektformat 2 enthält ausschließlich Parameter statt ungeprüfter Ergebnisobjekte und berechnet Verläufe beim Import lokal neu. Die Kinetik ist unverändert und bleibt unkalibriert.

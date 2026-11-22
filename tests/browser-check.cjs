@@ -18,7 +18,7 @@ const root=path.resolve(__dirname,'..'),out=path.resolve(root,'../../../Archiv/A
   await page.locator('#probe-x').fill('100');await page.locator('#probe-x').dispatchEvent('input');await page.locator('#field-view').selectOption('index');
   await page.screenshot({path:path.join(out,'desktop.png'),fullPage:true});
   await page.locator('#field').screenshot({path:path.join(out,'field.png')});
-  for(const id of ['thermal','reservoirs','hardening','field','micro','reference']){
+  for(const id of ['thermal','reservoirs','hardening','comparison','field','profile','micro','reference']){
    await page.locator('[data-export-object]').selectOption(id);
    for(const format of ['png','svg']){
     await page.locator('[data-export-format]').selectOption(format);const promise=page.waitForEvent('download');await page.locator('[data-export-save]').click();const d=await promise;const dest=path.join(out,d.suggestedFilename());await d.saveAs(dest);
@@ -26,7 +26,7 @@ const root=path.resolve(__dirname,'..'),out=path.resolve(root,'../../../Archiv/A
     if(format==='svg'){const t=content.toString();assert.ok(!t.includes('<image'));assert.ok(t.includes('<text'));const valid=await page.evaluate(t=>!new DOMParser().parseFromString(t,'image/svg+xml').querySelector('parsererror'),t);assert.ok(valid);}
    }
   }
-  console.log('Desktop: six PNG/SVG exports and XML, timeline, probes, comparison passed');
+  console.log('Desktop: eight PNG/SVG exports and XML, timeline, probes, comparison passed');
   await page.locator('[data-export-object]').selectOption('micro');await page.locator('[data-export-format]').selectOption('video');await page.locator('[data-video-duration] select').selectOption('5');
   const before=await page.locator('#time').inputValue(),videoPromise=page.waitForEvent('download');await page.locator('[data-export-save]').click();assert.ok(await page.locator('#run').isDisabled());const video=await videoPromise;const videoPath=path.join(out,video.suggestedFilename());await video.saveAs(videoPath);await page.getByText('Video gespeichert.',{exact:true}).waitFor();assert.equal(await page.locator('#time').inputValue(),before);
   const data=await fs.readFile(videoPath);assert.ok(data.length>5000);assert.match(video.suggestedFilename(),/\.(webm|mp4)$/);
@@ -55,11 +55,11 @@ const root=path.resolve(__dirname,'..'),out=path.resolve(root,'../../../Archiv/A
   for(const viewport of [{width:390,height:844},{width:768,height:1024}]){
    await page.setViewportSize(viewport);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
    await page.locator('#micro').scrollIntoViewIfNeeded();const dock=await page.locator('.timeline-dock').boundingBox();assert.ok(dock.y>=0&&dock.y+dock.height<=viewport.height+1);
-   await page.locator('#time').fill('1');await page.locator('#time').dispatchEvent('input');assert.match(await page.locator('#readout').textContent(),/Gewählter Ort/);
+   await page.locator('#time').fill('1');await page.locator('#time').dispatchEvent('input');assert.match(await page.locator('#readout').textContent(),/Zellmitte/);
    await page.screenshot({path:path.join(out,'mobile-'+viewport.width+'.png'),fullPage:true});
   }
   console.log('Mobile/tablet, radial geometry, natural aging, invalidation and browser fallback passed');assert.deepEqual(errors,[]);
-  await fs.writeFile(path.join(out,'result.json'),JSON.stringify({passed:true,playback,cleanup,exports:12,viewports:[1440,390,768]},null,2));
+  await fs.writeFile(path.join(out,'result.json'),JSON.stringify({passed:true,playback,cleanup,exports:16,viewports:[1440,390,768]},null,2));
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
