@@ -40,11 +40,11 @@
 <div id="exports"></div><div class="actions"><button id="csv" disabled>Aktueller Verlauf · CSV</button><button id="compare-csv" disabled>Prozessvergleich · CSV</button><button id="json">Projekt · JSON</button><label class="file-label">Projekt laden<input id="import" type="file" accept=".json,application/json"></label></div>
 </section>
 </div></div>
-<section class="card" id="referenz"><h2>Literaturreferenz: 6082 bei 175 °C</h2>
+<details class="card" id="referenz"><summary>Literaturreferenz: 6082 bei 175 °C</summary>
 <p>He et al. (2019), Abschnitt 3.1.1: Strangpressmaterial, 5 mm dicke Proben; Lösungsglühen bei 545 °C für 50 min, Wasserabschrecken und anschließendes Auslagern bei 175 °C. Vickersprüfung: 500 g Last, 15 s, sechs Eindrücke je Probe.</p>
 <p>Übernommen sind ausschließlich vier im Text genannte Werte: 0 h: 83,07 HV; 8 h: 132,32 HV; 18 h: 116,87 HV; 96 h: 102,23 HV. Verbindungslinien sind <strong>lineare Orientierung zwischen den Stützpunkten</strong>, kein Kinetikfit. Keine Extrapolation und keine Übertragung auf andere Temperaturprogramme.</p>
 <label>Referenzzeit [h]<input id="reference-time" type="number" min="0" max="96" step=".1" value="8"></label><p id="reference-readout" role="status"></p><canvas id="reference" width="1000" height="560" role="img" aria-label="Vier Literatur-Härtewerte bei 175 Grad Celsius mit linearer Verbindung"></canvas>
-<p><a href="https://doi.org/10.3390/met9020173" target="_blank" rel="noopener">Originalarbeit und Versuchsbedingungen →</a>. Diese vier Werte sind Referenzpunkte aus einer Versuchsreihe und keine unabhängige Validierung des Lehrmodells.</p></section>
+<p><a href="https://doi.org/10.3390/met9020173" target="_blank" rel="noopener">Originalarbeit und Versuchsbedingungen →</a>. Diese vier Werte sind Referenzpunkte aus einer Versuchsreihe und keine unabhängige Validierung des Lehrmodells.</p></details>
 <details class="card" id="theorie"><summary>Theorie, Modellgleichungen, Annahmen und Quellen</summary>
 <h2>Was das Modell rechnet</h2><p>Jede Zelle besitzt eine Temperatur und vier normierte Reservoirs S, C, F und G. Ihre Summe bleibt 1. Transfers verwenden Δa = a · (1 − exp(−k Δt)); die gleiche Menge wird dem Zielreservoir zugeführt. Nicht alle realen Phasen oder unlöslichen intermetallischen Teilchen werden abgebildet.</p>
 <p>Bei T ≥ 450 °C gilt für das angestrebte gelöste Reservoir S* = clamp((T − 450)/80, 0, 1). Die Auflösungsrate ist exp(clamp((T − 530)/30, −6, 2))/900 s⁻¹. Damit ist Auflösung zeitabhängig, aber weder CALPHAD-Thermodynamik noch eine kalibrierte Solvuslinie.</p>
