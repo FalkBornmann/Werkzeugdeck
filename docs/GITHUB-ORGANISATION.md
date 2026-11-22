@@ -25,3 +25,20 @@ Das Website-Repository heißt `website`. Tool-Repositories verwenden kurze, daue
 - Bestehendes Cloudflare-Pages-Projekt und Website-Adressen erhalten. Erst den vollständigen geprüften Build veröffentlichen. Keine alte GitHub-Adresse wieder mit einem neuen Repository belegen, solange deren Weiterleitung gebraucht wird.
 - Archivierte Weiterleitungs-Repositories `EIS-Fitting-Web` und `Eintunken` bleiben vorerst beim persönlichen Konto, damit ihre GitHub-Pages-Adressen erhalten bleiben. Unabhängige private Projekte werden nicht übertragen.
 - Der aktive Stand verwendet `status: active` und eine leere Liste `legacyRepositories`. Das Organisationsprofil liegt in `Werkzeugdeck/.github` unter `profile/README.md`. Bei neuen Tools dessen Übersicht aktualisieren.
+
+## Verbindliche Kostenregel: 0 USD Zusatzkosten
+
+Werkzeugdeck bleibt bei kostenlosen Diensten. Agenten dürfen keine Zahlungsmethode hinterlegen, kostenpflichtige Tarife oder Abonnements aktivieren, Ausgabenbudgets erhöhen oder kostenpflichtige Testangebote mit automatischer Verlängerung beginnen. Das gilt auch für Runner, Codespaces, zusätzlichen Speicher, Copilot-/KI-Lizenzen und Credits, Models, Spark, Sandbox, Marketplace-Apps und externe APIs. Bei ausgeschöpften Freigrenzen stoppen oder lokal weiterarbeiten. Bestehende Ausgabensperren niemals für eine Veröffentlichung umgehen. Diese Regel steht zusätzlich in der zentralen und jeder Tool-AGENTS.md sowie der Vorlage für neue Tools.
+
+Am 22. November 2026 in den Organisationseinstellungen geprüft:
+
+- GitHub Free ist aktiv; die Lizenzseite bietet Copilot Business zur Anmeldung an, ohne ein bestehendes entsprechendes Abonnement anzuzeigen.
+- Actions, Packages, Codespaces und Git LFS haben jeweils ein organisationsweites Budget von 0 USD und den Status **Usage blocked**. Warnungen für enthaltene Nutzung sind eingeschaltet. Diese Sperren waren bereits eingerichtet.
+- GitHub meldet eine fehlende Zahlungsmethode. Neue oder geänderte Budgets verlangen dort zuerst eine Zahlungsmethode; hierfür wird keine hinterlegt.
+- Die angezeigten 0,08 USD Bruttonutzung sind durch 0,08 USD Rabatt gedeckt; der abrechenbare Betrag ist 0 USD. Bruttonutzung allein ist keine Rechnung.
+
+Kostenlose Standard-Runner für öffentliche Repositories bleiben zulässig. Größere Runner sind auch bei öffentlichen Repositories kostenpflichtig und werden nicht eingesetzt. Der Website-Workflow lädt keine vollständigen Builds mehr als CI-Artefakt hoch; Fehler-Screenshots werden höchstens einen Tag aufbewahrt. Die Veröffentlichung verwendet weiterhin den lokal geprüften Build. Bestehende Artefakte werden nicht rückwirkend gelöscht.
+
+Budgets gelten für ihre jeweiligen Produkte und ersetzen keine Kontrolle von Abonnements. Diese Prüfung ist eine Momentaufnahme; Administratoren könnten Einstellungen später ändern. Vor neuen Diensten sowie Änderungen an Tarifen, Sichtbarkeit oder Workflows die kostenlose Nutzbarkeit erneut prüfen. Keine automatischen Upgrades oder Nachkäufe.
+
+Offizielle Erläuterungen: [GitHub-Budgets und Nutzungssperren](https://docs.github.com/en/billing/concepts/budgets-and-alerts), [Abrechnung von GitHub Actions](https://docs.github.com/en/billing/concepts/product-billing/github-actions).

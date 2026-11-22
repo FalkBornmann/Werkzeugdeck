@@ -24,7 +24,4 @@ jobs:
           name: design-check-screenshots
           path: Archiv/Design-Pruefung/
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
-        with:
-          name: werkzeugdeck-pages
-          path: dist/
+          retention-days: 1
