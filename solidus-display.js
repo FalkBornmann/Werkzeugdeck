@@ -9,7 +9,7 @@ export function displayedSolidus(model,x,root,series){
  const data=model.solidusDisplay;if(!data||!root)return null;
  if(model.edgeSource){const indices=model.edgeSource.indices;return displayedSolidus(model.parentModel,liftEdge(x,indices),root,series.map(s=>({...s,phases:s.phases?.map(p=>({...p,x:liftEdge(p.x,indices)}))})));}
  if(model.components.length===2){
-  const p=x[0]*data.n,i=Math.min(data.n-1,Math.floor(p)),f=p-i;return data.nodes[i]*(1-f)+data.nodes[i+1]*f;
+  const p=x[0]*data.n,i=Math.min(data.n-1,Math.floor(p)),f=p-i;return Number.isFinite(data.nodes[i])&&Number.isFinite(data.nodes[i+1])?data.nodes[i]*(1-f)+data.nodes[i+1]*f:null;
  }
  const key=solidSignature(series[root.index-1],model),values=data.branches?.[key]||data.nodes;
  let surfaces=cache.get(data);if(!surfaces){surfaces=new Map();cache.set(data,surfaces)}

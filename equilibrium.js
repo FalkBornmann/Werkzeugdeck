@@ -43,6 +43,13 @@ function indexFrame(model, frame) {
       for(let y=loY;y<=hiY;y++) for(let x=loX;x<=hiX;x++) bins[y*20+x].push(i);
     });
   }
+  if(model.components.length===2){
+    frame.faces.forEach((face,i)=>{
+      const xs=face.map(j=>frame.vertices[j][1]);
+      const lo=Math.max(0,Math.floor((Math.min(...xs)-EPS)*400)),hi=Math.min(399,Math.floor((Math.max(...xs)+EPS)*400));
+      for(let j=lo;j<=hi;j++)bins[j].push(i);
+    });
+  }
   indices.set(frame,bins);
   return bins;
 }
@@ -51,7 +58,7 @@ export function solve(model, compositionValue, ti) {
   if(model.diagramModel)return solveDiagram(model,compositionValue,ti);
   const frame=model.frames[ti], dimensionality=model.components.length-1;
   const x=compositionValue[0],y=compositionValue[1];
-  const candidates=dimensionality===1 ? frame.faces.map((_,i)=>i) : indexFrame(model,frame)[Math.min(19,Math.floor(y*20))*20+Math.min(19,Math.floor(x*20))];
+  const candidates=dimensionality===1 ? indexFrame(model,frame)[Math.max(0,Math.min(399,Math.floor(x*400)))] : indexFrame(model,frame)[Math.min(19,Math.floor(y*20))*20+Math.min(19,Math.floor(x*20))];
   let face, weights, faceIndex;
   for(const fi of candidates) {
     const nodes=frame.faces[fi].map(i=>frame.vertices[i]);

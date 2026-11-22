@@ -27,6 +27,8 @@ for(const parent of systems.filter(s=>systems.some(b=>b.edge?.parent===s.id))){
   const {m,surface}=load(parent);
   for(const definition of systems.filter(s=>s.edge?.parent===parent.id)){
    const edge=makeBinaryEdge(m,definition,surface,reactionReferences(m));
+   const compact=definition.edge.compact?gz(definition.id+'-hulls.json.gz'):null;
+   if(compact)compact.solidusDisplay=gz(definition.id+'-solidus.json.gz');
    assert.equal(edge.components.length,2);
    let covered=0;
    for(const f of [0,.03,.25,.5,.73,.97,1])for(const t of [m.T[0],100,250,550,800,m.T.at(-1)]){
@@ -34,6 +36,7 @@ for(const parent of systems.filter(s=>systems.some(b=>b.edge?.parent===s.id))){
     if(original.unavailable){assert.ok(sample.unavailable);continue}
     assert.ok(!sample.unavailable,definition.id+' '+f+' '+t);covered++;
     assert.ok(Math.abs(sample.liquid-original.liquid)<1e-12);
+    if(compact){const actual=solve(compact,x,ti);assert.ok(actual,definition.id+' compact coverage');assert.equal(actual.signature,sample.signature);for(const raw of new Set(sample.phases.map(p=>p.raw))){const amount=s=>s.phases.filter(p=>p.raw===raw).reduce((n,p)=>n+p.fraction,0);assert.ok(Math.abs(amount(actual)-amount(sample))<2e-5,definition.id+' '+raw)}assert.ok(Math.abs(actual.enthalpy-sample.enthalpy)<.02);}
     assert.equal(sample.signature,original.signature);assert.equal(sample.phases.length,original.phases.length);
     for(let k=0;k<2;k++){
      const total=sample.phases.reduce((n,p)=>n+p.fraction*p.x[k],0);
@@ -45,6 +48,7 @@ for(const parent of systems.filter(s=>systems.some(b=>b.edge?.parent===s.id))){
    assert.ok(covered>=24,definition.id);
    const x=[.5,.5],series=profile(edge,x),root=boundaryFromSeries(series,'solidus')[0],tl=displayedBinaryLiquidus(edge,x);
    assert.ok(Number.isFinite(tl),definition.id+' liquidus');
+   if(compact)assert.ok(Math.abs(displayedBinaryLiquidus(compact,x)-tl)<1e-5,definition.id+' compact liquidus');
    if(root&&edge.solidusDisplay)assert.ok(Number.isFinite(displayedSolidus(edge,x,root,series)),definition.id+' solidus');
    assert.ok(reactionReferences(edge).every(r=>r.x.length===2));
   }

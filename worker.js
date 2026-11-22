@@ -54,7 +54,7 @@ self.onmessage=async({data:message})=>{
   if(message.type==='load'){
    latestLoad=message.id;
    const read=async name=>{const r=await fetch(name);if(!r.ok)throw Error('Modelldatei konnte nicht geladen werden: '+name);return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()};
-   const selected=systems.find(s=>s.id===message.key),key=selected.edge?.parent||message.key;
+   const selected=systems.find(s=>s.id===message.key),key=selected.edge&&!selected.edge.compact?selected.edge.parent:message.key;
    const definition=systems.find(s=>s.id===key);
    let loaded,loadedAtlas=null;
    if(parentCache?.key===key){loaded=parentCache.model;loadedAtlas=parentCache.atlas}
@@ -74,7 +74,7 @@ self.onmessage=async({data:message})=>{
     }
     parentCache={key,model:loaded,atlas:loadedAtlas};
    }
-   if(selected.edge){
+   if(selected.edge&&!selected.edge.compact){
     const surface=loadedAtlas?{n:loadedAtlas.n,nodes:loadedAtlas.nodes.map(p=>({value:p[0]}))}:null;
     loaded=makeBinaryEdge(loaded,selected,surface,reactionReferences(loaded));loadedAtlas=null;
    }
