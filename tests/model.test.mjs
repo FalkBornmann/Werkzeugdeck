@@ -5,6 +5,7 @@ import {run} from '../model.js';
 import {mesh,heatStep} from '../thermal.js';
 import '../svg-context.js';
 import {FIGURES,render} from '../render.js';
+import {figureHeight} from '../time-axis.js';
 const p=(name='artificial',shape='plate')=>({shape,initial:'coarse',size:40,height:20,stages:preset(name)});
 test('all reservoir transfers conserve the inventory and remain bounded for mixed histories',()=>{
  const s=blankState();for(const T of [545,20,175,350,100,549,180,20])for(let j=0;j<100;j++){advance(s,T,37);assert.ok(Math.abs(KEYS.reduce((sum,k)=>sum+s[k],0)-1)<1e-12);for(const k of KEYS)assert.ok(s[k]>=-1e-12&&s[k]<=1+1e-12);assert.ok(index(s)>=0&&index(s)<=100);}
@@ -41,5 +42,5 @@ test('parameter validation rejects unsupported temperatures, geometries and nonf
  for(const bad of [{...p(),size:NaN},{...p(),shape:'cube'},{...p(),stages:[{...preset()[0],target:600}]},{...p(),stages:[]}])assert.throws(()=>validate(bad));assert.doesNotThrow(()=>validate(p('natural')));
 });
 test('every graphic shares a real-vector SVG rendering path',()=>{
- const r=run(p(),{n:4});for(const [id] of [...FIGURES,['reference']]){const ctx=new SvgContext(1000,560);render(ctx,id,r,r.frames.length-1,{});const svg=ctx.toSvg(id);assert.match(svg,/<text/);assert.match(svg,/<path|<rect/);assert.doesNotMatch(svg,/<image|NaN|Infinity/);}
+ const r=run(p(),{n:4});for(const [id] of [...FIGURES,['reference']]){const ctx=new SvgContext(1000,figureHeight(id));render(ctx,id,r,r.frames.length-1,{});const svg=ctx.toSvg(id);assert.match(svg,/<text/);assert.match(svg,/<path|<rect/);assert.doesNotMatch(svg,/<image|NaN|Infinity/);}
 });

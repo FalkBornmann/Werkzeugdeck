@@ -1,12 +1,13 @@
 import {preset,validate,index,KEYS,VERSION,REFERENCE,referenceHV,clamp} from './materials.js';
 import {FIGURES,render,timeLabel} from './render.js';
+import {figureHeight,TIME_FIGURES} from './time-axis.js';
 import {METRICS,RUN_COLORS,probe,pickField,metricValue,atTime,projectParameters} from './analysis.js';
 import {mountTimelineDock} from './timeline-dock.js';
 const $=id=>document.getElementById(id);
 let result=null,frame=0,worker=null,pendingReject=null,timer=null,stages=preset(),comparisons=[],large='thermal',generation=0,recording=false,exportMenu;
 const dock=mountTimelineDock($('timeline'));
 const options=()=>({
- x:Number($('probe-x').value)/100,y:Number($('probe-y').value)/100,field:$('field-view').value,
+ x:Number($('probe-x').value)/100,y:Number($('probe-y').value)/100,field:$('field-view').value,timeScale:$('time-scale').value,
  referenceTime:Number($('reference-time').value),profileMetric:$('profile-metric').value,
  compareMetric:$('compare-metric').value,compareLocation:$('compare-location').value,compareAxis:$('compare-axis').value,comparisons
 });
@@ -51,10 +52,11 @@ for(const [id,title] of FIGURES){
  section.append(canvas);$('figures').append(section);
 }
 $('compare-metric').value='index';$('profile-metric').value='temperature';
+function paint(canvas,id,opt){const height=figureHeight(id,opt);if(canvas.height!==height)canvas.height=height;render(canvas.getContext('2d'),id,result,frame,opt);if(TIME_FIGURES.includes(id))canvas.setAttribute('aria-label',(id==='reference'?'Literaturreferenz':FIGURES.find(entry=>entry[0]===id)[1])+' · '+(height===720?'Logarithmische Zeitachsen in Sekunden, Minuten und Stunden; Start bei 0 Sekunden separat':'Lineare Achse'));}
 function draw(){
  $('compare-csv').disabled=!result&&!comparisons.length;
- const opt=options();for(const [id] of FIGURES)render($(id).getContext('2d'),id,result,frame,opt);
- render($('reference').getContext('2d'),'reference',null,0,opt);
+ const opt=options();for(const [id] of FIGURES)paint($(id),id,opt);
+ paint($('reference'),'reference',opt);
  const hv=referenceHV(opt.referenceTime);$('reference-readout').textContent=hv===null?'Referenzzeit zwischen 0 und 96 Stunden eingeben.':'Lineare Orientierung: '+hv.toFixed(2)+' HV 0,5 bei '+opt.referenceTime+' h; nur für diese Versuchsreihe.';
  $('time').value=frame;
  if(result){
@@ -63,7 +65,7 @@ function draw(){
   $('readout').textContent='Zellmitte x = '+point.xMM.toFixed(2)+' mm, y = '+point.yMM.toFixed(2)+' mm · '+f.temps[point.i].toFixed(1)+' °C · Index '+index(s).toFixed(1)+'/100 · '+KEYS.map(k=>({solute:'gelöst',clusters:'Cluster',fine:'fein',coarse:'grob'}[k])+': '+(100*s[k]).toFixed(1)+' %').join(' · ')+' · Reservoiranteile, keine Phasenanteile. Volumenmittel: Index '+f.meanIndex.toFixed(1)+'.';
  }else $('readout').textContent='Noch kein gültiger aktueller Verlauf. Gespeicherte Vergleichsprozesse bleiben erhalten.';
  updateComparisonValues();
- if($('figure-dialog').open)render($('large-canvas').getContext('2d'),large,result,frame,opt);
+ if($('figure-dialog').open)paint($('large-canvas'),large,opt);
 }
 function setFrame(value){if(!result)return;frame=Math.max(0,Math.min(result.frames.length-1,value));draw();}
 function calculate(p){
@@ -91,7 +93,7 @@ $('preset').onchange=()=>{if($('preset').value==='custom')return;stages=preset($
 $('add').onclick=()=>{if(stages.length>=16){$('status').textContent='Höchstens 16 Schritte.';return;}stages.push({label:'Eigener Schritt',target:175,duration:3600,h:100,mode:'step'});$('preset').value='custom';editStages();invalidate();};
 for(const id of ['material','initial','shape','size','height'])$(id).addEventListener('input',()=>{syncGeometry();invalidate();});
 function syncGeometry(){const rod=$('shape').value==='rod';$('height-label').hidden=rod;$('probe-y-label').hidden=rod;if(rod)$('probe-y').value=0;$('size-label').firstChild.textContent=rod?'Durchmesser [mm]':'Kantenlänge x [mm]';}
-for(const id of ['field-view','probe-x','probe-y','reference-time','profile-metric','compare-metric','compare-location','compare-axis'])$(id).addEventListener('input',draw);
+for(const id of ['time-scale','field-view','probe-x','probe-y','reference-time','profile-metric','compare-metric','compare-location','compare-axis'])$(id).addEventListener('input',draw);
 $('time').oninput=()=>{stop();setFrame(Number($('time').value));};
 $('first').onclick=()=>{stop();setFrame(0);};$('last').onclick=()=>{stop();if(result)setFrame(result.frames.length-1);};
 $('play').onclick=()=>{if(timer){stop();return;}if(!result)return;if(frame===result.frames.length-1)frame=0;$('play').textContent='Pause';timer=setInterval(()=>{setFrame(frame+Number($('speed').value));if(frame===result.frames.length-1)stop();},90);};
@@ -100,7 +102,7 @@ function selectPoint(x,y){if(!result||recording)return;stop();$('probe-x').value
 function wireCanvas(canvas,idProvider){
  const pick=e=>{
   const id=idProvider();if(!result||recording||!['field','profile'].includes(id))return false;
-  const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*1000,y=(e.clientY-rect.top)/rect.height*560;
+  const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*1000,y=(e.clientY-rect.top)/rect.height*canvas.height;
   const point=id==='field'?pickField(result,x,y):x>=85&&x<=950&&y>=108&&y<=438?{x:(x-85)/865,y:Number($('probe-y').value)/100}:null;
   if(!point)return false;selectPoint(point.x,point.y);return true;
  };
@@ -147,7 +149,7 @@ $('remember').onclick=()=>{
 $('clear-comparisons').onclick=()=>{comparisons=[];compare();draw();exportMenu.refresh();};
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 async function saveFigure(id,type){
- if(type==='svg'){const ctx=new SvgContext(1000,560);render(ctx,id,result,frame,options());download(new Blob([ctx.toSvg('Aluminium · '+id,'Aktueller Zustand; unkalibriertes Lehrmodell. Reservoiranteile sind keine Phasenanteile.')],{type:'image/svg+xml'}),'aluminium-'+id+'.svg');}
+ if(type==='svg'){const ctx=new SvgContext(1000,figureHeight(id,options()));render(ctx,id,result,frame,options());download(new Blob([ctx.toSvg('Aluminium · '+id,'Aktueller Zustand; unkalibriertes Lehrmodell. Reservoiranteile sind keine Phasenanteile.')],{type:'image/svg+xml'}),'aluminium-'+id+'.svg');}
  else {const canvas=id==='reference'?$('reference'):$(id);await new Promise((resolve,reject)=>canvas.toBlob(blob=>{if(!blob){reject(Error('PNG konnte nicht erzeugt werden.'));return;}download(blob,'aluminium-'+id+'.png');resolve();},'image/png'));}
 }
 exportMenu=WDExports.mount({anchor:$('exports'),defaultItem:'field',items:[...FIGURES,['reference','Literaturreferenz · 175 °C']].map(([id,label])=>({
@@ -169,7 +171,7 @@ $('import').onchange=async()=>{
   }
   $('status').textContent='Aktueller Prozess wird lokal neu berechnet …';const r=await calculate(plan.parameters);if(ticket!==generation)return;
   comparisons=loaded;applyParameters(plan.parameters);
-  const fields={field:'field-view',profileMetric:'profile-metric',compareMetric:'compare-metric',compareLocation:'compare-location',compareAxis:'compare-axis'};
+  const fields={timeScale:'time-scale',field:'field-view',profileMetric:'profile-metric',compareMetric:'compare-metric',compareLocation:'compare-location',compareAxis:'compare-axis'};
   if(data.view){for(const [key,id] of Object.entries(fields))if([...$(id).options].some(o=>o.value===data.view[key]))$(id).value=data.view[key];for(const [key,id] of [['x','probe-x'],['y','probe-y']])if(Number.isFinite(data.view[key]))$(id).value=clamp(data.view[key])*100;}
   compare();install(r);$('status').textContent='Projekt geladen und lokal neu berechnet. '+loaded.length+' Vergleichsprozesse wiederhergestellt.';
  }catch(e){if(e.name!=='AbortError'&&(ticket===undefined||ticket===generation)){if(ticket!==undefined)invalidate();$('status').textContent='Projekt nicht geladen: '+e.message;}}
