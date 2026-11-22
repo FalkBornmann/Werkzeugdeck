@@ -473,7 +473,7 @@
       "id": "aluminiumgefuegerechner",
       "title": "Gefügerechner für Aluminium",
       "status": "available",
-      "description": "Lösungsglühen, Abschrecken und Auslagern von EN AW-6082 erkunden: Temperaturfelder, modellhafte Ausscheidungen und separate Literatur-Härtewerte vergleichen.",
+      "description": "Wärmebehandlungen von EN AW-6082 vergleichen: vollständige Prozesskurven, interaktive Ortsprofile, modellhafte Ausscheidungen und separate Literatur-Härtewerte.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -492,7 +492,7 @@
         "Gefüge"
       ],
       "repository": "Werkzeugdeck/aluminiumgefuegerechner",
-      "revision": "286e232c2a95d11e8b2d2f45ebe2aada88fdd901",
+      "revision": "cdda62ea5e91d0102c63d9d8cbcd27453b6fb625",
       "sourceDirectory": "Werkstofftechnik/Simulation/Aluminiumgefuegerechner",
       "assets": [
         "app.js",
@@ -507,7 +507,8 @@
         "timeline-dock.css",
         "timeline-dock.js",
         "tool-theme.css",
-        "worker.js"
+        "worker.js",
+        "analysis.js"
       ],
       "aliases": []
     }
