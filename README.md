@@ -16,6 +16,7 @@ Alle öffentlichen Werkzeugdeck-Anwendungen gehören zur [Organisation Werkzeugd
 | Wärmeübertragung | Simulation | Kaffee & Milch | [kaffee-und-milch](https://github.com/Werkzeugdeck/kaffee-und-milch) |
 | Elektrochemie | Simulation | Winand-Diagramm | [winand-diagramm](https://github.com/Werkzeugdeck/winand-diagramm) |
 | Werkstofftechnik | Simulation | Gefügerechner für Stähle | [gefuegerechner](https://github.com/Werkzeugdeck/gefuegerechner) |
+| Werkstofftechnik | Simulation | Gefügerechner für Aluminium | [aluminiumgefuegerechner](https://github.com/Werkzeugdeck/aluminiumgefuegerechner) |
 | Werkstofftechnik | Simulation | Legierungsatlas | [legierungsatlas](https://github.com/Werkzeugdeck/legierungsatlas) |
 | Beschichtungen | Simulation | Abluft beim Lackieren | [abluftrechner](https://github.com/Werkzeugdeck/abluftrechner) |
 
