@@ -42,11 +42,11 @@ export function renderZtu(c,v){const {m,diagram,ztu='ttt',monochrome=false,resul
  const ms=critical(m).ms;if(ms>0){hatch(c,[[a.left,y(ms)],[a.right,y(ms)],[a.right,a.bottom],[a.left,a.bottom]],'M',monochrome);labels.push(['Martensit + Rest-Austenit',110,y(Math.max(45,ms*.35))]);}
  }else{
  for(const type of ['K','FP','B','M']){for(const group of cctBands(diagram.cct,type)){const left=group.map(p=>point(p.start.t,p.start.T)),right=group.map(p=>point(p.end.t,p.end.T));hatch(c,[...left,...right.toReversed()],type,monochrome);stroke(c,left,colors[type],2.5);stroke(c,right,colors[type],2.5,[8,5]);}
- const pts=diagram.cct.filter(p=>p.type===type&&p.threshold===.99);if(pts.length){const p=pts[Math.floor(pts.length*.65)];const label=type==='K'?'Proeutektoider Zementit':type==='FP'?'Ferrit + Perlit':type==='B'?'Bainit':'Martensit';labels.push([label,clamp(timePosition(p.t)-45,110,830),clamp(y(p.T)-10,135,390)]);}}
+ const pts=diagram.cct.filter(p=>p.type===type&&p.threshold===.99);if(pts.length){const p=pts[Math.floor(pts.length*.65)];const label=type==='K'?'Proeutektoider Zementit':type==='FP'?'Ferrit + Perlit':type==='B'?'Bainit':'Martensit';labels.push([label,clamp(timePosition(p.t)-45,110,type==='K'?520:830),clamp(y(p.T)-10,135,390)]);}}
  }
  }c.restore();
  const q=critical(m);if(!m.referenceOnly||m.ac1&&m.ac3){stroke(c,[[a.left,y(q.a1)],[a.right,y(q.a1)]],'#666',1.3,[3,4]);stroke(c,[[a.left,y(q.a3)],[a.right,y(q.a3)]],'#666',1.3,[10,3,2,3]);label(c,'Ac₁ ≈ '+Math.round(q.a1)+' °C'+(m.ac1?'':' (Modell)'),760,y(q.a1)+24);label(c,(m.c>.76&&!m.ac3?'Acm':'Ac₃')+' ≈ '+Math.round(q.a3)+' °C'+(m.ac3?'':' (Modell)'),760,Math.min(y(q.a3)-8,y(q.a1)-36));}else txt(c,'Ac₁/Ac₃: keine bestätigten Werte hinterlegt',655,98,'#555',14);
- const ms=critical(m).ms;if(m.kinetic){stroke(c,[[a.left,y(ms)],[a.right,y(ms)]],colors.M,1.5,[10,5]);label(c,'Ms ≈ '+Math.round(ms)+' °C',820,y(ms)-8);label(c,'Austenit γ',110,y(Math.min(maximum-70,Math.max(790,diagramConditions.aust))));}
+ const ms=critical(m).ms;if(m.kinetic){if(ms>0)stroke(c,[[a.left,y(ms)],[a.right,y(ms)]],colors.M,1.5,[10,5]);label(c,(m.id==='model'&&m.c>.76?'Ms(C₀)':'Ms')+' ≈ '+Math.round(ms)+' °C'+(ms<=0?' (unterhalb 0 °C)':''),ms>0?800:610,ms>0?y(ms)-8:y(70));label(c,'Austenit γ',110,y(Math.min(maximum-70,Math.max(790,diagramConditions.aust))));}
  for(const [name,x,py] of labels)label(c,name,x,py);
  const paths=showProcess?processPaths(result,ztu,processScope):[];
  if(paths.length){
