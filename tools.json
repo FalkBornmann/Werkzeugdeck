@@ -492,7 +492,7 @@
         "Gefüge"
       ],
       "repository": "Werkzeugdeck/aluminiumgefuegerechner",
-      "revision": "12663c8c1f348274dcc211468a4a6d146f982bfa",
+      "revision": "a7eb4383eb3e1cae1e5d302b006697a7a0cd425c",
       "sourceDirectory": "Werkstofftechnik/Simulation/Aluminiumgefuegerechner",
       "assets": [
         "app.js",
