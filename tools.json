@@ -294,7 +294,7 @@
       "id": "legierungsatlas",
       "title": "Legierungsatlas",
       "status": "available",
-      "description": "Neunzehn Metall- und Salzsysteme lokal berechnen: zehn ternäre Modelle mit Isothermen, freien Schnitten, Phasenanteilen, Gefügeskizzen und drehbaren Liquidusflächen.",
+      "description": "31 Metall- und Salzsysteme lokal berechnen: 21 binäre und zehn ternäre Modelle mit verknüpften Randsystemen, Isothermen, freien Schnitten, Phasenanteilen und Liquidusflächen.",
       "domains": [
         "werkstofftechnik"
       ],
@@ -321,7 +321,7 @@
         "Ag–Pb–Sn"
       ],
       "repository": "Werkzeugdeck/legierungsatlas",
-      "revision": "b5f0ac3edebd017c8dd2924359adeacd1c5488d8",
+      "revision": "e0a536cddd599639f7593e4dbb3b328bc4fa80ae",
       "sourceDirectory": "Werkstofftechnik/Simulation/Legierungsatlas",
       "assets": [
         "index.html",
@@ -329,6 +329,7 @@
         "tool-theme.css",
         "app.js",
         "equilibrium.js",
+        "binary-edges.js",
         "render.js",
         "worker.js",
         "export-menu.js",
