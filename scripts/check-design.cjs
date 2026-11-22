@@ -55,7 +55,7 @@ const root = path.resolve(__dirname, '..');
         if(tool.id==='gefuegerechner') {
           const projection=await page.evaluate(()=>{const scene=document.querySelector('.scene-panel').getBoundingClientRect(),loupe=document.querySelector('.loupe-panel').getBoundingClientRect();return {sceneTop:scene.top,sceneBottom:scene.bottom,loupeTop:loupe.top,view:document.querySelector('#view').value,overflow:document.documentElement.scrollWidth>innerWidth};});
           assert.equal(projection.view,'combined');assert.equal(projection.overflow,false);
-          if(viewport.width<620)assert.ok(projection.loupeTop>=projection.sceneBottom,'mobile loupe must stack below the workpiece');
+          assert.ok(projection.loupeTop>=projection.sceneBottom,'loupe must sit below the full-width workpiece');assert.equal(await page.locator('#grain-detail').getAttribute('max'),'5');assert.equal(await page.locator('#magnification').getAttribute('max'),'5');
           if(viewport.width>1050){
             await page.locator('#run').click();await page.getByText('Berechnung abgeschlossen. Zeitregler und Ort wählen.',{exact:true}).waitFor();
             await page.locator('#scene-title').scrollIntoViewIfNeeded();
