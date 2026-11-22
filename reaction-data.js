@@ -41,4 +41,4 @@ const tables={
  ['U₁','U',135.7,[.3054,.4756,.2190],'L + (Pb) → β-Sn + ε-Pb']
  ]
 };
-export function reactionReferences(model){if(model.diagramModel)return model.diagram.references;return (tables[model.system]||tables[model.key]|| (tables[{'AG,CU,SN':'sac','BI,PB,SN':'pbsnbi'}[model.components.join(',')]]||[])).map(([label,kind,t,mass,reaction])=>({label,kind,t,x:toMoles(mass,model.masses),reaction}))}
+export function reactionReferences(model){if(model.edgeSource)return model.edgeReferences;if(model.diagramModel)return model.diagram.references;return (tables[model.system]||tables[model.key]|| (tables[{'AG,CU,SN':'sac','BI,PB,SN':'pbsnbi'}[model.components.join(',')]]||[])).map(([label,kind,t,mass,reaction])=>({label,kind,t,x:toMoles(mass,model.masses),reaction}))}

@@ -1,10 +1,12 @@
+import {makeBinaryEdge} from './binary-edges.js';
+import {reactionReferences} from './reaction-data.js';
 import {elementSymbol} from './symbols.js';
 import {systems} from './systems.js';
 import {diagramSetup,diagramLiquidus,solveDiagram} from './diagram-model.js';
 import { transitionEstimate } from './geometry.js';
 import { boundaryFromSeries } from './boundary.js';
 import {solve,profile,interpolate,toMoles,toMass,phaseName} from './equilibrium.js';
-let model,atlas,latestLoad=0,surfaceCache=null;
+let model,atlas,latestLoad=0,surfaceCache=null,parentCache=null;
 function boundary(x){
  let lo=0,hi=model.T.length-1;
  const test=i=>{const s=solve(model,x,i);return s&&s.liquid>1-1e-7};
@@ -52,19 +54,29 @@ self.onmessage=async({data:message})=>{
   if(message.type==='load'){
    latestLoad=message.id;
    const read=async name=>{const r=await fetch(name);if(!r.ok)throw Error('Modelldatei konnte nicht geladen werden: '+name);return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()};
+   const selected=systems.find(s=>s.id===message.key),key=selected.edge?.parent||message.key;
+   const definition=systems.find(s=>s.id===key);
    let loaded,loadedAtlas=null;
-   const diagramFile=systems.find(s=>s.id===message.key)?.diagramFile;
-   if(message.key==='salt'||diagramFile)loaded=diagramSetup(await read(diagramFile||'salt-diagram.json.gz'));
+   if(parentCache?.key===key){loaded=parentCache.model;loadedAtlas=parentCache.atlas}
    else{
-    const indexFile=systems.find(s=>s.id===message.key)?.hullIndex;
-    if(indexFile){
-     const response=await fetch(indexFile);if(!response.ok)throw Error('Modellindex konnte nicht geladen werden: '+indexFile);
-     const index=await response.json();loaded={...index.model,frames:[]};
-     for(const file of index.parts){const part=await read(file);loaded.frames.push(...part.frames)}
-    }else loaded=await read(message.key+'-hulls.json.gz');
-    loaded.system=message.key;
-    loaded.solidusDisplay=await read(message.key+'-solidus.json.gz');
-    if(loaded.components.length===3)loadedAtlas=await read(message.key+'-liquidus.json.gz');
+    const diagramFile=definition?.diagramFile;
+    if(key==='salt'||diagramFile)loaded=diagramSetup(await read(diagramFile||'salt-diagram.json.gz'));
+    else{
+     const indexFile=definition?.hullIndex;
+     if(indexFile){
+      const response=await fetch(indexFile);if(!response.ok)throw Error('Modellindex konnte nicht geladen werden: '+indexFile);
+      const index=await response.json();loaded={...index.model,frames:[]};
+      for(const file of index.parts){const part=await read(file);loaded.frames.push(...part.frames)}
+     }else loaded=await read(key+'-hulls.json.gz');
+     loaded.system=key;
+     loaded.solidusDisplay=await read(key+'-solidus.json.gz');
+     if(loaded.components.length===3)loadedAtlas=await read(key+'-liquidus.json.gz');
+    }
+    parentCache={key,model:loaded,atlas:loadedAtlas};
+   }
+   if(selected.edge){
+    const surface=loadedAtlas?{n:loadedAtlas.n,nodes:loadedAtlas.nodes.map(p=>({value:p[0]}))}:null;
+    loaded=makeBinaryEdge(loaded,selected,surface,reactionReferences(loaded));loadedAtlas=null;
    }
    if(message.id!==latestLoad)return;
    model=loaded;atlas=loadedAtlas;surfaceCache=null;postMessage({type:'loaded',id:message.id,model});

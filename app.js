@@ -3,7 +3,7 @@ import {temperatureWindow} from './temperature-window.js';
 import {constructionChart} from './construction.js';
 import {solidificationHistory} from './solidification.js';
 import {reactionReferences} from './reaction-data.js';
-import { systems, filterSystems, futureSystems } from './systems.js';
+import { systems, filterSystems, futureSystems, binaryEdgesFor } from './systems.js';
 import { phaseSpaceChart } from './phase-space.js';
 import { fractionsChart, fractionValues } from './fractions.js';
 import { microstructureChart } from './microstructure.js';
@@ -126,7 +126,7 @@ function render(){
  if(!state.binary){el('triangle').innerHTML=triangleChart(state);el('reactionReferences').hidden=!state.reactionLines;el('reactionReferences').innerHTML='<summary>Reaktionspunkte · Literaturwerte</summary><table><thead><tr><th>Punkt</th><th>Temperatur / °C</th><th>Reaktion beim Abkühlen</th></tr></thead><tbody>'+reactionReferences(state.model).map(e=>'<tr><td>'+e.label+'</td><td>'+fmt(e.t)+'</td><td>'+escape(e.reaction)+'</td></tr>').join('')+'</tbody></table><p>Die Markierungen zeigen Literaturzusammensetzungen der Schmelze. Modellinterpolation und Literaturwerte können abweichen. U bezeichnet eine Übergangsreaktion.</p>'}
  el('phase3D').innerHTML=state.binary?'':phaseSpaceChart(state);el('cool').innerHTML=curvesChart(state);el('fractions').innerHTML=fractionsChart(state);el('microstructure').innerHTML=microstructureChart(state);el('construction').innerHTML=constructionChart(state);renderFormation();fractionReadout(state.ti);renderResults();
  el('resolution').textContent=state.model.diagramModel?(state.model.diagramNote||'Geometrische Rekonstruktion aus Literaturisothermen. Endglieder als feste Bilanzpunkte; größtmöglicher geometrisch zulässiger Schmelzanteil. Keine CALPHAD- oder Wärmestromrechnung. Oberhalb 74 mol-% AlCl₃ keine Auswertung; Gas und Flüssig–Flüssig-Entmischung sind nicht modelliert.'):'Numerisches CALPHAD-Gleichgewichtsmodell · '+fmt(state.model.pressure/100000,5)+' bar · '+state.model.T.length+' Temperaturstützstellen. Grenztemperaturen sind als Intervalle angegeben. Schnittgrenzen sind formtreu interpoliert; die ternäre Liquidusfläche stammt aus direkten Sättigungsgleichgewichten.';
- el('cutDescription').textContent=state.binary ? 'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt '+elementSymbol(state.model.components[0])+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
+ el('cutDescription').textContent=state.binary ? (state.model.edgeSource&&state.model.parentModel.diagram?.maxAl?'Binäre Achse 0–100 %. Oberhalb 74 mol-% AlCl₃ fehlen Modelldaten. Die Zahlenachse zeigt ':'Vollständiger binärer Bereich mit beiden Reinstoffen. Die Zahlenachse zeigt ')+elementSymbol(state.model.components[0])+' in '+(state.basis==='mass'?'Masse-%':'mol-%')+'.' : 'S₁: '+compositionLabel(state.a,state)+' → S₂: '+compositionLabel(state.b,state);
 }
 
 async function rebuildSection(){
@@ -151,13 +151,15 @@ async function rebuildSurface(){
 }
 function referencePoints(){
  const m=state.model;
- if(m.diagramModel)return [...m.diagram.references.map(r=>({name:r.label+' · '+r.reaction+' · '+fmt(r.t)+' °C',x:r.x})),...(m.diagram.specialPoints||[{name:'NaAlCl₄ · 156,7 °C',x:[.5,0,.5]},{name:'KAlCl₄ · 257,3 °C',x:[0,.5,.5]}])];
+ if(m.diagramModel&&!state.binary)return [...m.diagram.references.map(r=>({name:r.label+' · '+r.reaction+' · '+fmt(r.t)+' °C',x:r.x})),...(m.diagram.specialPoints||[{name:'NaAlCl₄ · 156,7 °C',x:[.5,0,.5]},{name:'KAlCl₄ · 257,3 °C',x:[0,.5,.5]}])];
  const mass=x=>toMoles(x,m.masses);
  if(state.binary){
   const pure=m.components.map((name,i)=>({name:'Reinstoff '+elementSymbol(name),x:m.components.map((_,j)=>i===j?1:0)}));
   pure.push(...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literaturreferenz '+fmt(r.t)+' °C',x:r.x})));
   if(m.system==='cusn')pure.push({name:'Cu₆Sn₅ · Verbindung',x:[.455,.545]},{name:'Cu₃Sn · Verbindung',x:[.25,.75]});
   if(m.system==='agsn')pure.push({name:'Ag₃Sn · Verbindung',x:[.75,.25]});
+  pure.push(...(systems.find(s=>s.id===m.system)?.specialPoints||[]).map(p=>({...p,x:p.x||mass(p.mass)})));
+  if(m.diagramModel)pure.push(...(m.diagram.specialPoints||[]));
   return pure;
  }
  return [...reactionReferences(m).map(r=>({name:r.label+' · '+r.reaction+' · Literatur '+fmt(r.t)+' °C',x:r.x})),
@@ -389,7 +391,10 @@ try{favorites=JSON.parse(localStorage.getItem('atlas-favorites')||'[]')}catch{}
 function showSystemInfo(key){
  const system=systems.find(s=>s.id===key);if(!system)return;
  el('systemInfo').innerHTML='<b>'+escape(system.status)+'</b> · '+escape(system.description)+' <a href="'+system.source+'" target="_blank" rel="noopener">Fachquelle</a>';
- if(['almgsi','alcusi','alcumg','agpbsn'].includes(key))el('systemInfo').insertAdjacentHTML('beforeend',' <span>Numerische Übersicht: Phasenmengen können um mehrere Prozentpunkte abweichen. Unter 0,2 mol-% werden Beiträge nur in den Mengenwerten geführt; Anschmelzlinien stammen aus separaten Direktrechnungen.</span>');
+ const edges=binaryEdgesFor(system);
+ const parent=systems.find(s=>s.id===system.edge?.parent);
+ el('binaryEdges').innerHTML=edges.length?'<b>Binäre Randsysteme einzeln öffnen:</b> '+edges.map(s=>'<button data-open-system="'+s.id+'">'+escape(s.label)+'</button>').join('')+'<p>Je Stoffpaar wird ein Referenzmodell geöffnet. Quelle und Modellannahmen können vom aktuellen ternären Rand abweichen.</p>':parent?'<b>Abgeleitet aus '+escape(parent.label)+':</b> Dritte Komponente = 0. <button data-open-system="'+parent.id+'">Zum Gehaltsdreieck</button>':'';
+ if(['almgsi','alcusi','alcumg','agpbsn'].includes(system.edge?.parent||key))el('systemInfo').insertAdjacentHTML('beforeend',' <span>Numerische Übersicht: Phasenmengen können um mehrere Prozentpunkte abweichen. Unter 0,2 mol-% werden Beiträge nur in den Mengenwerten geführt; Anschmelzlinien stammen aus separaten Direktrechnungen.</span>');
  el('favorite').setAttribute('aria-pressed',String(favorites.includes(key)));el('favorite').textContent=favorites.includes(key)?'★ Favorit':'☆ Favorit';
 }
 function initializeLibrary(){
@@ -404,6 +409,7 @@ function initializeLibrary(){
   if(matches.some(s=>s.id===previous))el('system').value=previous;
   else if(state.model)loadSystem().catch(fail);
  };
+ el('binaryEdges').onclick=event=>{const button=event.target.closest('[data-open-system]');if(!button||busy)return;el('systemSearch').value='';el('systemKind').value='all';el('systemFamily').value='all';el('favoritesOnly').checked=false;update();el('system').value=button.dataset.openSystem;loadSystem().catch(fail)};
  for(const id of ['systemSearch','systemKind','systemFamily','favoritesOnly'])el(id).addEventListener(id==='systemSearch'?'input':'change',update);
  el('favorite').onclick=()=>{const id=el('system').value;if(!id)return;favorites=favorites.includes(id)?favorites.filter(v=>v!==id):[...favorites,id];try{localStorage.setItem('atlas-favorites',JSON.stringify(favorites))}catch{}showSystemInfo(id);if(el('favoritesOnly').checked)update()};
  update();

@@ -52,7 +52,7 @@ export function sectionChart(state) {
   const count = columns.length - 1;
   const legend = new Set();
   let body = text(65, 23, 'S₁–S₂ · ' + (state.style === 'fields' ? 'Phasenfelder' : 'Schmelzanteil'), 18);
-  body += '<defs><clipPath id="sectionClip"><rect x="65" y="60" width="790" height="350"/></clipPath></defs>';
+  body += '<defs><pattern id="noModelData" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#eeece8"/><path d="M0 8L8 0" stroke="#b1aaa0" stroke-width="1"/></pattern><clipPath id="sectionClip"><rect x="65" y="60" width="790" height="350"/></clipPath></defs>';
   body += '<g clip-path="url(#sectionClip)">';
   if (state.style === 'liquid') {
     columns.forEach((column, i) => {
@@ -64,7 +64,7 @@ export function sectionChart(state) {
           ? sample.phases?.filter(p => p.raw === 'LIQUID').reduce((sum, p) => sum + p.mass, 0) || 0
           : sample.liquid || 0;
         body += '<rect x="' + left + '" y="' + top + '" width="' + (790 / count + .1) +
-          '" height="' + Math.max(.01, bottom - top + .1) + '" fill="' + liquidColor(liquid) + '"/>';
+          '" height="' + Math.max(.01, bottom - top + .1) + '" fill="' + (sample.unavailable?'url(#noModelData)':liquidColor(liquid)) + '"/>';
       });
     });
   }
@@ -80,7 +80,7 @@ export function sectionChart(state) {
     const distinct = points.filter((p, i) => i === 0 || p[0] > points[i - 1][0] + 1e-8);
     const shape = ribbonPath(distinct);
     body += '<path data-phase-field="' + signature + '" d="' + shape + '" fill="' +
-      (state.style === 'fields' ? fieldColor(signature) : 'none') + '" stroke="#7b7165" stroke-width=".75"/>';
+      (state.style === 'fields' ? (signature==='Keine Modelldaten'?'url(#noModelData)':fieldColor(signature)) : 'none') + '" stroke="#7b7165" stroke-width=".75"/>';
     const visible = samples.filter(p => p[1] < 410 && p[2] > 60);
     const textWidth = signature.length * 6.6 + 12;
     visible.forEach((candidate, index) => {

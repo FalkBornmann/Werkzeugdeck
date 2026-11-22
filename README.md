@@ -186,3 +186,13 @@ Numerische Einordnung der neuen ternären Hüllen: Die Phasenmengen werden bilan
 
 
 192 separate Direktzustände und 48 zusätzliche Zusammensetzungen mit jeweils Anschmelz-/Liquidusprüfung sichern die vier ternären Ergänzungen numerisch ab. Maximale Abweichungen in dieser Stichprobe (Menge in Prozentpunkten; Anschmelzen/Liquidus in K): Al–Mg–Si 0,580; 4,808/2,045. Al–Cu–Si 1,945; 5,855/0,710. Al–Cu–Mg 2,461; 1,162/3,003. Ag–Pb–Sn 4,168; 0,959/1,167. Referenz-Workspace mit pdens 1000, bei Al–Cu–Mg 5000; unabhängiger 25-K-Temperaturscan und anschließende Intervallverfeinerung vermeiden das Überspringen eines frühen Übergangs. Dies bewertet die numerische Näherung gegenüber derselben Gibbs-Datenbasis, nicht die experimentelle Genauigkeit. Der silberreiche Spurenzustand ist zusätzlich als bilanzerhaltender Regressionstest abgesichert.
+
+
+## Binäre Randsysteme (22. November 2026)
+
+31 Systeme: 21 binäre und zehn ternäre. Zwölf bislang fehlende Stoffpaare sind als abgeleitete Ränder auswählbar: Ag–Bi, Bi–Cu, Ag–Pb, Al–Mg, Mg–Si, Cu–Si, Cu–Mg, NaCl–KCl, NaCl–MgCl₂, KCl–MgCl₂, NaCl–AlCl₃ und KCl–AlCl₃.
+Die Berechnung setzt im dokumentierten ternären Ausgangsmodell die dritte Komponente exakt auf null und projiziert die vorhandenen Phasenzusammensetzungen auf die beiden verbleibenden Komponenten. Mengen und Enthalpie stammen unverändert aus dem Elternmodell; numerisch nicht aufgelöste Ränder werden nicht aufgefüllt. Liquidus und Anschmelzgrenze nutzen dieselbe Rekonstruktion wie das Ausgangsdreieck. Der Worker hält höchstens einen Ausgangsdatensatz zur Wiederverwendung bereit; es gibt keine neuen externen Rechendienste oder Datendateiduplikate.
+
+Die Salzränder bleiben geometrische Isothermenmodelle mit den bisherigen Annahmen über feste Mischkristalle und größtmögliche geometrisch zulässige Schmelzmenge. Jenseits 74 mol-% AlCl₃ fehlen Daten; die Achse reicht trotzdem von 0 bis 100 %, und der unbelegte Bereich wird schraffiert. Keine Fortsetzung der Schmelzlinie und keine Gasphase werden erfunden.
+
+Jedes ternäre System verlinkt seine drei eindeutigen binären Stoffpaare. Bereits vorhandene eigenständige Binärmodelle werden weiter verwendet; insbesondere Al–Si/Al–Cu können von den älteren COST507-Rändern abweichen. Ein eigener Quellenhinweis unterscheidet die Modelle. Die Randübernahme wird gegen Zustände desselben Elternmodells und Komponenten-/Massenbilanzen geprüft; dies ist keine unabhängige experimentelle Validierung.

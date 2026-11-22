@@ -1,3 +1,4 @@
+import {liftEdge,projectEdgeSample} from './binary-edges.js';
 import {solveDiagram} from './diagram-model.js';
 import { elementSymbol } from './symbols.js';
 // Local lever-rule / barycentric balance on the sampled Gibbs-energy lower hull.
@@ -46,6 +47,7 @@ function indexFrame(model, frame) {
   return bins;
 }
 export function solve(model, compositionValue, ti) {
+  if(model.edgeSource)return projectEdgeSample(solve(model.parentModel,liftEdge(compositionValue,model.edgeSource.indices),ti),model.edgeSource.indices);
   if(model.diagramModel)return solveDiagram(model,compositionValue,ti);
   const frame=model.frames[ti], dimensionality=model.components.length-1;
   const x=compositionValue[0],y=compositionValue[1];

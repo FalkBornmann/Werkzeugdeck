@@ -23,7 +23,7 @@ for(const r of refs)test(r.system+' ternary phase balance and independent bounda
  if(r.system==='agpbsn')assert.ok(reactionReferences(m).some(r=>r.kind==='E'&&r.t===177.3));
 });
 test('new ternary library exposes technical examples and no future duplicates',()=>{
- assert.equal(systems.length,19);assert.equal(systems.filter(s=>s.kind==='ternary').length,10);
+ assert.equal(systems.length,31);assert.equal(systems.filter(s=>s.kind==='ternary').length,10);
  assert.deepEqual(filterSystems({query:'Magnesium',kind:'ternary'}).map(s=>s.id).sort(),['alcumg','almgsi']);
  assert.equal(systems.find(s=>s.id==='almgsi').specialPoints[0].name,'Mg₂Si · Verbindung');
  assert.ok(systems.find(s=>s.id==='alcusi').status.includes('extrapoliert'));

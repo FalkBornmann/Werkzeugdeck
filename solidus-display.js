@@ -1,3 +1,5 @@
+import {liftEdge} from './binary-edges.js';
+import {diagramLiquidus} from './diagram-model.js';
 import {surfaceTemperature} from './boundary.js';
 const cache=new WeakMap();
 export function solidSignature(sample,model){
@@ -5,6 +7,7 @@ export function solidSignature(sample,model){
 }
 export function displayedSolidus(model,x,root,series){
  const data=model.solidusDisplay;if(!data||!root)return null;
+ if(model.edgeSource){const indices=model.edgeSource.indices;return displayedSolidus(model.parentModel,liftEdge(x,indices),root,series.map(s=>({...s,phases:s.phases?.map(p=>({...p,x:liftEdge(p.x,indices)}))})));}
  if(model.components.length===2){
   const p=x[0]*data.n,i=Math.min(data.n-1,Math.floor(p)),f=p-i;return data.nodes[i]*(1-f)+data.nodes[i+1]*f;
  }
@@ -26,6 +29,7 @@ export function displayedSolidus(model,x,root,series){
  return Number.isFinite(t)&&t>=root.bracket[0]-3&&t<=root.bracket[1]+3?t:root.temperature;
 }
 export function displayedBinaryLiquidus(model,x){
+ if(model.edgeSource){const v=liftEdge(x,model.edgeSource.indices);return model.parentModel.diagramModel?diagramLiquidus(model.parentModel,v):surfaceTemperature(model.edgeLiquidus,v);}
  const data=model.solidusDisplay,values=data?.liquidusNodes;
  if(model.components.length!==2||!values)return null;
  const p=Math.max(0,Math.min(1,x[0]))*data.n,i=Math.min(data.n-1,Math.floor(p)),f=p-i;
