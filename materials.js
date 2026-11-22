@@ -1,5 +1,7 @@
+import {REFERENCE,upperBoundary} from './reference.js';
 // Representative compositions, not certificates. Sources checked 2026-11-08.
 export const SOURCES = [
+ ['Vogric et al. (2022): Kinetic Modeling of Grain Boundary Cementite Evolution','https://doi.org/10.1007/s11661-022-06784-1','Primärarbeit zu Korngrenzenzementit, Diffusion und Grenzflächenhemmung. Fachliche Grundlage; die hier offengelegten Lehrzeitkonstanten sind keine Implementierung oder Kalibrierung dieses Modells.'],
  ['Bargel / Siemer: Werkstoffkunde, 14. Auflage (2026)','https://doi.org/10.1007/978-3-662-71672-4','Fachliche Einordnung von ZTA, ZTU, Morphologie, Abschrecken und Anlassen. Keine digitalisierten Buchdiagramme oder experimentelle Kalibrierung.'],
 
  ['World Steel Association: What is steel?','https://worldsteel.org/wp-content/uploads/steelFacts-2024.pdf','Begriffsgrenze um 2 Massen-% C; nicht mit der maximalen Austenitlöslichkeit verwechseln.'],
@@ -26,4 +28,4 @@ export const MATERIALS = [
 ];
 export const normalize = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export function findMaterials(query, group='all') {const q=normalize(query);return MATERIALS.filter(m=>(group==='all'||m.group===group)&&normalize([m.name,...m.aliases].join(' ')).includes(q));}
-export function selectedMaterial(id, carbon) {const base=MATERIALS.find(m=>m.id===id);if(!base)throw Error('Unbekannter Werkstoff');const m={...base};if(id==='model')m.c=Number(carbon);if(!Number.isFinite(m.c)||m.c<.02||m.c>2)throw Error('Modellstahl: 0,02 bis 2,00 Massen-% C. Gusseisen ist nicht abgedeckt.');m.kinetic=!m.referenceOnly&&m.c<=.8;return m;}
+export function selectedMaterial(id, carbon) {const base=MATERIALS.find(m=>m.id===id);if(!base)throw Error('Unbekannter Werkstoff');const m={...base};if(id==='model'){m.c=Number(carbon);if(m.c>REFERENCE.eutectoidCarbon)m.aust=Math.max(850,Math.ceil((upperBoundary(m.c)+40)/5)*5);}if(!Number.isFinite(m.c)||m.c<.02||m.c>2)throw Error('Modellstahl: 0,02 bis 2,00 Massen-% C. Gusseisen ist nicht abgedeckt.');m.kinetic=!m.referenceOnly;return m;}

@@ -4,6 +4,7 @@ export {REFERENCE,critical,clamp} from './reference.js';
 import {mesh,heatStep,rectangleMesh,heatStep2D,thermalProperties} from './thermal.js';
 export {mesh,heatStep,rectangleMesh,heatStep2D} from './thermal.js';
 // All transformation curves are explicitly uncalibrated teaching predictions.
+export const KINETICS_VERSION='FeC-cementite-2026-11-22-v1';
 export const PHASES=['A','F','P','B','M','TM','K'];
 export const LABELS={A:'Austenit / Rest-Austenit',F:'Ferrit',P:'Perlit / eingeformtes F–Fe₃C-Gefüge',B:'Bainit',M:'Martensit',TM:'Angelassener Martensit',K:'Proeutektoider Zementit'};
 export const COLORS={A:'#b995d4',F:'#ecd9a7',P:'#5e997b',B:'#4099ae',M:'#c86146',TM:'#916e55',K:'#666e78'};
@@ -12,10 +13,11 @@ export function equilibrium(c,T){
  if(T>=Te){if(c<=Ce){const ca=clamp(Ce*((910-T)/(910-Te))**2,Cf,Ce);a.A=T>=upperBoundary(c)?1:clamp((c-Cf)/(ca-Cf),0,1);a.F=1-a.A;}else{const cg=Ce+(T-Te)/220;a.A=T>=Te+220*(c-Ce)?1:clamp((Ck-c)/(Ck-cg),0,1);a.K=1-a.A;}}
  else if(c<=Ce){a.P=clamp((c-Cf)/(Ce-Cf),0,1);a.F=1-a.P;}else{a.K=(c-Ce)/(Ck-Ce);a.P=1-a.K;}return a;
 }
-export function blankState(){return {A:1,F:0,P:0,B:0,M:0,TM:0,K:0,uP:0,uB:0,minT:2000,temperDose:0,uF:0,temperRetention:0,pFine:0,bLower:0,spheroid:0,homogeneity:0,grainIndex:1};}
+export function blankState(){return {A:1,F:0,P:0,B:0,M:0,TM:0,K:0,uP:0,uB:0,minT:2000,temperDose:0,uF:0,uK:0,boundaryK:0,temperRetention:0,pFine:0,bLower:0,spheroid:0,homogeneity:0,grainIndex:1};}
 // Heuristic C-curves. Coefficients have NOT been fitted to a measured steel.
 export function tttStart(m,T,type,state){
  if(!m.kinetic)return Infinity;const q=critical(m);const shift=Math.exp(clamp(.9*m.mn+.75*m.cr+2*m.mo+.4*m.ni,0,7))*conditionFactor(state||m.diagramState||{});
+ if(type==='K'){if(m.id!=='model'||m.c<=REFERENCE.eutectoidCarbon||T>=q.a3||T<=550)return Infinity;return 12*shift*Math.exp(((T-700)/90)**2);}
  if(type==='F'){if(T>=q.a3||T<q.a1-100||m.c>=REFERENCE.eutectoidCarbon)return Infinity;return 2*shift*Math.exp(((T-(q.a1-15))/65)**2);}
  if(type==='P'){if(T>=q.a1||T<470)return Infinity;return 1.5*shift*Math.exp(((T-580)/82)**2)*(1+Math.max(0,m.c-.45));}
  if(T>=550||T<=Math.max(180,q.ms))return Infinity;
@@ -66,21 +68,21 @@ export function run(m,stages,{size=20,height=40,shape='plate',n=20,controlled=fa
  }bath0=frames.at(-1).bath;}
  const last=frames.at(-1);const fully=states.every(s=>(s.maxA||0)>=.99);const warnings=[];
  if(!m.kinetic)warnings.push('Nur Temperaturrechnung: keine belastbare Kinetik für diesen Werkstoff hinterlegt. Gefügeanteile und Festigkeiten werden nicht ausgegeben.');
- else {warnings.push('Unkalibriertes Lehrmodell: C-Kurven, Gefügeanteile und Härte sind Prognosen ohne Validierung an dieser Stahlsorte.');if(!fully)warnings.push('Nicht vollständig austenitisiert: Mindestens eine Zelle hat im zeitabhängigen ZTA-Lehrmodell nie 99 % Austenit erreicht. Teil-Austenitisierung ist nur näherungsweise abgebildet.');if(last.temps.some(T=>T>100))warnings.push('Bauteil am Ende noch warm: Endhärte / Zugfestigkeit nicht verfügbar.');if(states.some(s=>s.A>.05))warnings.push('Mehr als 5 % verbleibender Austenit: Festigkeitsabschätzung unterdrückt.');if(m.id==='16mncr5')warnings.push('Keine Aufkohlung: Ergebnis betrifft ausschließlich den Kernwerkstoff.');}
+ else {if(m.id==='model'&&m.c>REFERENCE.eutectoidCarbon)warnings.push('Übereutektoider Fe–C-Modellstahl: Zementitausscheidung und -auflösung sind unkalibrierte Lehrprognosen. Keine quantitative Korngrenzennetz-, Filmdicken- oder Versprödungsprognose; keine Härte-/Zugfestigkeitsausgabe. Acm ist eine lineare Löslichkeitsnäherung.');warnings.push('Unkalibriertes Lehrmodell: C-Kurven, Gefügeanteile und Härte sind Prognosen ohne Validierung an dieser Stahlsorte.');if(!fully)warnings.push('Nicht vollständig austenitisiert: Mindestens eine Zelle hat im zeitabhängigen ZTA-Lehrmodell nie 99 % Austenit erreicht. Teil-Austenitisierung ist nur näherungsweise abgebildet.');if(last.temps.some(T=>T>100))warnings.push('Bauteil am Ende noch warm: Endhärte / Zugfestigkeit nicht verfügbar.');if(states.some(s=>s.A>.05))warnings.push('Mehr als 5 % verbleibender Austenit: Festigkeitsabschätzung unterdrückt.');if(m.id==='16mncr5')warnings.push('Keine Aufkohlung: Ergebnis betrifft ausschließlich den Kernwerkstoff.');}
  warnings.push('ZTA-Zeitkonstanten, Kornindex, Morphologie und Stoffdatenfunktionen sind unkalibrierte Lehrannahmen. Sekundärhärtung und Rest-Austenit-Zerfall beim Anlassen fehlen.');if(latentHeat)warnings.push('Umwandlungswärme: experimenteller Sensitivitätsmodus mit ±80 kJ/kg Austenitänderung und expliziter Rückkopplung, kein kalorimetrischer Referenzdatensatz.');
- return {reference:REFERENCE,maxStep,thermalMode,latentHeat,initialMorphology,modelQuality:m.kinetic?'uncalibrated-teaching-prediction':'thermal-reference-only',experimentallyValidated:false,m,stages,grid,frames,traces,total,size,height:shape==='plate'?height:0,nx,ny,shape,controlled,rate,fully,warnings};
+ return {kineticsVersion:KINETICS_VERSION,reference:REFERENCE,maxStep,thermalMode,latentHeat,initialMorphology,modelQuality:m.kinetic?'uncalibrated-teaching-prediction':'thermal-reference-only',experimentallyValidated:false,m,stages,grid,frames,traces,total,size,height:shape==='plate'?height:0,nx,ny,shape,controlled,rate,fully,warnings};
 }
 export function average(data,grid){const v=grid.reduce((a,g)=>a+g.volume,0);if(typeof data[0]==='number')return data.reduce((a,x,i)=>a+x*grid[i].volume,0)/v;const out={};for(const key of [...PHASES,'temperDose'])out[key]=data.reduce((a,s,i)=>a+s[key]*grid[i].volume,0)/v;return out;}
 // Both diagrams use precisely the kinetics used for the spatial result.
 export function diagrams(m){
  if(!m.kinetic)return {ttt:[],cct:[]};m={...m,diagramState:diagramInitialState(m)};const ttt=[];
- for(let T=200;T<=Math.max(720,critical(m).a3);T+=8)for(const type of ['F','P','B']){const t1=tttStart(m,T,type);if(Number.isFinite(t1))ttt.push({T,type,t1,t99:t1*Math.sqrt(Math.log(100)/(-Math.log(.99)))});}
+ for(let T=200;T<=Math.max(720,critical(m).a3);T+=8)for(const type of ['K','F','P','B']){const t1=tttStart(m,T,type);if(Number.isFinite(t1))ttt.push({T,type,t1,t99:t1*Math.sqrt(Math.log(100)/(-Math.log(.99)))});}
  const cct=[];
  for(let j=0;j<=60;j++){
-  const rate=10**(-3+j*5/60),s={...blankState(),...m.diagramState},history=[{T:m.aust,t:0,FP:0,B:0,M:0}];let t=0;
+  const rate=10**(-3+j*5/60),s={...blankState(),...m.diagramState},history=[{T:m.aust,t:0,K:0,FP:0,B:0,M:0}];let t=0;
   // Include exactly 20 °C, also for odd or fractional austenitising temperatures.
-  for(let T=m.aust;T>20;){const next=Math.max(20,T-2),dt=(T-next)/rate;transform(s,m,next,dt);t+=dt;T=next;history.push({T,t,FP:s.F+s.P,B:s.B,M:s.M+s.TM});}
-  for(const type of ['FP','B','M']){
+  for(let T=m.aust;T>20;){const next=Math.max(20,T-2),dt=(T-next)/rate;transform(s,m,next,dt);t+=dt;T=next;history.push({T,t,K:s.K,FP:s.F+s.P,B:s.B,M:s.M+s.TM});}
+  for(const type of ['K','FP','B','M']){
    const terminal=history.at(-1)[type];if(terminal<.01)continue;
    for(const threshold of [.01,.99]){
     const target=terminal*threshold;const i=history.findIndex(h=>h[type]>=target);if(i<1)continue;const a=history[i-1],b=history[i],f=clamp((target-a[type])/(b[type]-a[type]),0,1);

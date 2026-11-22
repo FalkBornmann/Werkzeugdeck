@@ -6,7 +6,7 @@ Workflow: Werkstoffgruppe und Stahl auswählen → sofort TTT/CCT-Modellkurven b
 
 ## Datenlage
 
-Die Kinetik ist ein **unkalibriertes Lehrmodell**, kein validierter Prozessauslegungsrechner. Herstellerlinks machen die Modellkurven nicht zu Messdaten. Modellstahl: 0,02–2,00 Massen-% C; Kinetik nur bis 0,80 %. C45, 42CrMo4 und 16MnCr5 verwenden repräsentative Analysen. Hochlegierte Werkzeugstähle K110/D2, W302/H13 und S600/M2 bleiben im Referenzmodus mit Temperaturrechnung. Kein Aufkohlen, keine Karbidkinetik, Sekundärhärtung oder NE-Legierungen.
+Die Kinetik ist ein **unkalibriertes Lehrmodell**, kein validierter Prozessauslegungsrechner. Herstellerlinks machen die Modellkurven nicht zu Messdaten. Modellstahl: 0,02–2,00 Massen-% C; Kinetik einschließlich übereutektoider Fe–C-Modellstähle bis 2,00 %; dort besonders unsichere Lehrprognosen. C45, 42CrMo4 und 16MnCr5 verwenden repräsentative Analysen. Hochlegierte Werkzeugstähle K110/D2, W302/H13 und S600/M2 bleiben im Referenzmodus mit Temperaturrechnung. Kein Aufkohlen, keine allgemeine Karbidkinetik oder Sekundärhärtung oder NE-Legierungen.
 
 Quellen, Modellgleichungen, Koeffizienten, Werkstoffbedingungen, Nutzungshinweise und tatsächliche Datenverarbeitung stehen vollständig in der Oberfläche. Original-PDFs werden vom Hersteller eingebettet/verlinkt, nicht lokal kopiert; keine freie Wiederverwendungslizenz behauptet.
 
@@ -33,7 +33,7 @@ Bei aktivem Simulationsverlauf läuft die Zeitsteuerung am unteren Bildschirmran
 
 Ein Klick auf „Prozess in ZTU übertragen“ berechnet die Thermalhistorie an Kern, Flächenmitte und Ecke und zeigt die passende erste Abkühlung (CCT) oder Badhaltephase (TTT) mit korrektem Zeitnullpunkt. Anlasshaltezeiten werden nicht als isothermer Austenitzerfall eingeordnet. Der Gesamtprozess ist zusätzlich als ausdrücklich gekennzeichnete Orientierung darstellbar. Zeitmarker und bestehende mitlaufende Zeitsteuerung bleiben synchron.
 
-ZTU-Startbedingungen aus Prozess, Werkstoffpreset, freier Eingabe oder verfügbarer Herstellerreferenz wählbar. Das Lehrmodell verändert bei anderer Starttemperatur den CCT-Integrationsstart, modelliert jedoch keine austenitisierungsabhängige Korngröße/Karbidauflösung; TTT-Kinetik bleibt gleich. Referenz-PDFs werden nicht künstlich an andere Temperaturen angepasst. Ac1/Ac3 beziehungsweise Acm werden als Referenz oder Näherung beschriftet; unbekannte Werte für hochlegierte Sorten werden nicht erfunden.
+ZTU-Startbedingungen aus Prozess, Werkstoffpreset, freier Eingabe oder verfügbarer Herstellerreferenz wählbar. Das Lehrmodell verändert bei anderer Starttemperatur den CCT-Integrationsstart, berücksichtigt angenommene Homogenisierung und einen dimensionslosen Kornindex. Übereutektoide Fe–C-Modellstähle besitzen zusätzlich eine eigene, unkalibrierte Karbidauflösung; keine physikalische Korngröße wird vorhergesagt. Referenz-PDFs werden nicht künstlich an andere Temperaturen angepasst. Ac1/Ac3 beziehungsweise Acm werden als Referenz oder Näherung beschriftet; unbekannte Werte für hochlegierte Sorten werden nicht erfunden.
 
 Die Farbkarte mischt Gefügefarben nach lokalen Anteilen und interpoliert räumlich zwischen Zellwerten. Einzelbestandteile sind als Prozentansicht wählbar. Eine höhenverstellbare horizontale Schnittlinie verbindet Ortsprofil und Punktablesung. CSV/JSON enthalten beide Koordinaten.
 
@@ -65,3 +65,11 @@ Drei räumliche Ansichten: nur Farbmischung, neutrale Gefügeskizze ohne Farbunt
 Desktop: Werkstoff- und Geometrie-Seitenleiste ab 1051 px sticky, eigene Bildlaufleiste bei Überhöhe und Höhenreserve für die Zeitsteuerung. Musterfeinheit 0,5×–5× unabhängig von der Lupenvergrößerung, im JSON-Darstellungszustand und allen Bild-/Videoansichten enthalten. Das Muster besitzt einen auflösungsabhängigen Cache; geometrisch sicher ausgeschlossene Fernnachbarn sparen Voronoi-Clips. Modellgitter, Werkstoffdaten und Prognosewerte bleiben unverändert.
 
 Der Werkstückquerschnitt nutzt die volle Kartenbreite mit größerer Beschriftung. Die Lupe steht darunter. Beide Darstellungsregler reichen bis 5×; stärkere Feinheit erhöht nur die Zeichendichte.
+
+## Übereutektoider Fe–C-Modellstahl · 22. November 2026
+
+Bei mehr als 0,76 % C (feste Modellkonvention; oft auf 0,8 % gerundet) kann beim Abkühlen aus Austenit proeutektoider Zementit Fe₃C ausscheiden, bevorzugt an ehemaligen Austenitkorngrenzen. Das ist eine Karbidausscheidung, keine bloße atomare Kohlenstoffanreicherung. Bei 1,00 % C ergeben sich im langsamen Gleichgewichtsgrenzfall etwa 4,1 Massen-% proeutektoider Zementit und 95,9 % Perlit; dessen lamellarer Zementit kommt zusätzlich hinzu. Abschrecken kann diese Ausscheidung unterdrücken.
+
+Eigene Zementit-Vorreaktion mit separat verfolgtem Kohlenstoff und illustrativem Grenzsaum-Bestand; zeitabhängige Auflösung erhaltener Karbide beim Austenitisieren. Der Saumbestand ist eine Modellmassenfraktion, keine vermessene Grenzflächenbelegung oder Filmdicke. Die Zeitkonstanten sind eigene unkalibrierte Annahmen, vollständig in der Fachtheorie der Oberfläche angegeben. Vogric et al. (2022), DOI 10.1007/s11661-022-06784-1, begründet die Mechanismen und Grenzen; sein SFFK-/Ledge-Modell ist hier nicht implementiert. Die lineare Acm-/Löslichkeitsnäherung bleibt ausdrücklich von bewerteter Thermodynamik getrennt.
+
+Separate TTT-/CCT-Zementitflächen inklusive neutraler Druckmuster, neue schematische Karte, Partikel versus illustrative ehemalige Austenitgrenzen im Werkstück und in denselben Lupen. Musterfeinheit bleibt rein grafisch. Hochlegierte Referenzstähle bleiben ohne quantitative Kinetik; Härte/Rm bleiben oberhalb 0,65 % C gesperrt. JSON-Schema 5 enthält Kinetikversion und lokale Reservoirs einschließlich boundaryK, CSV zusätzlich Cγ und Grenzsaum-Bestand. Unabhängige experimentelle Validierung fehlt weiterhin.
