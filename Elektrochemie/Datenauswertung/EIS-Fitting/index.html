@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="de" data-domain="elektrochemie">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIS-Fitting · Werkzeugdeck</title>
+
+
+<style>:root{font:16px/1.6 system-ui,sans-serif;color:#183747;background:#f0f4f5;--ink:#183747;--teal:#087f83;--line:#cbdade}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1180px;margin:auto;padding:28px}header{background:#173c48;color:#f7faf9;border-bottom:6px solid #dbac6b}.brand{font-size:18px;font-weight:750;color:white;text-decoration:none}.brand span{font-size:14px;color:#bed6db;font-weight:450}.hero{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:22px 0 12px}.eyebrow{letter-spacing:.17em;font-size:12px;font-weight:750;color:#087f83;margin:0 0 6px}header .eyebrow{color:#e6c18c}h1{font-size:clamp(44px,7vw,76px);letter-spacing:-.05em;line-height:1.1;margin:10px 0}.subtitle{font-size:26px;margin:0;color:#ecd5ae}.hero p:last-child{max-width:570px;color:#d5e3e6}.hero-mark{color:#e4b675;font-size:112px;text-align:center;line-height:1}.hero-mark span{display:block;font-size:12px;color:#d5e3e6;margin-top:15px}.tags{display:flex;gap:10px;flex-wrap:wrap}.tags span{border:1px solid #53717c;border-radius:20px;padding:4px 12px;font-size:12px}.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 2px #173c4803}h2{font-size:22px;margin:0 0 12px;line-height:1.3}h3{font-size:18px;margin:24px 0 6px}p{margin:10px 0}summary{cursor:pointer;font-weight:700}details[open]>summary{margin-bottom:18px}.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.section-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}.section-head h2{margin:0}.number{font-size:13px;background:#edf4f4;border-radius:50%;padding:7px 10px;color:var(--teal);font-weight:800}.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}.fields.expert{grid-template-columns:repeat(3,1fr)}label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:650}input,select,button{font:inherit;color:var(--ink)}input:not([type=checkbox]):not([type=range]),select{width:100%;border:1px solid #aec3ca;border-radius:6px;padding:10px;background:#fff;min-height:44px}input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #d29a44;outline-offset:3px}.hint{font-size:13px;color:#536e79;margin-top:16px}.check{flex-direction:row;align-items:center;margin-top:20px}.check input{width:19px;height:19px;accent-color:var(--teal)}.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 24px}button{cursor:pointer;border:1px solid #9ab4bd;background:white;border-radius:6px;padding:10px 16px;font-size:14px;font-weight:600;min-height:44px}button:hover{background:#eaf3f3}button.primary{background:var(--teal);color:white;border-color:var(--teal)}button.primary:hover{background:#06676a}button:disabled{opacity:.45;cursor:default}#status{font-size:13px;color:#536e79}#status.error{color:#a12716}.spread{justify-content:space-between}.spread>label{min-width:210px}.phasebar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:12px;margin-bottom:6px}.phasebar span{padding:7px;text-align:center;border-radius:4px;background:#f0f4f5;color:#536e79}.phasebar span.active{background:#d5eceb;color:#095c60;font-weight:750}canvas{display:block;width:100%;height:auto}#scene{border-radius:8px;background:#f8faf9}.legend{display:flex;gap:12px;align-items:center;justify-content:center;font-size:12px;margin:12px 0 22px}.legend>div{width:220px;height:10px;border-radius:8px;background:linear-gradient(90deg,#e8c692,#087f83)}.time-head{display:flex;justify-content:space-between;font-size:14px}input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;min-height:32px}.speed{flex-direction:row;align-items:center;margin-left:auto}.speed select{width:90px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.metrics>div{background:#f0f6f5;border-radius:8px;padding:15px}.metrics span{display:block;font-size:12px;color:#536e79}.metrics strong{font-size:25px;font-weight:700}.notice{font-size:13px;border-left:3px solid var(--teal);background:#eff7f5;padding:12px;margin:16px 0 0}.notice.warn{border-color:#b76a31;background:#fff6e9}.chart-key{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;font-size:12px}.chart-key span:first-child{color:#087f83}.chart-key span:last-child{color:#b46e32}.theory p{max-width:1000px}.equation{background:#f0f5f7;padding:18px;font:18px/1.6 Georgia,serif;overflow:auto}.formula{font-family:Georgia,serif}a{color:#096f7c}footer{font-size:13px;color:#526d78;border-top:1px solid #cbdade}footer details{padding-bottom:30px}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:760px){.wrap{padding:18px}.setup-grid{grid-template-columns:1fr;gap:0}.panel{padding:18px}.fields.expert{grid-template-columns:1fr 1fr}.hero-mark{display:none}.spread{align-items:flex-start;flex-direction:column}.metrics{gap:6px}.metrics>div{padding:10px}.metrics strong{font-size:19px}.phasebar{font-size:10px}.brand span{display:block}.speed{margin-left:0}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+
+main{max-width:1180px;margin:auto;padding:28px}section{background:white;border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;min-width:0}h1{font-size:clamp(40px,6vw,76px);overflow-wrap:anywhere}.row,.actions{display:flex;flex-wrap:wrap;gap:14px;align-items:end;margin:16px 0}.row>label{flex:1 1 160px;min-width:0;max-width:100%}input,select{max-width:100%;min-width:0}input[type=file],input[type=number]{width:100%}input[type=checkbox]{accent-color:var(--teal);width:19px;height:19px}small,#status{color:#536e79;font-size:13px}fieldset{min-width:0;border:1px solid var(--line);border-radius:8px;padding:16px;margin:16px 0}.component-options label{flex-direction:row;align-items:center}.plots{display:flex;gap:14px;flex-wrap:wrap}.plots figure{flex:1 1 420px;margin:0;min-width:0}.plots svg{width:100%;height:auto}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{text-align:left;border-bottom:1px solid var(--line);padding:10px;font-size:14px}.editor-branch{padding:9px 0}.editor-children{border-left:2px solid #cbdade;margin:8px 0 0 8px;padding-left:12px}.editor-action{background:#edf4f4;color:#183747;font-size:13px;padding:6px 9px}.editor-branch .actions{gap:6px}output{display:block;margin:16px 0;font-weight:650}.theory li{margin:12px 0}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:760px){main{padding:18px}section{padding:18px}.actions{align-items:stretch}td,th{padding:7px}#results>.actions{align-items:flex-start;flex-direction:column}.subtitle{font-size:22px}}
+.graph-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px}.graph-board{width:940px;height:410px;position:relative;background-color:#f8faf7;background-image:radial-gradient(#cbdade 1px,transparent 1px);background-size:20px 20px}.graph-wires{position:absolute;width:940px;height:410px;pointer-events:none}.graph-part{position:absolute;width:110px;height:48px}.graph-handle{width:110px;height:48px;padding:0 4px;display:flex;align-items:center;cursor:grab;background:#f0e1c7;border:2px solid #285449;touch-action:none}.graph-pin{position:absolute;width:44px;height:44px;padding:0;border:0;background:transparent;color:#087f83;font-size:24px}.graph-pin[aria-pressed=true]{background:#e6c18c;border-radius:50%}.graph-remove{position:absolute;left:35px;top:48px;padding:0;min-height:28px;width:40px;font-size:17px}.graph-palette button{font-size:12px;padding:8px}.projection-note{color:#8a4b12}header{background:#183e35;border-bottom-color:#ddbd86}:root{--teal:#216a58}
+.frequency-field{flex:1 1 235px;min-width:0;font-size:13px;font-weight:650}.frequency-input{display:flex;align-items:center;gap:6px;margin-top:6px;white-space:nowrap}.frequency-input input:first-child{width:85px}.frequency-input input.frequency-exponent{width:85px;align-self:flex-start;position:relative;top:-8px;font-size:14px}.frequency-input>span{font-size:17px}.frequency-input input{min-height:44px}
+.model-table td{vertical-align:middle}.model-table td:first-child{padding:14px}.model-number{display:block;font-size:13px;color:var(--topic-dark,#163e50);margin-bottom:4px}.model-diagram{width:320px;max-width:100%;overflow:auto;margin:6px 0 10px;color:var(--topic-dark,#163e50);border-radius:6px;background:#fff}.model-diagram svg{display:block;max-width:100%;height:auto}.model-select{border-color:var(--topic-accent,#176b8b);color:var(--topic-dark,#163e50);min-width:165px}.model-select[aria-pressed=true]{background:var(--topic-dark,#163e50);border-color:var(--topic-dark,#163e50);color:white}.model-table .selected-model{background:#faf3e7}.model-table .selected-model td:first-child{box-shadow:inset 4px 0 var(--topic-sand,#dbac6b)}.model-table tbody tr:hover{background:var(--topic-light,#edf5fa)}.fit-detail-head{border-top:1px solid var(--line);padding-top:16px;margin-top:20px}#fit-detail{scroll-margin-top:20px}#fit-detail:focus{outline:3px solid #dbac6b;outline-offset:5px}#selection-status{font-size:14px;color:#536e79}.model-diagram:focus-visible{outline:3px solid #dbac6b;outline-offset:3px}@media(max-width:760px){.model-diagram{width:260px}.model-table td:first-child{padding:10px}}
+.point-table-scroll{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:12px}.point-table-scroll thead{position:sticky;top:0;background:var(--topic-light,#edf5fa);z-index:1}.point-table-scroll td,.point-table-scroll th{white-space:nowrap}.point-table-scroll input{width:22px;height:22px;accent-color:var(--topic-accent,#176b8b)}.point-excluded-row{background:#f0f1f2;color:#626b72}.selectable-point{cursor:pointer}.selectable-point:hover circle{stroke-width:3}.selectable-point:hover path{stroke:#a44922;stroke-width:3}.points-locked .selectable-point{cursor:wait}#point-selection-status{font-size:14px}
+.preset-preview{overflow:auto;background:var(--topic-light,#edf5fa);padding:12px;border-radius:8px;margin:12px 0}.preset-preview svg{display:block;max-width:100%;height:auto}#preset-description{font-size:14px}#preset-controls{border-left:4px solid var(--topic-accent,#176b8b)}
+</style>
+<link rel="stylesheet" href="./tool-theme.css">
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="https://werkzeugdeck.pages.dev/">Werkzeugdeck <span>/ Elektrochemie / Datenauswertung</span></a><div class="hero"><div><p class="eyebrow">WECHSELSPANNUNG TRIFFT GRENZFLÄCHE</p><h1>EIS-Fitting</h1><p class="subtitle">Vom Spektrum zum Modell.</p><p>Impedanzspektren laden, Ersatzschaltbilder vergleichen und Fits fachlich einordnen.</p></div><div class="hero-mark" aria-hidden="true">∿<span>Prozesse im Frequenzblick</span></div></div><div class="tags"><span>Zahner ISM · CSV</span><span>Eigene Ersatzschaltbilder</span><span>Browser- oder lokaler Python-Fit</span></div></div></header><nav class="tool-context" aria-label="Fachgebiet und Theorie"><a href="https://werkzeugdeck.pages.dev/bereiche/elektrochemie/">Elektrochemie</a><span class="wd-activity"><svg class="wd-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v17h17M7 15l4-6 4 3 5-7"/></svg>Datenauswertung</span><a href="https://werkzeugdeck.pages.dev/bereiche/elektrochemie/theorie/">Grundlagen &amp; Theorie →</a></nav>
+<main><nav aria-label="Orientierung" style="padding:12px 0"><a href="https://werkzeugdeck.pages.dev/">Werkzeugdeck</a> › <a href="https://werkzeugdeck.pages.dev/bereiche/elektrochemie/">Elektrochemie</a> › Datenauswertung › <span aria-current="page">EIS-Fitting</span></nav>
+<section class="theory" aria-labelledby="intro-title"><p class="eyebrow">DIE IDEE DAHINTER</p><h2 id="intro-title">EIS einfach erklärt</h2><p>Bei der elektrochemischen Impedanzspektroskopie wird ein System mit einem kleinen Wechselstrom- oder Wechselspannungssignal angeregt. Die Antwort hängt von der Frequenz ab: Schnelle und langsame Vorgänge können unterschiedlich sichtbar werden. Die <strong>Impedanz Z</strong> beschreibt das Verhältnis von Spannung zu Strom und deren Phasenverschiebung.</p><p>Ein <strong>Ersatzschaltbild</strong> übersetzt diesen Verlauf in Widerstände, kapazitive Elemente und gegebenenfalls Diffusionselemente. Widerstände beschreiben gleichphasige Anteile, Kondensatoren die Speicherung elektrischer Ladung. Die Zuordnung zu Elektrolyt, Grenzfläche oder Schicht muss zum untersuchten System passen.</p><p>Im <strong>Nyquist-Diagramm</strong> steht −Im(Z) über Re(Z); die Frequenz ist dort keine eigene Achse. Das <strong>Bode-Diagramm</strong> zeigt Betrag und hier den Betrag der Phase über der Frequenz. Ein Halbkreis kann auf eine Zeitkonstante hinweisen, beweist allein aber keinen bestimmten Mechanismus.</p><p class="notice">Datei laden oder Beispiel fitten, plausible Bauteile wählen, Modelle vergleichen und die Bauteilwerte fachlich prüfen. Ein kleiner Fitfehler bestätigt die Übereinstimmung mit den Daten; mehrere physikalische Modelle können ähnlich gut passen.</p></section>
+<section><div class="section-head"><span class="number">01</span><h2>Messdatei & Modell</h2></div>
+<div class="actions"><label>Datei <input id="file" type="file" accept=".ism,.csv"></label>
+<button class="primary" id="run">Datei fitten</button></div>
+<div class="actions"><label>Messbeispiel <select id="example"><option value="rc">Dreierschaltbild · eine Zeitkonstante</option><option value="coating">Fünferschaltbild · zwei Zeitkonstanten</option></select></label><button id="example-preview">Messbeispiel ansehen</button><button id="demo">Messbeispiel fitten</button><button id="example-download">Messbeispiel als CSV</button></div>
+<p id="example-info" class="hint">Echte Messkurven statt idealisierter Daten. Die neutralen Bezeichnungen beschreiben Ausgangsmodelle mit drei bzw. fünf Bauteilen und einer bzw. zwei Zeitkonstanten. Die automatische Suche kann auch andere Topologien vorschlagen. Für das Fünferschaltbild sind bis zu fünf Bauteile voreingestellt. Eine Begrenzung auf drei Bauteile kann seine zweite Zeitkonstante nicht ausreichend abbilden. Die automatische Suche bleibt frei wählbar.</p>
+<div id="measurement-preview" hidden role="region" aria-labelledby="preview-title"><h3 id="preview-title">Messkurve &amp; Punktauswahl</h3><p id="preview-summary" role="status"></p><div class="plots" id="preview-plots"></div><p class="hint">Messpunkt in einem der Vorschau-Diagramme anklicken, um ihn auszuschließen oder wieder einzuschließen. Farbige Punkte: im Fit · graue Kreuze: ausgeschlossen. Für Tastatur und genaue Frequenzauswahl die Messpunkttabelle verwenden. Die Originaldaten bleiben erhalten.</p><div class="actions"><button id="include-all">Alle Messpunkte einschließen</button><span id="point-selection-status" role="status"></span></div><details id="point-table-details"><summary>Messpunkte einzeln auswählen</summary><div class="point-table-scroll" role="region" aria-label="Messpunktauswahl" tabindex="0"><table><thead><tr><th scope="col">Im Fit</th><th scope="col">Punkt</th><th scope="col">Frequenz / Hz</th><th scope="col">Re(Z) / Ω</th><th scope="col">Im(Z) / Ω</th></tr></thead><tbody id="point-rows"></tbody></table></div></details><p class="notice warn">Punkte nur fachlich begründet ausschließen. Ein kleinerer Fitfehler allein rechtfertigt keinen Ausschluss. Alle verglichenen Modelle verwenden dieselbe Auswahl. Änderungen machen den bisherigen Fit ungültig; mindestens acht Punkte müssen eingeschlossen bleiben, je nach Modell auch mehr.</p></div>
+<p><label>Fitmodus <select id="fit-mode"><option value="auto">Automatische Modellsuche</option><option value="custom">Eigenes Schaltbild · strukturierter Editor</option><option value="graph">Eigenes Schaltbild · Zeichnen & Drag-and-drop</option></select></label></p>
+<fieldset id="preset-controls" hidden><legend>Schaltbildbibliothek &amp; Wiederverwendung</legend><div class="row"><label>Anwendungsgebiet <select id="preset-category"></select></label><label>Schaltbildvorlage <select id="preset-model"></select></label></div><div id="preset-preview" class="preset-preview" aria-label="Vorschau der ausgewählten Vorlage"></div><p id="preset-description"></p><p id="preset-sources" class="hint"></p><button id="preset-apply">Vorlage in Editor übernehmen</button><p class="hint">Ersetzt den aktuellen Entwurf im gewählten Editor und bleibt danach frei bearbeitbar. Der Fit optimiert nur die Kennwerte dieser Topologie; eine Kategorie bestätigt keinen physikalischen Mechanismus. Der Entwurf bleibt beim Laden weiterer Messdateien erhalten.</p><details><summary>Eigenes Schaltbild für weitere Messungen speichern oder laden</summary><div class="actions"><button id="circuit-save">Schaltbild als JSON speichern</button><label>Schaltbilddatei laden <input id="circuit-load" type="file" accept=".json,application/json"></label></div><p class="hint">Speichert nur die Bauteile und Verbindungen, keine Messdaten oder gefitteten Kennwerte. Die JSON-Datei kann später wieder in einen der beiden Editoren geladen werden.</p></details><p id="preset-status" role="status"></p></fieldset>
+<fieldset id="auto-controls" style="margin:16px 0;border:1px solid #d7e3ea;border-radius:8px;padding:12px">
+<legend>Modellkomplexität</legend>
+<div class="actions component-options">
+<label><input type="checkbox" name="component" value="R" checked> <span aria-hidden="true">─▭─</span> Widerstand (R)</label>
+<label><input type="checkbox" name="component" value="C" checked> <span aria-hidden="true">─││─</span> Kondensator (C)</label>
+<label><input type="checkbox" name="component" value="Q" checked> <span aria-hidden="true">─│╱─</span> CPE (Q)</label>
+<label><input type="checkbox" name="component" value="L"> <span aria-hidden="true">─∿∿─</span> Induktivität (L)</label>
+<label><input type="checkbox" name="component" value="La"> Modifizierte Induktivität (La)</label>
+<label><input type="checkbox" name="component" value="W"> Warburg (W)</label>
+<label><input type="checkbox" name="component" value="Wo"> Warburg offen (Wo)</label>
+<label><input type="checkbox" name="component" value="Ws"> Warburg kurzgeschlossen (Ws)</label>
+<label><input type="checkbox" name="component" value="G"> Gerischer (G)</label>
+<label>Max. Bauteile <select id="limit"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option><option value="7">Automatisch (bis 7)</option></select></label>
+</div>
+<p style="margin-bottom:0"><small id="available" aria-live="polite"></small></p>
+</fieldset>
+<fieldset id="custom-controls" hidden>
+<legend>Eigenes Schaltbild</legend>
+<p><small>Füge Bauteile in Reihe oder parallel hinzu. Der Fit verändert nur die Kennwerte. Bis zu zwölf Bauteile.</small></p>
+<div id="editor"></div>
+<div id="editor-preview" style="overflow:auto" aria-label="Schaltbildvorschau"></div>
+</fieldset>
+<fieldset id="graph-controls" hidden><legend>Schaltbild zeichnen</legend><p>Bauteile auf die Zeichenfläche ziehen oder oben anklicken. Zum Verbinden nacheinander zwei runde Anschlüsse anklicken (auch per Tab und Enter). Mehrere Leitungen an einem Anschluss bilden einen gemeinsamen Knoten. Kreuzende Leitungen sind ohne gemeinsamen Anschluss nicht verbunden. Bauteile am Namen ziehen oder mit den Pfeiltasten verschieben.</p><p class="hint">A und B sind die Messanschlüsse. Bis zu zwölf Bauteile in Reihen- und Parallelschaltungen; Brückenschaltungen werden nicht unterstützt. Die beiden Editoren behalten jeweils ihren eigenen Entwurf.</p><div id="graph-editor"></div><div id="graph-preview" style="overflow:auto" aria-label="Geprüfte Schaltbildvorschau"></div></fieldset>
+<p id="status" role="status">Zahner ISM oder CSV. Die Berechnung läuft auf diesem Rechner.</p>
+<details><summary>CSV-Format</summary><p>UTF-8, Komma als Trennzeichen, Dezimalpunkt. Spalten <code>frequency_Hz,Zreal_ohm,Zimag_ohm</code>. Kapazitive Impedanz hat einen negativen Imaginärteil.</p></details></section>
+<section id="results" hidden>
+<div class="section-head" id="comparison-title"><span class="number">02</span><h2>Modelle vergleichen</h2></div><p id="comparison-help" class="hint">Wähle ein Ersatzschaltbild über „Fit anzeigen“, um seine Kennwerte und Diagramme unten zu sehen. Die Schaltbilder zeigen die Topologie ohne Bauteilwerte. Die aktive Zeile ist markiert. Auf kleinen Bildschirmen lässt sich die Tabelle seitlich verschieben.</p><div class="table-scroll" role="region" aria-label="Modellvergleich" aria-describedby="comparison-help" tabindex="0"><table class="model-table"><thead><tr><th scope="col">Ersatzschaltbild &amp; Auswahl</th><th scope="col">Bauteile</th><th scope="col">Parameter</th><th scope="col">RMS</th><th scope="col">ΔAICc</th><th scope="col">Fitstatus</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p><small>Der komplexe RMS gewichtet jeden Frequenzpunkt relativ zu seinem Impedanzbetrag. ΔAICc berücksichtigt die Anzahl der Fitparameter. Der Modellvergleich ersetzt keine Prüfung der Messqualität.</small></p>
+<aside class="notice" aria-label="Aussagekraft des Fits">
+<strong>Was der Fit aussagt</strong>
+<p style="margin:4px 0">Ein kleiner Fitfehler zeigt, wie gut das Schaltbild die Messdaten beschreibt. Ob es die tatsächlichen Prozesse abbildet, musst du separat prüfen. Messrauschen, Drift und Messgrenzen des Geräts können den Fit verfälschen. Prüfe den nutzbaren Frequenz- und Impedanzbereich, auffällige Messpunkte und die Plausibilität der Bauteilwerte.</p>
+</aside>
+<div class="fit-detail-head"><h3 id="fit-detail" tabindex="-1">Ausgewählter Fit</h3><p id="selection-status" role="status"></p><div class="actions"><button id="back-to-comparison">Zurück zum Modellvergleich</button><button id="fit-to-editor">Schaltbild als eigenen Entwurf übernehmen</button><button id="export">Fit als CSV exportieren</button></div></div>
+<p id="parameters"></p>
+<figure style="margin:16px 0"><h3>Ersatzschaltbild</h3><div id="circuit" style="overflow:auto;padding:12px;border:1px solid #d7e3ea;border-radius:8px"></div></figure>
+<div class="plots" id="plots"></div><p id="curve-note" class="notice warn" role="status" hidden></p>
+<fieldset><legend>Frequenzprognose im Bode-Diagramm</legend><label class="check"><input id="project" type="checkbox"> Modell außerhalb des Messbereichs anzeigen</label><div class="row"><div class="frequency-field"><span>Untere Frequenz</span><div class="frequency-input"><input id="f-min-factor" type="number" min="0" step="any" aria-label="Vorfaktor untere Frequenz"><span>× 10</span><input id="f-min" class="frequency-exponent" type="number" min="-12" max="12" step="1" aria-label="Exponent untere Frequenz"><span>Hz</span></div></div><div class="frequency-field"><span>Obere Frequenz</span><div class="frequency-input"><input id="f-max-factor" type="number" min="0" step="any" aria-label="Vorfaktor obere Frequenz"><span>× 10</span><input id="f-max" class="frequency-exponent" type="number" min="-12" max="12" step="1" aria-label="Exponent obere Frequenz"><span>Hz</span></div></div><button id="extend-low">Unten ÷ 10</button><button id="extend-high">Oben × 10</button><button id="project-apply">Prognose aktualisieren</button><button id="project-reset">Messbereich zurücksetzen</button></div><p class="hint">Frequenz = Vorfaktor × 10<sup>Exponent</sup> Hz. Die Pfeile am Exponenten ändern die Frequenz jeweils um den Faktor 10. Über den Vorfaktor sind auch Zwischenwerte möglich.</p><p id="projection-status" role="status"></p><p class="notice warn">Die Prognose berechnet dasselbe Ersatzschaltbild mit den bereits gefitteten Kennwerten. Sie fügt keine Messwerte hinzu und verändert weder Fit, RMS noch AICc. Außerhalb der Messung ist der Verlauf modellabhängig; unbekannte Prozesse und unsichere Parameter können zu großen Abweichungen führen. Es wird kein Konfidenzband berechnet.</p><button id="export-projection">Modellkurve mit Bereichskennzeichnung als CSV</button></fieldset>
+<div class="actions" aria-label="Grafikexport"><button id="save-bode">Bode als PNG</button><button id="save-bode-svg">Bode als SVG</button><button id="save-nyquist">Nyquist als PNG</button><button id="save-nyquist-svg">Nyquist als SVG</button><button id="save-schaltbild">Schaltbild als PNG</button><button id="save-schaltbild-svg">Schaltbild als SVG</button><button id="save-uebersicht">Gesamtübersicht als PNG</button><button id="save-uebersicht-svg">Gesamtübersicht als SVG</button><small id="export-status" role="status"></small></div>
+<p><small>Farbige Punkte: eingeschlossene Messwerte · graue Kreuze: ausgeschlossene Messwerte · durchgezogene Linien: Fit im verwendeten Messbereich · gestrichelte Linien auf sandfarbenem Grund: Prognose. Türkis: |Z| · Blau: |Phase|. Die Prognose erscheint auch im Bode-Export und in der Gesamtübersicht.</small></p>
+</section>
+<details class="panel theory" id="teaching-cases"><summary>Fünf Lehrfälle · Schaltbilder und synthetische Spektren erkunden</summary>
+<p>Wie verändern Grenzflächen und Schutzschichten die Impedanz? Wähle einen Lehrfall und verändere einzelne Kennwerte. Alle Kurven sind synthetisch und verwenden frei gewählte Modellwerte; sie sind keine Messungen oder validierten Materialdaten. Deine hochgeladene Messung bleibt unverändert.</p>
+<label>Lehrfall <select id="lesson-case"></select></label><div id="lesson-explanation"></div>
+<div id="lesson-circuit" class="preset-preview" aria-label="Schaltbild des Lehrfalls"></div><div class="row" id="lesson-fields"></div>
+<div class="actions"><button id="lesson-reset">Lehrwerte zurücksetzen</button><button id="lesson-apply">Schaltbild in Editor übernehmen</button></div><p id="lesson-status" role="status"></p>
+<div class="plots" id="lesson-plots"></div><div id="lesson-export"></div>
+<p class="hint">R in Ω, C in F; keine Flächennormierung. Fachliche Grundlage: <a href="https://www.gamry.com/application-notes/EIS/basics-of-electrochemical-impedance-spectroscopy/">Gamry: EIS-Grundlagen und Beschichtungsmodelle</a>. Fall 5 ist ein phänomenologisches Lehrmodell zweier Zeitkonstanten. Die Kurven werden direkt aus den komplexen Bauteilimpedanzen berechnet. Ein ähnlicher Kurvenverlauf bestätigt keinen Mechanismus.</p>
+</details>
+<details class="panel theory"><summary>Ausführliche Theorie, Fitverfahren & Grenzen</summary>
+<h3>Korrosion, Passivität und Schutzschichten</h3><p>Elektrochemische Korrosion verbindet eine anodische Metalloxidation, beispielsweise M → Mⁿ⁺ + ne⁻, mit einer kathodischen Reaktion. In belüfteter neutraler Lösung kann dies O₂ + 2H₂O + 4e⁻ → 4OH⁻ sein; in saurer Lösung beispielsweise 2H⁺ + 2e⁻ → H₂. Elektronen fließen im Metall, Ionen im Elektrolyten. Auch ohne äußeren Strom können Teilreaktionen und Metallauflösung fortbestehen.</p><p>Rₛ erfasst im Lehrmodell den ohmschen Elektrolytanteil; Cdl die Ladungsspeicherung an der Grenzfläche und Rct deren lokale Reaktionsantwort. Passivierung kann durch einen schützenden Oberflächenfilm die Auflösung vermindern. Eine Beschichtung kann den Zutritt von Elektrolyt und Reaktionspartnern hemmen. Dichte Schichten, endliche Leitfähigkeit und zugängliche Grenzflächen motivieren unterschiedliche Modellannahmen. Keine einzelne Kapazität oder Bogenform beweist Schichtdichte, Poren, Passivität oder Korrosionsschutzwirkung.</p><p>Die fünf aufklappbaren Lehrfälle verbinden diesen Kontext mit idealisierten Ersatzschaltbildern. Ccoat ≈ ε₀εᵣA/d gilt nur unter der Annahme eines homogenen Plattenkondensators. Aus einer gemessenen Kapazität sind Dicke oder Wasseraufnahme ohne Kenntnis von Geometrie und Dielektrizität nicht eindeutig bestimmbar. Rct ist nicht allgemein mit dem gesamten Polarisationswiderstand gleichzusetzen; eine Korrosionsrate erfordert weitere kinetische und experimentelle Voraussetzungen.</p><p>Werkstoffkundlicher Hintergrund: <a href="https://doi.org/10.1007/978-3-662-71672-4">Bargel &amp; Siemer (Hrsg.), Werkstoffkunde – Strukturen – grundlegende Eigenschaften, 14. Auflage (2026), Kapitel 1.8, S. 70–83</a>. Dieses Lehrbuch begründet den Korrosions- und Schutzkontext; die EIS-Schaltungen und frei gewählten Lehrwerte sind eine gesonderte didaktische Modellierung. Die unten verlinkten EIS-Quellen behandeln Impedanz und Modellgrenzen.</p>
+<h3>1 · Komplexe Impedanz und Voraussetzungen</h3><p>Für sinusförmige Signale gleicher Kreisfrequenz ω = 2πf ist die Impedanz der komplexe Quotient der Spannungs- und Stromzeiger. Mit der Konvention exp(iωt) gilt:</p><p class="equation">Z(ω) = Û/Î = Z′ + iZ″ = |Z| exp(iφ).</p><p>Kapazitive Impedanz hat Z″ &lt; 0; Nyquist stellt −Z″ dar. Die Bode-Ansicht dieses Tools verwendet |φ| und verliert das Vorzeichen der Phase. Zur Unterscheidung kapazitiver und induktiver Anteile daher auch Nyquist prüfen. Eine einfache Impedanzdeutung setzt näherungsweise lineare Antwort bei kleiner Anregung, Stationarität während der Messung und Kausalität voraus. Drift und Nichtlinearität können scheinbare Strukturen erzeugen.</p>
+<h3>2 · Ideale Bauteile und Zeitkonstante</h3><p class="equation">Zᴿ = R; &nbsp; Zᶜ = 1/(iωC); &nbsp; Zᴸ = iωL.<br>Zᴿᶜ = Rₛ + Rₚ/(1 + iωRₚC); &nbsp; τ = RₚC; &nbsp; fₘₐₓ = 1/(2πτ).</p><p>Für Rₛ + (Rₚ ∥ C) entsteht ein idealer Halbkreis mit Realachsenabschnitten Rₛ und Rₛ + Rₚ. Seine maximale Höhe gehört zur Frequenz fₘₐₓ. Überlappende Zeitkonstanten und ein begrenzter Frequenzbereich erschweren diese Zuordnung. In Reihe addieren sich Impedanzen; parallel addieren sich Admittanzen: Z = (Σ 1/Zₖ)⁻¹.</p>
+<h3>3 · CPE, Diffusion und weitere Elemente</h3><p class="equation">Zᑫ = 1/[Q(iω)ⁿ], &nbsp; 0,2 ≤ n ≤ 1 im Fit.</p><p>Das Constant Phase Element beschreibt nicht ideales kapazitives Verhalten. Nur für n = 1 ist Q eine Kapazität; sonst hat Q die Einheit S·sⁿ und darf nicht direkt als Farad gelesen werden. Ein kleineres n identifiziert allein keine Ursache wie Rauigkeit oder Porosität. Eine effektive Kapazität erfordert zusätzliche Modellannahmen.</p><p>Mit s = iω und u = √(sτ) verwendet der Rechenkern für die weiteren Bauteile:</p><p class="equation">Zᴸᵃ = Lsⁿ; &nbsp; Zᵂ = A√(2/s);<br>Zᵂᵒ = Z₀/[u tanh(u)]; &nbsp; Zᵂˢ = Z₀ tanh(u)/u;<br>Zᴳ = R/√(1 + sτ).</p><p>La ist eine modifizierte Induktivität. W modelliert idealisiert semiunendliche Diffusion, Wo endliche Diffusion mit sperrendem und Ws mit durchlässigem Abschluss. G beschreibt idealisiert gekoppelte Reaktion und Diffusion. Koeffizienten und Konventionen unterscheiden sich zwischen Programmen; Literaturwerte nur zusammen mit Formel und Einheit übernehmen.</p>
+<h3>4 · Residuen, Gewichtung und numerischer Fit</h3><p>Real- und Imaginärteil werden gemeinsam mit nichtlinearer kleinster Quadrate angepasst. Jeder Frequenzpunkt wird durch den Betrag seiner gemessenen Impedanz gewichtet:</p><p class="equation">SSE = Σₖ |(ZFit,ₖ − ZMess,ₖ)/|ZMess,ₖ||²;<br>RMS [%] = 100 √(SSE/N).</p><p>N zählt komplexe Messpunkte. Dieser RMS ist ein relativer komplexer Fehler, keine Messunsicherheit und kein Konfidenzintervall. Positive Kennwerte werden logarithmisch parametrisiert, Exponenten begrenzt. Mehrere Startwerte mindern das Risiko lokaler Minima, garantieren aber kein globales Optimum. „Parameter prüfen“ kann auf Parametergrenzen, schlechte Konditionierung oder einen nicht abgeschlossenen Optimierer hinweisen. „Numerisch stabil“ bestätigt keinen physikalischen Mechanismus.</p>
+<h3>5 · Heuristische Modellsuche und AICc</h3><p>Die Suche kombiniert freigegebene Bauteile in Reihen- und Parallelzweigen bis zur gewählten Grenze von höchstens sieben Bauteilen. Pro Größe bleiben fünf aussichtsreiche Kandidaten für Erweiterungen; Finalisten werden erneut auf allen Frequenzpunkten angepasst. Es werden nicht alle möglichen Schaltungen vollständig durchsucht. Eigene Schaltbilder sind auf zwölf Bauteile begrenzt.</p><p class="equation">AICc = m ln(SSE/m) + 2k + 2k(k+1)/(m − k − 1), &nbsp; m = 2N.</p><p>k zählt freie Parameter, nicht Bauteile; ein CPE besitzt zwei. ΔAICc ist der Abstand zum kleinsten berechneten Wert. Kleinere Werte bevorzugen unter dieser Fehlergewichtung einen Ausgleich zwischen Anpassung und Komplexität. Die statistische Deutung setzt ein passendes Fehlermodell voraus; korrelierte Fehler schwächen sie. AICc nur bei denselben Daten und derselben Gewichtung vergleichen.</p>
+<h3>6 · Aussagekraft und unabhängige Prüfung</h3><p>Prüfe Messbereich, Vorzeichen, Ausreißer, systematische Abweichungen der Fitlinie und plausible Bauteilwerte. Variiere sinnvolle Modelle und kontrolliere Parameter über Messwiederholungen und benachbarte Frequenzbereiche. Unterschiedliche Schaltungen können sehr ähnliche Spektren erzeugen. Extrapolationen außerhalb des Messbereichs sind besonders unsicher. Das Tool führt keine Kramers–Kronig-Prüfung durch und berechnet keine Parameter-Konfidenzintervalle. Diese Prüfungen sowie die experimentelle Kontrolle von Linearität und Stationarität müssen unabhängig erfolgen.</p>
+<h3>7 · Modellprognose und gezeichnete Schaltungen</h3><p>Die Frequenzprognose setzt die gefundenen Kennwerte unverändert in die Impedanzformeln des gewählten Schaltbilds ein. Eine logarithmisch verteilte Kurve mit 401 Stützstellen und den ursprünglichen Messfrequenzen zeigt den Verlauf zwischen den eingegebenen Grenzen. Außerhalb der Messfrequenzen werden die Kurven gestrichelt dargestellt und sandfarben hinterlegt. Das erweitert die Darstellung, nicht die Datengrundlage: Neue Zeitkonstanten, parasitäre Induktivitäten, Drift und Parameterunsicherheiten sind daraus nicht vorhersagbar. Modellkurven im Messbereich sind ebenfalls berechnete Werte, keine zusätzlichen Messungen. Das Nyquist-Diagramm und die Fitstatistik verwenden weiterhin nur den Messbereich.</p><p>Der grafische Editor fasst durch Leitungen verbundene Anschlüsse zu Knoten zusammen und reduziert parallele Zweige und Bauteile in Reihe auf die Topologie des Rechenkerns. Die Lage auf der Zeichenfläche bestimmt keine elektrische Verbindung. Brückennetze werden nicht approximiert, sondern abgewiesen. Maßgeblich für Bauteilnummern im Fit ist die geprüfte Schaltbildvorschau; die Nummern auf der Zeichenfläche folgen der Einfügereihenfolge.</p><p>Die zwei mitgelieferten Beispiele enthalten reale Messwerte. Dreier- und Fünferschaltbild bezeichnen einfache Ausgangsmodelle, keine Vorgabe oder Bestätigung der automatisch gefundenen Schaltung. Insbesondere ein begrenzter Messbereich oder eine zu kleine Modellobergrenze kann Zeitkonstanten unzureichend erfassen. Mehr Bauteile erlauben zusätzliche Strukturen, können aber auch zu nicht eindeutig bestimmten Kennwerten führen.</p>
+<h3>8 · Auswahl und Ausschluss von Messpunkten</h3><p>Die Punktauswahl ist manuell und verwendet keine automatische Ausreißererkennung. Ausgeschlossene Punkte werden vor der Berechnung aus dem Fitdatensatz entfernt. Alle Modellkandidaten, die Gewichtung, RMS und AICc beziehen sich ausschließlich auf die eingeschlossenen Punkte; der Frequenzbereich der Prognose richtet sich nach deren kleinster und größter Frequenz. Vergleiche AICc-Werte verschiedener Punktauswahlen nicht unmittelbar miteinander. Originalmesswerte bleiben in den Diagrammen als graue Kreuze und im Fit-CSV mit der Kennzeichnung included_in_fit = 0 erhalten. Jeder Ausschluss sollte durch Messbedingungen, Gerätefehler oder eine unabhängige Qualitätsprüfung begründet und dokumentiert werden; systematische Abweichungen können auch auf ein ungeeignetes Modell hinweisen.</p><h3>9 · Vorlagen, Messreihen und Modellkurven</h3><p>Eine feste Topologie spart die automatische Suche über verschiedene Schaltungen. Die Parameter werden für jede Messung neu optimiert; gleiche Bauteiltypen garantieren weder gleiche Startwerte noch eindeutige Parameter. Für Messreihen Modellannahmen, Frequenzbereich, Temperatur, Ladezustand und Ausschlüsse kontrollieren. Die Kategorien der Vorlagen sind Anwendungshinweise; die Quellen sind in der Bibliothek den einzelnen Modellen zugeordnet. Bei porösen Batterieelektroden können komplexere Transportmodelle erforderlich sein, die diese Bibliothek nicht abbildet.</p><p>Die Nyquist- und Bode-Fitlinien entstehen aus der komplexen Modellimpedanz auf einem logarithmischen Raster mit mindestens 401 Punkten plus den verwendeten Messfrequenzen. Die glatte Linie ist weder eine Interpolation der Messpunkte noch ein neuer Fit. CSV-Fitwerte und Fehlerkennzahlen bleiben auf die eingeschlossenen Messpunkte bezogen.</p><h3>Quellen und Einordnung</h3><ul><li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10288619/">Lazanas & Prodromidis (2023): Electrochemical Impedance Spectroscopy—A Tutorial</a>, ACS Measurement Science Au, DOI: 10.1021/acsmeasuresciau.2c00070, mit <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11848951/">Korrektur (2025)</a>. Frei zugänglicher Fachartikel zu Grundlagen, Bauteilen und Datenvalidierung.</li><li><a href="https://www.gamry.com/application-notes/EIS/basics-of-electrochemical-impedance-spectroscopy/">Gamry Instruments: Basics of Electrochemical Impedance Spectroscopy</a>. Anschauliche Herstellerunterlage zu Diagrammen und Ersatzschaltbildern.</li></ul><p class="hint">Die Quellen erklären den fachlichen Hintergrund. Suchgrenzen, Gewichtung und Statusmeldungen oben beschreiben die konkrete Implementierung und sind keine allgemeine Validierung des Fits.</p></details>
+</main>
+<footer class="wrap"><p><a href="https://werkzeugdeck.pages.dev/">Werkzeugdeck</a> · <a href="https://werkzeugdeck.pages.dev/bereiche/elektrochemie/">Elektrochemie · Datenauswertung</a></p><p><strong>Privates Projekt in Entwicklung</strong> · von einer Privatperson erstellt.</p><details><summary>Nutzungshinweise und Haftung</summary><h3>Zweck und Grenzen</h3><p>Dieses Tool unterstützt das Lernen und die explorative Auswertung elektrochemischer Messdaten. Ergebnisse hängen von Messqualität, Einheiten, Eingaben, Modellannahmen und gewählten Fitbereichen ab. Automatische Fits sind Vorschläge. Prüfe Ergebnisse unabhängig, bevor du sie für Berichte, Freigaben oder sicherheitsrelevante Entscheidungen verwendest.</p><h3>KI, Messdaten und Exporte</h3><p>Code und Texte wurden mit KI-Unterstützung erstellt. Im Betrieb verwendet dieses Tool keine KI und sendet keine Messdaten an KI-Dienste. Die Vorschau liest ISM- und CSV-Messpunkte direkt im Browser, ohne externe Rechenbibliotheken oder Netzwerkübertragung. Für den Fit verarbeitet in der Onlineversion ein Web Worker Messdateien mit Pyodide, NumPy und SciPy auf deinem Gerät. Beim ersten Fit werden Rechenbibliotheken von jsDelivr geladen; Messdaten werden dabei nicht an den CDN-Anbieter übertragen. Beim lokalen Python-Start sendet der Browser Messdateien an den lokalen Server auf 127.0.0.1, wo der Fit mit NumPy und SciPy erfolgt. Schaltbilddateien im JSON-Format werden lokal gelesen oder heruntergeladen und enthalten nur die Topologie, keine Messdaten und Kennwerte. CSV-, PNG- und SVG-Exporte entstehen im Browser und werden erst durch deinen Download gespeichert.</p><h3>Hosting und Bibliotheken</h3><p>Die Werkzeugdeck-Onlineversion wird über Cloudflare Pages ausgeliefert. Dabei erhält Cloudflare technisch notwendige Verbindungsdaten; siehe <a href="https://www.cloudflare.com/privacypolicy/">Cloudflares Datenschutzhinweise</a>. Beim Laden der Rechenbibliotheken erhält auch jsDelivr Verbindungsdaten; siehe <a href="https://www.jsdelivr.com/terms/privacy-policy">jsDelivrs Datenschutzhinweise</a>. Die Anwendung setzt selbst keine Cookies und benötigt kein Benutzerkonto. Externe Fachquellen werden erst beim Anklicken geöffnet.</p><h3>Haftung</h3><p>Die Anwendung entwickelt sich weiter und kann Fehler enthalten. Für Richtigkeit, Vollständigkeit, Verfügbarkeit und Eignung wird keine Garantie übernommen. Es gelten die gesetzlichen Haftungsregelungen.</p></details></footer>
+<script src="./export-menu.js"></script><script src="circuit-diagram.js"></script>
+<script src="circuit-presets.js"></script>
+<script src="circuit-editor.js"></script>
+<script src="graph-editor.js"></script>
+<script src="projection.js"></script>
+<script src="spectrum-preview.js"></script>
+<script src="teaching-cases.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let result;
+let fileStem = "Beispiel";
+let running = false;
+let worker;
+let exampleData;
+let projection;
+let projectionBounds;
+let selectedFitIndex=0;
+let previewVersion=0;
+let previewLoading=false;
+let previewFile=null;
+let fileSpectrum=null;
+const pointSelections=new Map();
+let activeMeasurement=null;
+const custom = () => $("fit-mode").value !== "auto";
+const graph = createGraphEditor($("graph-editor"), $("graph-preview"), () => {
+  $("results").hidden = true;
+  $("status").textContent = "Gezeichnetes Schaltbild geändert. Starte den Fit erneut.";
+});
+const editor = createCircuitEditor($("editor"), $("editor-preview"), () => {
+  $("results").hidden = true;
+  $("status").textContent = "Schaltbild geändert. Starte den Fit erneut.";
+});
+async function browserFit(file, suffix, allowed, limit, example, topology) {
+  if (file && file.size > 2_000_000) throw new Error("Datei zu groß (maximal 2 MB).");
+  const raw = file ? await file.arrayBuffer() : new ArrayBuffer(0);
+  worker ??= new Worker("fit-worker.js");
+  return new Promise((resolve, reject) => {
+    worker.onmessage = ({data}) => {
+      if (data.status) { $("status").textContent = data.status; return; }
+      if (data.error) reject(new Error(data.error));
+      else resolve(data);
+    };
+    worker.onerror = () => {
+      worker.terminate();
+      worker = undefined;
+      reject(new Error("Das Rechenmodul konnte nicht geladen werden. Prüfe die Internetverbindung."));
+    };
+    worker.postMessage({raw, suffix: suffix || "", components: allowed.join(","), limit, example, topology}, [raw]);
+  });
+}
+const components = [...document.querySelectorAll('input[name="component"]')];
+function options() {
+  const allowed = components.filter(c => c.checked).map(c => c.value);
+  const limit = Number($("limit").value);
+  return {allowed, limit};
+}
+function refresh() {
+  const {allowed, limit} = options();
+  $("available").textContent = allowed.length ? `Erlaubt: ${allowed.join(", ")} · bis ${limit} Bauteile in Reihen- und Parallelschaltungen. Typen dürfen sich wiederholen.` :
+    "Wähle mindestens einen Bauteiltyp.";
+  const enough=key=>{const state=pointSelections.get(key);return !state||state.data.f.length-state.excluded.size>=8;};
+  $("demo").disabled = running || !enough("example:"+$("example").value) || (!custom() && !allowed.length);
+  $("run").disabled = running || previewLoading || !previewFile || !enough(previewFile) || (!custom() && !allowed.length);
+  $("example-preview").disabled=running;
+  for(const id of ["preset-category","preset-model","preset-apply","circuit-save","circuit-load"])$(id).disabled=running;
+  $("include-all").disabled=running||!activeMeasurement?.excluded.size;
+  for(const checkbox of $("point-rows").querySelectorAll("input"))checkbox.disabled=running;
+  $("preview-plots").classList.toggle("points-locked",running);
+}
+function clearPreview() {
+  $("measurement-preview").hidden=true;
+  $("preview-plots").replaceChildren();
+  $("preview-summary").textContent="";
+  $("point-rows").replaceChildren();activeMeasurement=null;
+  $("results").hidden=true;
+}
+function showMeasurement(data,name,key) {
+  if(!pointSelections.has(key))pointSelections.set(key,{data,name,excluded:new Set()});
+  activeMeasurement=pointSelections.get(key);
+  renderPointSelection();
+}
+function renderPointSelection() {
+  const {data,name,excluded}=activeMeasurement,plot={...data,excludedIndices:[...excluded]};
+  $("preview-summary").textContent=`${name} · ${data.f.length} Frequenzpunkte · ${formatFrequency(data.f[0])} bis ${formatFrequency(data.f.at(-1))} Hz`;
+  $("preview-plots").innerHTML=bode(plot,null,null,true)+nyquist(data.real,data.imag.map(v=>-v),[],[],"preview-nyquist-plot",excluded);
+  $("point-selection-status").textContent=`${data.f.length-excluded.size} von ${data.f.length} Punkten im Fit · ${excluded.size} ausgeschlossen`+(data.f.length-excluded.size<8?" · Zu wenige Punkte für einen Fit.":"");
+  if($("point-table-details").open)renderPointTable();
+  else $("point-rows").replaceChildren();
+  $("measurement-preview").hidden=false;
+  refresh();
+}
+function renderPointTable() {
+  if(!activeMeasurement)return;
+  const {data,excluded}=activeMeasurement;
+  const scroller=$("point-rows").closest(".point-table-scroll"),scrollTop=scroller.scrollTop;
+  $("point-rows").replaceChildren(...data.f.map((frequency,index)=>{
+    const row=document.createElement("tr"),cell=document.createElement("td"),checkbox=document.createElement("input");
+    checkbox.type="checkbox";checkbox.checked=!excluded.has(index);checkbox.disabled=running;
+    checkbox.dataset.pointIndex=index;checkbox.setAttribute("aria-label",`Messpunkt ${index+1} bei ${formatFrequency(frequency)} Hz im Fit`);
+    cell.append(checkbox);row.append(cell);row.classList.toggle("point-excluded-row",excluded.has(index));
+    for(const text of [index+1,formatFrequency(frequency),formatQuantity(data.real[index],5),formatQuantity(data.imag[index],5)]){const td=document.createElement("td");td.textContent=text;row.append(td);}
+    return row;
+  }));
+  scroller.scrollTop=scrollTop;
+}
+function togglePoint(index,fromTable=false) {
+  if(running||!activeMeasurement||index<0||index>=activeMeasurement.data.f.length)return;
+  const excluded=activeMeasurement.excluded;
+  excluded.has(index)?excluded.delete(index):excluded.add(index);
+  $("results").hidden=true;result=undefined;
+  renderPointSelection();
+  $("status").textContent="Messpunktauswahl geändert. Starte den Fit mit dieser Auswahl erneut.";
+  if(fromTable)$("point-rows").querySelector(`[data-point-index="${index}"]`)?.focus({preventScroll:true});
+}
+$("preview-plots").onclick=event=>{
+  const point=event.target.closest("[data-point-index]");if(point)togglePoint(Number(point.dataset.pointIndex));
+};
+$("point-rows").onchange=event=>{if(event.target.matches("input[data-point-index]"))togglePoint(Number(event.target.dataset.pointIndex),true);};
+$("point-table-details").ontoggle=()=>{if($("point-table-details").open)renderPointTable();};
+$("include-all").onclick=()=>{if(running||!activeMeasurement)return;activeMeasurement.excluded.clear();$("results").hidden=true;result=undefined;renderPointSelection();$("status").textContent="Alle Messpunkte eingeschlossen. Starte den Fit erneut.";};
+$("file").onchange=async()=>{
+  const version=++previewVersion,file=$("file").files[0];
+  clearPreview();previewFile=null;fileSpectrum=null;previewLoading=Boolean(file);refresh();
+  if(!file){$("status").textContent="Bitte eine Messdatei auswählen.";return;}
+  $("status").textContent="Messdatei wird für die Vorschau gelesen …";
+  try {
+    if(file.size>2_000_000)throw new Error("Datei zu groß (maximal 2 MB).");
+    const data=parseSpectrum(await file.arrayBuffer(),file.name.slice(file.name.lastIndexOf(".")).toLowerCase());
+    if(version!==previewVersion)return;
+    previewFile=file;fileSpectrum=data;showMeasurement(data,file.name,file);
+    $("status").textContent="Messkurve geladen. Wähle jetzt ein Modell oder zeichne ein Ersatzschaltbild und starte anschließend den Fit.";
+  } catch(error) {
+    if(version===previewVersion)$("status").textContent="Messdatei konnte nicht gelesen werden: "+error.message;
+  } finally {if(version===previewVersion){previewLoading=false;refresh();}}
+};
+$("example-preview").onclick=async()=>{
+  const version=++previewVersion,key=$("example").value;
+  clearPreview();previewLoading=false;refresh();
+  $("status").textContent="Messbeispiel wird geladen …";
+  try {
+    exampleData??=await fetch("examples.json").then(r=>{if(!r.ok)throw new Error("Messbeispiele konnten nicht geladen werden.");return r.json();});
+    if(version!==previewVersion)return;
+    const item=exampleData[key];showMeasurement(item,item.name,"example:"+key);
+    $("status").textContent="Messbeispiel angezeigt. Das Ersatzschaltbild kannst du jetzt auswählen oder aufbauen.";
+  }catch(error){if(version===previewVersion)$("status").textContent=error.message;}
+};
+$("example").addEventListener("change",()=>$("example-preview").click());
+$("fit-mode").onchange = () => {
+  $("preset-controls").hidden=!custom();
+  $("auto-controls").hidden = custom();
+  $("custom-controls").hidden = $("fit-mode").value !== "custom";
+  $("graph-controls").hidden = $("fit-mode").value !== "graph";
+  $("results").hidden = true;
+  $("status").textContent = "Wähle eine Messdatei oder starte den Beispielfit.";
+  refresh();
+};
+for (const control of [...components, $("limit")]) {
+  control.addEventListener("change", () => {
+    $("results").hidden = true;
+    $("status").textContent = "Auswahl geändert. Starte den Fit erneut.";
+    refresh();
+  });
+}
+refresh();
+for(const category of [...new Set(CIRCUIT_PRESETS.map(p=>p.category))])$("preset-category").add(new Option(category,category));
+$("preset-category").value="Elektrochemie";
+function renderPresetCategories(){
+  $("preset-model").replaceChildren(...CIRCUIT_PRESETS.filter(p=>p.category===$("preset-category").value).map(p=>new Option(p.title,p.id)));
+  renderPreset();
+}
+function renderPreset(){
+  const preset=CIRCUIT_PRESETS.find(p=>p.id===$("preset-model").value);
+  $("preset-preview").replaceChildren(drawCircuit(preset.tree,{}));
+  $("preset-description").textContent=preset.description;
+  $("preset-sources").replaceChildren(document.createTextNode("Quellen und Einordnung: "));
+  for(const [i,key] of preset.sources.entries()){
+    if(i)$("preset-sources").append(document.createTextNode(" · "));
+    const source=CIRCUIT_SOURCES[key],link=document.createElement("a");link.href=source.url;link.textContent=source.title;link.target="_blank";link.rel="noopener noreferrer";$("preset-sources").append(link);
+  }
+}
+function useTopology(tree,message){
+  tree=validateCircuitTopology(tree);
+  if(!custom()){$("fit-mode").value="custom";$("fit-mode").onchange();}
+  ($("fit-mode").value==="graph"?graph:editor).setTopology(tree);
+  $("preset-status").textContent=message+" Messpunkte und ihre Ausschlüsse bleiben unverändert.";
+}
+$("preset-category").onchange=renderPresetCategories;
+$("preset-model").onchange=renderPreset;
+$("preset-apply").onclick=()=>useTopology(CIRCUIT_PRESETS.find(p=>p.id===$("preset-model").value).tree,"Vorlage übernommen. Der Fit verwendet diese feste Topologie.");
+$("circuit-save").onclick=()=>{
+  try{const tree=validateCircuitTopology(($("fit-mode").value==="graph"?graph:editor).topology());download(new Blob([JSON.stringify({format:"werkzeugdeck-eis-circuit",version:1,topology:tree},null,2)],{type:"application/json"}),"eis-schaltbild.json");$("preset-status").textContent="Schaltbilddatei erstellt. Messdaten und Kennwerte sind nicht enthalten.";}
+  catch(error){$("preset-status").textContent=error.message;}
+};
+$("circuit-load").onchange=async()=>{
+  const file=$("circuit-load").files[0];if(!file||running)return;
+  try{if(file.size>32768)throw new Error("Schaltbilddatei zu groß (maximal 32 KB).");const tree=parseCircuitFile(await file.text());if(!running)useTopology(tree,"Schaltbilddatei geladen und geprüft.");}
+  catch(error){$("preset-status").textContent="Schaltbild konnte nicht geladen werden: "+error.message;}
+  finally{$("circuit-load").value="";}
+};
+$("fit-to-editor").onclick=()=>{if(!result||running)return;useTopology(selected().topology,"Ausgewähltes Fitmodell als eigenen Entwurf übernommen. Die Kennwerte werden beim nächsten Fit neu bestimmt.");$("preset-controls").scrollIntoView({block:"start"});};
+renderPresetCategories();
+async function run(example) {
+  const {allowed, limit} = options();
+  if ((!custom() && !allowed.length) || running || previewLoading) return;
+  let topology;
+  try { topology = custom() ? ($("fit-mode").value === "graph" ? graph : editor).topology() : null; }
+  catch(error) { $("status").textContent = error.message; return; }
+  let file = $("file").files[0];
+  if (!example && !file) { $("status").textContent = "Bitte zuerst eine Datei auswählen."; return; }
+  if(!example&&previewFile!==file){$("status").textContent="Bitte zuerst eine gültige Messdatei laden.";return;}
+  ++previewVersion;
+  running = true;
+  $("fit-mode").disabled = true;
+  editor.lock(true);
+  graph.lock(true);
+  for (const control of [...components, $("limit"), $("example"), $("file")]) control.disabled = true;
+  refresh();
+  $("results").hidden = true;
+  $("status").textContent = "Fit läuft …";
+  try {
+    if (example) {
+      exampleData ??= await fetch("examples.json").then(r=>{if(!r.ok)throw new Error("Messbeispiele konnten nicht geladen werden.");return r.json();});
+      const item=exampleData[$("example").value];
+      const csv="frequency_Hz,Zreal_ohm,Zimag_ohm\n"+item.f.map((f,i)=>[f,item.real[i],item.imag[i]].join(",")).join("\n");
+      file=new File([csv],item.name+".csv",{type:"text/csv"});
+      showMeasurement(item,item.name,"example:"+$("example").value);
+    }
+    else showMeasurement(fileSpectrum,file.name,file);
+    const originalFile=file,measurement={...activeMeasurement.data,excludedIndices:[...activeMeasurement.excluded]};
+    const fitPoints=selectSpectrumPoints(measurement,measurement.excludedIndices);
+    if(measurement.excludedIndices.length){
+      const csv="frequency_Hz,Zreal_ohm,Zimag_ohm\n"+fitPoints.f.map((f,i)=>[f,fitPoints.real[i],fitPoints.imag[i]].join(",")).join("\n");
+      file=new File([csv],"fit-selection.csv",{type:"text/csv"});
+    }
+    const suffix = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    if (document.querySelector('meta[name="eis-runtime"][content="browser"]')) {
+      result = await browserFit(file, suffix, allowed, limit, false, topology);
+    } else {
+      const headers = {"X-Components":allowed.join(","), "X-Element-Limit":String(limit)};
+      if (topology) headers["X-Circuit"] = JSON.stringify(topology);
+      headers["X-Spectrum-Type"] = suffix;
+      const response = await fetch("/fit", {method:"POST", headers, body:file});
+      result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+    }
+    if (!result.fits.length) throw new Error("Für diese Messpunkte wurde kein auswertbarer Fit gefunden.");
+    result.measurement=measurement;result.usedIndices=fitPoints.indices;
+    fileStem = originalFile.name.replace(/\.(ism|csv)$/i,"").replace(/[<>:"/\\|?*\u0000-\u001f]/g,"_").trim() || "EIS";
+    selectedFitIndex=0;
+    renderModelComparison();
+    $("project").checked=false;
+    setFrequencyInputs("min",result.f[0]);setFrequencyInputs("max",result.f.at(-1));
+    projectionBounds=null;
+    show();
+    $("results").hidden = false;
+    $("status").textContent = (example ? "Messbeispiel · " : "") + originalFile.name + " · " + result.f.length + " Frequenzpunkte im Fit · "+measurement.excludedIndices.length+" ausgeschlossen";
+  } catch (error) { $("status").textContent = error.message; }
+  finally {
+    running = false;
+    $("fit-mode").disabled = false;
+    editor.lock(false);
+    graph.lock(false);
+    for (const control of [...components, $("limit"), $("example"), $("file")]) control.disabled = false;
+    refresh();
+  }
+}
+function nyquistScale(values) {
+  const min = Math.min(0,...values), max = Math.max(0,...values);
+  const span = max-min;
+  const step = span > 0 ? 10**Math.ceil(Math.log10(span/9)) : 1;
+  const first = Math.floor(min/step), last = Math.max(first+1,Math.ceil(max/step));
+  return {min:first*step, max:last*step, ticks:Array.from({length:last-first+1},(_,i)=>(first+i)*step)};
+}
+function pointMarker(index,x,y,color,hollow,excluded,interactive) {
+  const omitted=excluded.has(index);
+  return `<g class="${interactive?'selectable-point ':''}${omitted?'excluded-point':''}"${interactive?` data-point-index="${index}"`:''}>${interactive?`<rect x="${x-8}" y="${y-8}" width="16" height="16" fill="transparent"/>`:''}${omitted?`<path d="M${x-4} ${y-4}l8 8m-8 0l8 -8" fill="none" stroke="#737b80" stroke-width="2"/>`:`<circle cx="${x}" cy="${y}" r="2.5" fill="${hollow?'white':color}" stroke="${color}"/>`}<title>Messpunkt ${index+1}${omitted?' · ausgeschlossen':' · im Fit'}${interactive?' · anklicken zum Umschalten':''}</title></g>`;
+}
+function nyquist(x, y, fitX, fitY, plotId="nyquist-plot", excluded=new Set()) {
+  const sx = nyquistScale([...x,...fitX]), sy = nyquistScale([...y,...fitY]);
+  const px = v => 87+510*(v-sx.min)/(sx.max-sx.min);
+  const py = v => 220-195*(v-sy.min)/(sy.max-sy.min);
+  const label = n => formatQuantity(n);
+  let grid = "";
+  for (const a of sx.ticks) {
+    grid += `<path d="M${px(a)} 25V220" stroke="${a===0 ? "#849ba8" : "#d7e3ea"}"/><text x="${px(a)}" y="239" text-anchor="middle">${label(a)}</text>`;
+  }
+  for (const b of sy.ticks) {
+    grid += `<path d="M87 ${py(b)}H597" stroke="${b===0 ? "#849ba8" : "#d7e3ea"}"/><text x="80" y="${py(b)+4}" text-anchor="end">${label(b)}</text>`;
+  }
+  return `<figure><h3>Nyquist</h3><svg id="${plotId}" viewBox="0 0 650 282" role="img" aria-label="${plotId.startsWith('preview-')?'Nyquist-Messwerte vor dem Fit':'Nyquist'}" font-size="11">${excluded.size?`<text x="87" y="14" fill="#626b72">Grau ×: ${excluded.size} ausgeschlossen</text>`:''}${grid}${fitX.length?`<polyline fill="none" stroke="#007d79" stroke-width="2.2" points="${fitX.map((v,i)=>px(v)+","+py(fitY[i])).join(" ")}"/>`:''}${x.map((v,i)=>pointMarker(i,px(v),py(y[i]),"#163849",false,excluded,plotId.startsWith('preview-'))).join("")}<text x="340" y="270" text-anchor="middle">Re(Z) / Ω</text><text transform="translate(16 120) rotate(-90)" text-anchor="middle">−Im(Z) / Ω</text></svg></figure>`;
+}
+function bode(measurement, fit, predicted=null, measurementOnly=false) {
+  const width = 700, left = 87, right = 620, top = 25, bottom = 232;
+  const f = measurement.f.map(Math.log10);
+  const excluded=new Set(measurement.excludedIndices||[]);
+  const fitMin=fit?.f?Math.log10(fit.f[0]):f[0],fitMax=fit?.f?Math.log10(fit.f.at(-1)):f.at(-1);
+  const curve=predicted||fit||measurement, curveF=(curve.f||measurement.f).map(Math.log10);
+  const fmin=Math.min(f[0],curveF[0]),fmax=Math.max(f.at(-1),curveF.at(-1));
+  const magnitude = data => data.real.map((v,i) => Math.log10(Math.max(Number.MIN_VALUE,Math.hypot(v,data.imag[i]))));
+  const phase = data => data.real.map((v,i) => Math.abs(Math.atan2(data.imag[i],v)*180/Math.PI));
+  const z = magnitude(measurement), zfit = magnitude(curve);
+  const angle = phase(measurement), angleFit = phase(curve);
+  const zmin = Math.floor(Math.min(...z,...zfit)), zmax = Math.max(zmin+1,Math.ceil(Math.max(...z,...zfit)));
+  const pmax = Math.max(90,30*Math.ceil(Math.max(...angle,...angleFit)/30));
+  const px = value => left + (right-left)*(value-fmin)/(fmax-fmin || 1);
+  const zy = value => bottom - (bottom-top)*(value-zmin)/(zmax-zmin);
+  const py = value => bottom - (bottom-top)*value/pmax;
+  const teal = "#00736f", blue = "#3455a1";
+  const text = (x,y,value,color="#132c3c",anchor="middle") => `<text x="${x}" y="${y}" fill="${color}" text-anchor="${anchor}">${value}</text>`;
+  const tick = powerOfTen;
+  let axes = `<path d="M${left} ${top}V${bottom}H${right}V${top}" fill="none" stroke="#9aafbb"/>`;
+  if(predicted) for(const [a,b] of [[fmin,fitMin],[fitMax,fmax]]) if(b>a) axes+=`<rect x="${px(a)}" y="${top}" width="${px(b)-px(a)}" height="${bottom-top}" fill="#f0e1c7" opacity=".65"/><path d="M${px(a===fmin?b:a)} ${top}V${bottom}" stroke="#ad7436" stroke-dasharray="3 3"/>`;
+  const fstep = Math.max(1,Math.ceil((fmax-fmin)/8));
+  for (let e=Math.ceil(fmin);e<=fmax;e+=fstep) {
+    const x=px(e);
+    axes += `<path d="M${x} ${top}V${bottom}" stroke="#d7e3ea"/>` + text(x,bottom+17,tick(e));
+  }
+  if (Math.ceil(f[0]) > f.at(-1)) {
+    const fmt = value => Number(value.toPrecision(3)).toString();
+    axes += text(left,bottom+17,fmt(measurement.f[0])) + text(right,bottom+17,fmt(measurement.f.at(-1)));
+  }
+  for (let e=zmin;e<=zmax;e+=Math.max(1,Math.ceil((zmax-zmin)/7))) {
+    const y=zy(e);
+    axes += `<path d="M${left} ${y}H${right}" stroke="#d7e3ea"/>` + text(left-8,y+4,tick(e),teal,"end");
+  }
+  for (let p=0;p<=pmax;p+=30) {
+    const y=py(p);
+    axes += `<path d="M${right} ${y}h5" stroke="${blue}"/>` + text(right+9,y+4,p,blue,"start");
+  }
+  function trace(observed, values, y, color, hollow) {
+    let paths="";
+    const segments=[curveF.map((v,i)=>v<=fitMin?i:-1).filter(i=>i>=0),curveF.map((v,i)=>v>=fitMin&&v<=fitMax?i:-1).filter(i=>i>=0),curveF.map((v,i)=>v>=fitMax?i:-1).filter(i=>i>=0)];
+    if(!measurementOnly)segments.forEach((indices,j)=>{if(indices.length<2)return;paths+=`<polyline fill="none" stroke="${color}" stroke-width="2" ${j!==1?'stroke-dasharray="6 4"':''} points="${indices.map(i=>px(curveF[i])+","+y(values[i])).join(" ")}"/>`;});
+    return paths+f.map((v,i)=>pointMarker(i,px(v),y(observed[i]),color,hollow,excluded,measurementOnly)).join("");
+  }
+  return `<figure><h3>Bode</h3><svg id="${measurementOnly?'preview-bode-plot':'bode-plot'}" viewBox="0 0 ${width} 282" role="img" aria-label="${measurementOnly?'Bode-Messwerte vor dem Fit: ':''}Bode-Diagramm mit Impedanzbetrag links und Phasenbetrag rechts" font-size="12">${excluded.size?`<text x="87" y="14" fill="#626b72">Grau ×: ${excluded.size} ausgeschlossen</text>`:''}${axes}${trace(z,zfit,zy,teal,false)}${trace(angle,angleFit,py,blue,true)}
+    ${text((left+right)/2,270,"Frequenz / Hz"+(predicted?" · Sand / gestrichelt: Prognose":""))}<text fill="${teal}" transform="translate(24 129) rotate(-90)" text-anchor="middle">|Z| / Ω</text><text fill="${blue}" transform="translate(679 129) rotate(90)" text-anchor="middle">|Phase| / °</text></svg></figure>`;
+}
+const selected = () => result.fits[selectedFitIndex];
+function renderModelComparison() {
+  $("rows").replaceChildren(...result.fits.map((fit,index)=>{
+    const row=document.createElement("tr");row.dataset.fitIndex=index;
+    const cell=document.createElement("td");
+    const name=document.createElement("strong");name.className="model-number";name.textContent="Modell "+(index+1);
+    const diagram=document.createElement("div");diagram.className="model-diagram";diagram.tabIndex=0;
+    diagram.setAttribute("role","region");diagram.setAttribute("aria-label",`Schaltbild Modell ${index+1}: ${fit.model}`);
+    const svg=drawCircuit(fit.topology,{});
+    svg.setAttribute("aria-label",`Ersatzschaltbild Modell ${index+1}: ${fit.model}`);
+    svg.setAttribute("width",Math.min(320,Math.max(180,svg.viewBox.baseVal.width*.8)));
+    diagram.append(svg);
+    const button=document.createElement("button");button.type="button";button.className="model-select";
+    button.dataset.fitIndex=index;button.setAttribute("aria-controls","fit-detail plots circuit parameters");
+    button.onclick=()=>{selectedFitIndex=index;show();$("fit-detail").focus({preventScroll:true});$("fit-detail").scrollIntoView({block:"start",behavior:"auto"});};
+    cell.append(name,diagram,button);row.append(cell);
+    for(const value of [fit.elements,Object.keys(fit.parameters).length,fit.rms.toFixed(3)+" %",(fit.aicc-result.fits[0].aicc).toFixed(1),fit.limited?"Parameter prüfen":"Numerisch stabil"]){
+      const td=document.createElement("td");td.textContent=value;row.append(td);
+    }
+    return row;
+  }));
+}
+function show() {
+  const fit = selected();
+  for(const row of $("rows").children){
+    const active=Number(row.dataset.fitIndex)===selectedFitIndex;
+    row.classList.toggle("selected-model",active);
+    const button=row.querySelector(".model-select");
+    button.setAttribute("aria-pressed",String(active));
+    button.setAttribute("aria-label",`Modell ${Number(row.dataset.fitIndex)+1}: Fit anzeigen${active?", ausgewählt":""}`);
+    button.textContent=active?"✓ Fit wird angezeigt":"Fit anzeigen";
+  }
+  $("fit-detail").textContent=`Modell ${selectedFitIndex+1} · Ausgewählter Fit`;
+  $("selection-status").textContent=`Modell ${selectedFitIndex+1} von ${result.fits.length} · RMS ${fit.rms.toFixed(3)} % · ${result.f.length} von ${result.measurement.f.length} Messpunkten im Fit. Diagramme und Exporte beziehen sich auf diese Auswahl.`;
+  projection=null;
+  if($("project").checked&&projectionBounds){
+    try {
+      const min=projectionBounds[0],max=projectionBounds[1];
+      const frequencies=[...new Set([...projectionGrid(min,max),...result.f])].sort((a,b)=>a-b);
+      projection=predictCircuit(fit.topology,fit.parameters,frequencies);
+      $("projection-status").textContent=`Messbereich: ${formatFrequency(result.f[0])} bis ${formatFrequency(result.f.at(-1))} Hz · Modellkurve: ${formatFrequency(min)} bis ${formatFrequency(max)} Hz. Kein erneuter Fit.`;
+    }catch(error){$("projection-status").textContent=error.message;}
+  }else $("projection-status").textContent="Prognose ausgeschaltet. Es wird nur der gemessene Frequenzbereich angezeigt.";
+  $("circuit").replaceChildren(drawCircuit(fit.topology, fit.parameters));
+  $("parameters").textContent = Object.entries(fit.parameters).map(([k,v])=>{
+    const [element,name]=k.split(" "),unit={R:"Ω",C:"F",L:element.startsWith("La")?"Ω·sⁿ":"H",Q:"S·sⁿ",Z0:"Ω",tau:"s",A:"Ω·s⁻½",n:""}[name]||"";
+    return k+" = "+formatQuantity(v,4)+(unit?" "+unit:"");
+  }).join("  ·  ");
+  const measurement=result.measurement;
+  const displayF=[...new Set([...projectionGrid(result.f[0],result.f.at(-1)),...result.f])].sort((a,b)=>a-b);
+  let modelCurve;
+  try{modelCurve=predictCircuit(fit.topology,fit.parameters,displayF);$("curve-note").hidden=true;}
+  catch(error){modelCurve={f:result.f,real:fit.real,imag:fit.imag};$("curve-note").textContent="Die fein aufgelöste Modellkurve ist numerisch nicht darstellbar. Die Fitlinie verbindet daher die berechneten Werte an den verwendeten Messfrequenzen. Fitkennzahlen bleiben unverändert.";$("curve-note").hidden=false;}
+  $("plots").innerHTML = bode(measurement,modelCurve,projection) + nyquist(measurement.real,measurement.imag.map(v=>-v),modelCurve.real,modelCurve.imag.map(v=>-v),"nyquist-plot",new Set(measurement.excludedIndices));
+  $("export-projection").disabled=!projection;
+  $("export-status").textContent = "";
+}
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function exportOverview(circuit, bodePlot, nyquistPlot) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns,"svg");
+  const padding = 24, gap = 24;
+  const diagram = circuit.viewBox.baseVal, left = bodePlot.viewBox.baseVal, right = nyquistPlot.viewBox.baseVal;
+  const width = 2*padding+Math.max(diagram.width,left.width+gap+right.width);
+  const plotY = 140+diagram.height;
+  const height = plotY+Math.max(left.height,right.height)+52;
+  svg.setAttribute("viewBox",`0 0 ${width} ${height}`);
+  function text(value,x,y,size,weight="normal") {
+    const label = document.createElementNS(ns,"text");
+    label.setAttribute("x",x);
+    label.setAttribute("y",y);
+    label.setAttribute("font-size",size);
+    label.setAttribute("font-weight",weight);
+    label.setAttribute("fill","#132c3c");
+    label.textContent = value;
+    svg.append(label);
+  }
+  function place(part,x,y) {
+    const copy = part.cloneNode(true);
+    copy.removeAttribute("id");
+    copy.setAttribute("x",x);
+    copy.setAttribute("y",y);
+    copy.setAttribute("width",part.viewBox.baseVal.width);
+    copy.setAttribute("height",part.viewBox.baseVal.height);
+    svg.append(copy);
+  }
+  text("EIS-Fitting · "+fileStem,padding,37,23,"bold");
+  text(selected().model+" · RMS "+selected().rms.toFixed(3)+" %",padding,63,14);
+  text("Ersatzschaltbild",padding,91,17,"bold");
+  place(circuit,(width-diagram.width)/2,95);
+  const plotX = (width-left.width-gap-right.width)/2;
+  text("Bode",plotX,plotY-4,17,"bold");
+  text("Nyquist",plotX+left.width+gap,plotY-4,17,"bold");
+  place(bodePlot,plotX,plotY);
+  place(nyquistPlot,plotX+left.width+gap,plotY);
+  text(`${result.f.length}/${result.measurement.f.length} Punkte im Fit · Grau ×: ausgeschlossen`+(projection?" · Sand / gestrichelt: Prognose":" · Linien: Fit"),padding,height-18,13);
+  return svg;
+}
+async function savePlot(kind, format = "png") {
+  const circuit = $("circuit").querySelector("svg");
+  const svg = kind === "uebersicht" ? exportOverview(circuit,$("bode-plot"),$("nyquist-plot")) :
+    (kind === "schaltbild" ? circuit : $(kind+"-plot")).cloneNode(true);
+  const name = fileStem+"-"+kind+"."+format;
+  const {width,height} = svg.viewBox.baseVal;
+  svg.setAttribute("width",width);
+  svg.setAttribute("height",height);
+  svg.setAttribute("font-family","system-ui, sans-serif");
+  const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  background.setAttribute("width", "100%");
+  background.setAttribute("height", "100%");
+  background.setAttribute("fill", "white");
+  svg.prepend(background);
+  const blob = new Blob([new XMLSerializer().serializeToString(svg)], {type:"image/svg+xml;charset=utf-8"});
+  if (format === "svg") {
+    download(blob, name);
+    $("export-status").textContent = name;
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  try {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width=width*3; canvas.height=height*3;
+    const ctx=canvas.getContext("2d");
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(image,0,0,canvas.width,canvas.height);
+    const png=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+    if (!png) throw new Error("PNG-Export fehlgeschlagen.");
+    download(png,name);
+    $("export-status").textContent = name;
+  } catch {
+    $("export-status").textContent = "Die Grafik konnte nicht gespeichert werden.";
+  } finally { URL.revokeObjectURL(url); }
+}
+$("save-bode").onclick = () => savePlot("bode");
+$("save-bode-svg").onclick = () => savePlot("bode", "svg");
+$("save-nyquist").onclick = () => savePlot("nyquist");
+$("save-nyquist-svg").onclick = () => savePlot("nyquist", "svg");
+$("save-schaltbild").onclick = () => savePlot("schaltbild");
+$("save-schaltbild-svg").onclick = () => savePlot("schaltbild", "svg");
+$("save-uebersicht").onclick = () => savePlot("uebersicht");
+$("save-uebersicht-svg").onclick = () => savePlot("uebersicht", "svg");
+$("run").onclick = () => run(false);
+$("demo").onclick = () => run(true);
+$("back-to-comparison").onclick=()=>{
+  const button=$("rows").querySelector(`.model-select[data-fit-index="${selectedFitIndex}"]`);
+  button?.focus({preventScroll:true});button?.scrollIntoView({block:"center",inline:"nearest",behavior:"auto"});
+};
+function setFrequencyInputs(bound,frequency) {
+  const {factor,exponent}=frequencyParts(frequency);
+  $("f-"+bound+"-factor").value=factor;
+  $("f-"+bound).value=exponent;
+}
+function readFrequencyInputs(bound) {
+  const factor=$("f-"+bound+"-factor").value,exponent=$("f-"+bound).value;
+  if(!factor.trim()||!exponent.trim())throw new Error("Bitte Vorfaktor und Exponent ausfüllen.");
+  return frequencyFromParts(Number(factor),Number(exponent));
+}
+function applyProjection() {
+  if(!result)return;
+  try {
+    let min=readFrequencyInputs("min"),max=readFrequencyInputs("max");
+    projectionGrid(min,max);
+    if(min>result.f[0]*(1+1e-12)||max<result.f.at(-1)*(1-1e-12))throw new Error("Der Prognosebereich muss den gesamten Messbereich einschließen.");
+    min=Math.min(min,result.f[0]);max=Math.max(max,result.f.at(-1));
+    setFrequencyInputs("min",min);setFrequencyInputs("max",max);
+    projectionBounds=[min,max];
+    show();
+  }catch(error){$("projection-status").textContent=error.message;}
+}
+for(const id of ["f-min","f-max","f-min-factor","f-max-factor"])$(id).onchange=()=>{$("project").checked=true;applyProjection();};
+$("project-apply").onclick=()=>{$("project").checked=true;applyProjection();};
+$("project").onchange=()=>{$("project").checked?applyProjection():show();};
+$("extend-low").onclick=()=>extendFrequency("min",.1);
+$("extend-high").onclick=()=>extendFrequency("max",10);
+function extendFrequency(bound,multiplier) {
+  try{setFrequencyInputs(bound,Math.max(1e-12,Math.min(1e12,readFrequencyInputs(bound)*multiplier)));$("project").checked=true;applyProjection();}
+  catch(error){$("projection-status").textContent=error.message;}
+}
+$("project-reset").onclick=()=>{setFrequencyInputs("min",result.f[0]);setFrequencyInputs("max",result.f.at(-1));$("project").checked=false;projectionBounds=null;show();};
+$("export-projection").onclick=()=>{
+  if(!projection)return;
+  const lines=projection.f.map((f,i)=>[f,projection.real[i],projection.imag[i],f<result.f[0]||f>result.f.at(-1)?"extrapolation":"measured_frequency_range"].join(","));
+  download(new Blob(["frequency_Hz,model_real_ohm,model_imag_ohm,region\n"+lines.join("\n")],{type:"text/csv"}),fileStem+"-modellprognose.csv");
+};
+$("example-download").onclick=async()=>{
+  try{exampleData??=await fetch("examples.json").then(r=>{if(!r.ok)throw new Error("Messbeispiele konnten nicht geladen werden.");return r.json();});const e=exampleData[$("example").value];
+    download(new Blob(["frequency_Hz,Zreal_ohm,Zimag_ohm\n"+e.f.map((f,i)=>[f,e.real[i],e.imag[i]].join(",")).join("\n")],{type:"text/csv"}),e.name+".csv");
+  }catch(error){$("status").textContent=error.message;}
+};
+$("export").onclick = () => {
+  const fit = selected();
+  const positions=new Map(result.usedIndices.map((index,i)=>[index,i]));
+  const data=result.measurement;
+  const lines = data.f.map((f,index)=>{const i=positions.get(index);return [f,data.real[index],data.imag[index],i===undefined?"":fit.real[i],i===undefined?"":fit.imag[i],i===undefined?0:1].join(",");});
+  const url = URL.createObjectURL(new Blob(["frequency_Hz,Zreal_ohm,Zimag_ohm,fit_real_ohm,fit_imag_ohm,included_in_fit\n"+lines.join("\n")],{type:"text/csv"}));
+  const a = document.createElement("a"); a.href=url; a.download="eis-fit.csv"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+WDExports.mount({
+  anchor: document.querySelector('[aria-label="Grafikexport"]'),
+  defaultItem: 'uebersicht',
+  items: [['uebersicht','Gesamtübersicht'],['bode','Bode-Diagramm'],['nyquist','Nyquist-Diagramm'],['schaltbild','Ersatzschaltbild']].map(([id,label]) => ({
+    id, label, enabled: () => !$("results").hidden,
+    save: format => savePlot(id, format)
+  })),
+  legacyButtons: [...document.querySelectorAll('[id^="save-"]')]
+});
+mountEISLessons();
+</script>
+<noscript>Bitte aktiviere JavaScript, um Messdaten auszuwerten. Die Theorie bleibt ohne JavaScript lesbar.</noscript>
+</body></html>
