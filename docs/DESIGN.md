@@ -24,7 +24,7 @@ Neue Tools müssen fachlich in `content/theory.mjs` eingeordnet werden. Bestehen
 
 Ein gemeinsames Menü pro Tool bietet Darstellung, Dateityp und Speichern. Gute Standardwerte sind Gesamtübersicht/PNG bei EIS-Fitting, aktuelles Diagramm/PNG bei Potentialkurven, Querschnitt/PNG bei Keks und Tee, Winand-Diagramm/PNG bei Winand und Temperaturverlauf/PNG beim Gefügerechner.
 
-PNG und SVG verwenden denselben sichtbaren Zustand. SVG enthält Vektorelemente und Text. CSV und Projektdateien bleiben eigene Datenexporte. Die Referenzimplementierung liegt in `templates/export-menu.js` und wird wie die Gestaltung in den unabhängigen Tool-Repositories mitgeführt.
+PNG und SVG verwenden denselben sichtbaren Zustand. SVG enthält Vektorelemente und Text. CSV und Projektdateien bleiben eigene Datenexporte. Die Referenzimplementierung liegt in `templates/export-menu.js` und wird wie die Gestaltung in den Tool-Ordnern des gemeinsamen Repositorys mitgeführt.
 
 ## Video
 
@@ -36,6 +36,6 @@ Der Nutzer hält während der Aufnahme den Tab aktiv. Auf langsamen Geräten kö
 
 Jede HTML-Seite besitzt explizite `<head>`-/`</head>`-Tags. Die Datei `tool-theme.css` wird im Kopf als Stylesheet verlinkt und als Asset mitgeliefert. Piktogramme tragen direkt `width="22"`, `height="22"`, `fill="none"` und `stroke="currentColor"`; so werden sie auch bei fehlenden Styles nicht riesig. Der Build validiert diese Einbindung. `node scripts/check-design.cjs` prüft alle verfügbaren Tool-Einstiege in Desktop- und Mobilansicht auf CSS-Ladestatus, Fachfarbe, sichtbare Abmessungen und den Fallback bei blockierter CSS-Datei.
 
-Der GitHub-Workflow führt diese Browserprüfung automatisch nach dem Build aus. Das Website-Artefakt wird erst nach erfolgreicher Prüfung bereitgestellt. Bei einem Fehler werden vorhandene Prüfscreenshots als separates Artefakt gesichert.
+Diese Browserprüfung wird vor jeder Veröffentlichung lokal nach dem Build ausgeführt. GitHub Actions bleibt deaktiviert; keine Workflows oder CI-Artefakte anlegen. Prüfscreenshots bleiben im ignorierten lokalen Archiv. Nur den erfolgreich geprüften statischen Build auf Cloudflare Pages Free hochladen.
 
 `node scripts/check-ui-video.cjs` prüft Theorie-Navigation, alle Exportmenüs, drei tatsächliche Videodateien, wechselnde Videobilder, Abbruch, Wiederherstellung und Browser-Fallback. `node scripts/check-exports.cjs` prüft PNG/SVG über die neuen Menüs. `node scripts/check-timelines.cjs` prüft die mitlaufende Zeitsteuerung. Die Browserprüfungen benötigen Playwright und einen Chromium-Browser. Deren Pfade können über `WERKZEUGDECK_PLAYWRIGHT` und `EIS_BROWSER` angegeben werden.
