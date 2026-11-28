@@ -1,11 +1,10 @@
 Archiv/
 .codex-repos/
 Eintunken/
-Elektrochemie/
-Theoretische Spielereien/
 .build-sources/
 dist/
 *.zip
 node_modules/
-Werkstofftechnik/
-Beschichtungen/
+**/__pycache__/
+**/.venv/
+**/.pytest_cache/

@@ -1,6 +1,6 @@
 import {activityIcon, themes} from './design.mjs';
 import {readFileSync} from 'node:fs';
-const repositoryPolicy = JSON.parse(readFileSync(new URL('../github-organization.json', import.meta.url), 'utf8'));
+const repositoryPolicy = JSON.parse(readFileSync(new URL('../project-repository.json', import.meta.url), 'utf8'));
 export const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 export function validateCatalog(catalog) {
@@ -16,10 +16,9 @@ export function validateCatalog(catalog) {
     if (!catalog.activities[tool.activity]) throw new Error(`Unknown activity: ${tool.id}`);
     if (tool.collections.some(id => !collectionIds.has(id))) throw new Error(`Unknown collection: ${tool.id}`);
     if (tool.status === 'planned') continue;
-    if (!/^[\w-]+\/[\w.-]+$/.test(tool.repository) || !/^[a-f0-9]{40}$/.test(tool.revision)) throw new Error(`Missing pinned source: ${tool.id}`);
-    const owner = tool.repository.split('/')[0];
-    const migrationException = repositoryPolicy.status === 'pending-creation' || repositoryPolicy.status === 'migrating';
-    if (owner.toLowerCase() !== repositoryPolicy.organization.toLowerCase() && !(migrationException && repositoryPolicy.legacyRepositories.includes(tool.repository))) throw new Error(`Create tool repositories in organization ${repositoryPolicy.organization}: ${tool.id}`);
+    if (tool.repository !== repositoryPolicy.repository) throw new Error('Use the shared Werkzeugdeck repository: '+tool.id);
+    if (typeof tool.sourceDirectory !== 'string' || !tool.sourceDirectory || tool.sourceDirectory.split('/').some(part => !part || part==='.' || part==='..' || part.startsWith('.') || /[\\:]/.test(part))) throw new Error('Invalid source directory: '+tool.id);
+    if (catalog.tools.some(other => other!==tool && other.status==='available' && other.sourceDirectory===tool.sourceDirectory)) throw new Error('Duplicate source directory: '+tool.id);
     if (!tool.assets.includes('index.html') || tool.assets.some(asset => !/^[\w.-]+$/.test(asset))) throw new Error(`Invalid assets: ${tool.id}`);
   }
 }
@@ -32,7 +31,7 @@ function card(catalog, tool) {
   return `<article class="tool-card" data-domain="${domain.id}" data-tool="${tool.id}" data-filters="${filters.join(' ')}" data-keywords="${e(tool.tags.join(' '))}">
     <div class="meta"><span>${e(domain.title)}</span><span class="wd-activity">${activityIcon(tool.activity)}${e(catalog.activities[tool.activity])}</span>${planned ? '<span class="planned">Geplant</span>' : ''}</div>
     <h4>${e(tool.title)}</h4><p>${e(tool.description)}</p>
-    ${planned ? '<p class="hint">Noch in Planung</p>' : `<a class="open" href="/tools/${tool.id}/">Werkzeug öffnen →</a><a class="repo" href="https://github.com/${tool.repository}">Quellcode auf GitHub</a>`}
+    ${planned ? '<p class="hint">Noch in Planung</p>' : `<a class="open" href="/tools/${tool.id}/">Werkzeug öffnen →</a><a class="repo" href="https://github.com/${tool.repository}/tree/main/${tool.sourceDirectory.split('/').map(encodeURIComponent).join('/')}">Quellcode auf GitHub</a>`}
   </article>`;
 }
 
@@ -63,8 +62,8 @@ ${domain ? `<section class="theory-entry"><div><p class="eyebrow">Verstehen und 
 <p id="empty" hidden>Keine passenden Werkzeuge gefunden. Wähle „Alle Werkzeuge“ oder einen anderen Suchbegriff.</p>
 ${grouped}<noscript><p>Die gesamte Sammlung ist sichtbar. Die Themenübersichten funktionieren auch ohne JavaScript.</p></noscript></section>
 <section aria-labelledby="fachgebiete"><h2 id="fachgebiete">Fachgebiete entdecken</h2><div class="grid">${domains}</div></section>
-<section class="intro topic"><h2>So nutzt du Werkzeugdeck</h2><p>Beginne mit der kurzen Einführung im Werkzeug, probiere ein Beispiel oder eigene Daten aus und lies anschließend die Hinweise zur Ergebnisinterpretation. Vertiefende Theorie, Verfahren und Fachquellen findest du im aufklappbaren Abschnitt der jeweiligen Anwendung.</p><a href="https://github.com/Werkzeugdeck/website">Projekt und weitere Entwicklung auf GitHub</a></section>`}
-</main><footer><div class="wrap"><p><strong>Privates Projekt in Entwicklung</strong> · <a href="/">Werkzeugdeck</a> · <a href="/downloads/">Downloads</a> · <a href="https://github.com/Werkzeugdeck/website">GitHub</a></p>
+<section class="intro topic"><h2>So nutzt du Werkzeugdeck</h2><p>Beginne mit der kurzen Einführung im Werkzeug, probiere ein Beispiel oder eigene Daten aus und lies anschließend die Hinweise zur Ergebnisinterpretation. Vertiefende Theorie, Verfahren und Fachquellen findest du im aufklappbaren Abschnitt der jeweiligen Anwendung.</p><a href="https://github.com/FalkBornmann/Werkzeugdeck">Projekt und weitere Entwicklung auf GitHub</a></section>`}
+</main><footer><div class="wrap"><p><strong>Privates Projekt in Entwicklung</strong> · <a href="/">Werkzeugdeck</a> · <a href="/downloads/">Downloads</a> · <a href="https://github.com/FalkBornmann/Werkzeugdeck">GitHub</a></p>
 <details><summary>Projekt, Datenverarbeitung und Nutzungshinweise</summary>
 <h3>Zweck und Grenzen</h3><p>Die Werkzeuge dienen dem Lernen und der explorativen Auswertung. Prüfe Ergebnisse unabhängig, bevor du sie für Berichte, Freigaben oder sicherheitsrelevante Entscheidungen verwendest. Geplante Werkzeuge sind als Vorhaben gekennzeichnet.</p>
 <h3>KI und Verarbeitung</h3><p>Bei der Entwicklung von Code und Texten kommt KI-Unterstützung zum Einsatz. Die aktuell verfügbaren Anwendungen berechnen Auswertungen und Simulationen auf deinem Gerät im Browser. Messdaten und Eingaben werden dabei nicht hochgeladen oder dauerhaft im Browserspeicher abgelegt. Exporte werden auf deinem Gerät erzeugt. Details zu Verfahren und Datenverarbeitung stehen im jeweiligen Werkzeug.</p>

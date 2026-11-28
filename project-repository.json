@@ -1,0 +1,6 @@
+{
+  "mode": "monorepo",
+  "repository": "FalkBornmann/Werkzeugdeck",
+  "actionsEnabled": false,
+  "paidServicesAllowed": false
+}

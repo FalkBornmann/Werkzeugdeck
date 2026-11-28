@@ -1,5 +1,5 @@
 # Gefügerechner für Aluminium
-Werkzeugdeck / Werkstofftechnik / Simulation. Öffentliche Quellen: https://github.com/Werkzeugdeck/aluminiumgefuegerechner
+Werkzeugdeck / Werkstofftechnik / Simulation. Öffentliche Quellen: https://github.com/FalkBornmann/Werkzeugdeck/tree/main/Werkstofftechnik/Simulation/Aluminiumgefuegerechner
 Browseranwendung ohne externe Laufzeitbibliotheken. Kinetik ist ein **unkalibriertes Lehrmodell**, keine Fertigungs- oder Festigkeitsprognose.
 
 ## Wiederverwendung aus dem Stahlrechner

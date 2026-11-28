@@ -22,3 +22,8 @@ Die Website verwendet feste `/tools/`-Adressen und leitet die bisherigen Tool-Ad
 Die aktive Organisation ist https://github.com/Werkzeugdeck. Website und Katalog liegen in `Werkzeugdeck/website`; alle acht verfügbaren Tools besitzen kurze Reponamen entsprechend ihrer Tool-ID. Repository-IDs und Commit-Historien wurden beim Transfer erhalten. Die Quelladressen, lokalen Git-Remotes, README-Verweise und Katalog-Pins wurden aktualisiert. `EIS-Fitting-Web` und `Eintunken` bleiben als archivierte GitHub-Pages-Weiterleitungen beim persönlichen Konto. Unabhängige private Projekte bleiben unverändert.
 
 Jedes Tool enthält nun eine eigene `AGENTS.md`. Neue Anwendungen gehören ausschließlich zur Organisation; Katalog und Build prüfen dies über `github-organization.json`. Ablauf: `docs/GITHUB-ORGANISATION.md`. Die Website bleibt unter https://werkzeugdeck.pages.dev/ erreichbar.
+
+
+## Umzug ins gemeinsame Repository am 28. November 2026
+
+Die oben dokumentierten Einzelrepository- und Organisationsregeln sind historische Beschreibungen. Aktuell gilt ausschließlich das gemeinsame Repository FalkBornmann/Werkzeugdeck. Neun Tool-Historien wurden ohne Umschreiben als Merge-Eltern übernommen; ihre Themenordner sind normale Bestandteile des gemeinsamen Checkouts. GitHub Actions ist deaktiviert. Die bisherigen Organisations-Repositories dienen nach erfolgreicher Prüfung als Archiv. Aktuelle Regeln: docs/GITHUB-ORGANISATION.md, docs/TOOLS.md und project-repository.json. Die Website-Adressen bleiben unverändert.

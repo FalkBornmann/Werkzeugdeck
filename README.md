@@ -4,54 +4,42 @@ Interaktive Werkzeuge zum Auswerten, Simulieren und Verstehen wissenschaftlicher
 
 **[Werkzeugdeck öffnen](https://werkzeugdeck.pages.dev/)**
 
-Dieses Repository enthält Katalog, Navigation und Website-Build. Jede Anwendung wird in einem eigenen Repository entwickelt. Der Build führt festgehaltene Tool-Versionen zur gemeinsamen Website zusammen.
+Alle Anwendungen, die Website und die gemeinsamen Grundlagen liegen in diesem öffentlichen Repository. Neue Werkzeuge bekommen einen passenden Themenordner. Es werden keine weiteren Tool-Repositories angelegt. Die bisherige GitHub-Organisation dient nur als Archiv.
 
-Alle öffentlichen Werkzeugdeck-Anwendungen gehören zur [Organisation Werkzeugdeck](https://github.com/Werkzeugdeck). Dieses Repository enthält die Website. Neue Tool-Repositories werden ausschließlich in dieser Organisation angelegt. [Regeln und Ablauf für Agenten](docs/GITHUB-ORGANISATION.md).
+| Fachgebiet | Werkzeug | Quellcode |
+| --- | --- | --- |
+| Elektrochemie | [EIS-Fitting](https://werkzeugdeck.pages.dev/tools/eis-fitting/) | [Ordner](Elektrochemie/Datenauswertung/EIS-Fitting/) |
+| Elektrochemie | [Potentialkurven](https://werkzeugdeck.pages.dev/tools/potentialkurven/) | [Ordner](Elektrochemie/Datenauswertung/Potentialkurven/) |
+| Stofftransport | [Keks und Tee](https://werkzeugdeck.pages.dev/tools/keks-und-tee/) | [Ordner](Theoretische%20Spielereien/KeksUndTee/) |
+| Wärmeübertragung | [Kaffee & Milch](https://werkzeugdeck.pages.dev/tools/kaffee-und-milch/) | [Ordner](Theoretische%20Spielereien/KaffeeUndMilch/) |
+| Elektrochemie | [Winand-Diagramm](https://werkzeugdeck.pages.dev/tools/winand-diagramm/) | [Ordner](Elektrochemie/Simulation/Winand-Diagramm/) |
+| Werkstofftechnik | [Gefügerechner für Stähle](https://werkzeugdeck.pages.dev/tools/gefuegerechner/) | [Ordner](Werkstofftechnik/Simulation/Gefuegerechner/) |
+| Werkstofftechnik | [Legierungsatlas](https://werkzeugdeck.pages.dev/tools/legierungsatlas/) | [Ordner](Werkstofftechnik/Simulation/Legierungsatlas/) |
+| Beschichtungen | [Abluft beim Lackieren](https://werkzeugdeck.pages.dev/tools/abluftrechner/) | [Ordner](Beschichtungen/Abluftrechner/) |
+| Werkstofftechnik | [Gefügerechner für Aluminium](https://werkzeugdeck.pages.dev/tools/aluminiumgefuegerechner/) | [Ordner](Werkstofftechnik/Simulation/Aluminiumgefuegerechner/) |
 
-| Fachgebiet | Aufgabe | Werkzeug | Repository |
-| --- | --- | --- | --- |
-| Elektrochemie | Datenauswertung | EIS-Fitting | [eis-fitting](https://github.com/Werkzeugdeck/eis-fitting) |
-| Elektrochemie | Datenauswertung | Potentialkurven | [potentialkurven](https://github.com/Werkzeugdeck/potentialkurven) |
-| Stofftransport | Simulation | Keks und Tee | [keks-und-tee](https://github.com/Werkzeugdeck/keks-und-tee) |
-| Wärmeübertragung | Simulation | Kaffee & Milch | [kaffee-und-milch](https://github.com/Werkzeugdeck/kaffee-und-milch) |
-| Elektrochemie | Simulation | Winand-Diagramm | [winand-diagramm](https://github.com/Werkzeugdeck/winand-diagramm) |
-| Werkstofftechnik | Simulation | Gefügerechner für Stähle | [gefuegerechner](https://github.com/Werkzeugdeck/gefuegerechner) |
-| Werkstofftechnik | Simulation | Gefügerechner für Aluminium | [aluminiumgefuegerechner](https://github.com/Werkzeugdeck/aluminiumgefuegerechner) |
-| Werkstofftechnik | Simulation | Legierungsatlas | [legierungsatlas](https://github.com/Werkzeugdeck/legierungsatlas) |
-| Beschichtungen | Simulation | Abluft beim Lackieren | [abluftrechner](https://github.com/Werkzeugdeck/abluftrechner) |
+## Aufbau und Mitarbeit
 
-„Theoretische Spielereien“ ist eine zusätzliche Sammlung und der vorausgewählte Einstieg. Fachgebiete, Aufgaben, Sammlungen und Suchbegriffe werden unabhängig gepflegt. Eine Anwendung kann mehreren Fachgebieten zugeordnet sein und behält ihre Adresse unter /tools/<id>/.
+Die Themenordner enthalten eigenständige Anwendungen mit README, Tests und AGENTS.md. Der gemeinsame Katalog steht in tools.json, die Fachtheorie in content/theory.mjs. Gestaltung und wiederverwendbare Oberflächen stehen unter assets/ und templates/, Build und Prüfungen unter scripts/. Downloadangebote werden ausschließlich in content/downloads.json freigegeben.
 
-## Aufbau
+- [Neue Tools und Veröffentlichung](docs/TOOLS.md)
+- [Kostenregel, Repository und Organisationsarchiv](docs/GITHUB-ORGANISATION.md)
+- [Gestaltung und Exporte](docs/DESIGN.md)
+- [Historien und Umzug](docs/MIGRATION.md)
 
-- tools.json enthält Fachgebiete, Tätigkeiten, Sammlungen und Tool-Einträge.
-- scripts/site.mjs erzeugt Katalog und Fachgebietsseiten.
-- assets/ enthält Gestaltung und Suche/Filter.
-- scripts/build.mjs erstellt dist/ einschließlich Anwendungen und Weiterleitungen.
-- docs/TOOLS.md beschreibt das Einordnen und Veröffentlichen weiterer Tools.
-- docs/MIGRATION.md dokumentiert die Bereinigung der bisherigen Struktur.
-- content/theory.mjs enthält die fachlichen Lernwege. Neue verfügbare Tools benötigen dort eine passende Einordnung; der Build prüft dies.
-- docs/DESIGN.md definiert Fachfarben, Aufgabenpiktogramme, kompakte Exportmenüs und lokale Simulationsvideos.
+## Lokal prüfen und bauen
 
-## Lokal bauen
-
-Node.js ab Version 20 und Git werden benötigt. Es gibt keine npm-Laufzeitabhängigkeiten.
+Node.js ab Version 20 genügt für den Website-Build. Ein normaler Checkout enthält alle benötigten Tool-Dateien; keine Submodule oder zusätzlichen Klone sind nötig.
 
 ~~~sh
 npm test
 npm run build
 ~~~
 
-Der Build verwendet die in tools.json angegebenen Git-Commits. Liegt die lokale Arbeitskopie unter sourceDirectory, liest er Dateien aus diesem Commit. Andernfalls klont er das öffentliche Repository nach .build-sources/. Uncommittete Änderungen werden nicht veröffentlicht.
+Die einzelnen Tools besitzen eigene Modelltests. Die Browserprüfung läuft lokal mit einem eigenständigen Chromium über node scripts/check-design.cjs. Microsoft Edge ist ausgeschlossen. Der Build liest die Dateien aus dem aktuellen Arbeitsverzeichnis; vor einer Veröffentlichung alle vorgesehenen Änderungen prüfen und gemeinsam committen. dist/ ist der vollständige statische Veröffentlichungsordner.
 
-dist/ über einen lokalen HTTP-Server ansehen. Für Cloudflare Pages den vollständigen Inhalt von dist/ veröffentlichen. Bei Git-Integration lautet der Build-Befehl npm run build, das Ausgabeverzeichnis dist. Der GitHub-Workflow prüft und baut die Website und stellt ein Veröffentlichungsartefakt bereit.
+## Kostenloser Betrieb
 
-## Grafikexport prüfen
+GitHub dient ausschließlich als Quellcodeablage. GitHub Actions ist deaktiviert; Workflows, Codespaces, Packages und Git LFS werden nicht eingesetzt. Tests und Builds laufen lokal. Der geprüfte statische Build wird direkt auf das bestehende Cloudflare-Pages-Free-Projekt hochgeladen. Keine kostenpflichtigen Tarife, KI-/API-Dienste, Zahlungsmethoden oder automatischen Upgrades aktivieren. Bei Grenzen stoppen oder die kostenlose Umsetzung anpassen.
 
-Alle verfügbaren Tools bieten echte SVG-Vektorgrafiken zusätzlich zu PNG. Die SVG-Zeichenkontext-Referenz liegt unter `templates/svg-context.js`. Die Exportvorgaben für weitere Tools stehen in `AGENTS.md` und `docs/TOOLS.md`.
-
-`node scripts/check-exports.cjs` prüft beide Downloadformate in einem isolierten Browser. Dafür werden Playwright, ein Chromium-Browser und die lokale Python-Umgebung des EIS-Tools benötigt. Optional geben `WERKZEUGDECK_PLAYWRIGHT`, `EIS_BROWSER` und `EIS_PYTHON` deren Pfade an. Die Prüfung nutzt synthetische Potentialkurven und die enthaltenen EIS-Beispiele. Prüfdateien liegen anschließend im ignorierten Ordner `Archiv/Export-Pruefung/`.
-
-## Projekt
-
-Privates Projekt in Entwicklung. Grundlagen, Theorie, Fachquellen, Datenverarbeitung und Grenzen stehen in den einzelnen Anwendungen. Für Beiträge gelten die Vorgaben in AGENTS.md.
+Privates Projekt in Entwicklung. Grundlagen, Fachquellen, Modellgrenzen und Verarbeitungshinweise stehen in den Anwendungen. Für Beiträge gilt AGENTS.md.

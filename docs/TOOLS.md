@@ -1,8 +1,6 @@
 # Weitere Tools einordnen
 
-Ein Tool besitzt ein eigenes Repository und eine dauerhafte ID. Die öffentliche Adresse lautet `/tools/<id>/`. Fachliche Umordnungen verändern diese Adresse nicht.
-
-Neue Repositories werden ausschließlich in der in `github-organization.json` festgelegten Organisation erstellt. Einrichtungsstand und Ablauf: [GitHub Organisation](GITHUB-ORGANISATION.md). Bei noch nicht angelegter Organisation oder fehlendem Zugriff kein persönliches Ersatz-Repository erstellen. Jedes Tool erhält eine eigene `AGENTS.md` auf Basis von `templates/tool-AGENTS.md`.
+Alle Werkzeuge werden als Themenordner im gemeinsamen Repository FalkBornmann/Werkzeugdeck entwickelt. Die öffentliche Adresse /tools/<id>/ bleibt bei fachlicher Umordnung gleich. Keine neuen Tool-Repositories, Submodule oder verschachtelten .git-Verzeichnisse anlegen. Projektregeln und Kostenlosigkeit: [Repository und Kostenregel](GITHUB-ORGANISATION.md).
 
 ## Kategorien
 
@@ -12,7 +10,7 @@ Neue Repositories werden ausschließlich in der in `github-organization.json` fe
 - `tags` enthält Suchbegriffe.
 - `status` ist `planned` oder `available`.
 
-Die lokale Ordnung kann weiter verwendet werden. `sourceDirectory` gibt den lokalen Toolordner an. Bei einem frischen Checkout bezieht der Build die Quellen aus den öffentlichen Tool-Repositories.
+Die lokale Ordnung kann weiter verwendet werden. `sourceDirectory` gibt den lokalen Toolordner an. Ein frischer Checkout enthält alle Quellen; der Build kopiert die freigegebenen Dateien direkt aus diesem Ordner.
 
 ## Vorhaben
 
@@ -20,8 +18,8 @@ Zuerst ID, Titel, Beschreibung, Fachgebiete, Tätigkeit, Sammlungen und Schlagw�
 
 ## Verfügbares Tool
 
-1. Ein eigenes Repository mit README und Tool-Dateien anlegen.
-2. `repository` als `Eigentümer/Name` und `revision` als vollständige Commit-ID ergänzen.
+1. Einen Themenordner mit README, Tool-Dateien und eigener AGENTS.md aus templates/tool-AGENTS.md anlegen.
+2. `repository` auf `FalkBornmann/Werkzeugdeck` setzen und `sourceDirectory` als eindeutigen relativen Themenpfad eintragen. Keine getrennten Revisionspins verwenden.
 3. In `assets` ausschließlich benötigte Browserdateien angeben. Keine privaten Messdateien, virtuellen Umgebungen oder Zugangsdaten veröffentlichen.
 4. Kategorien und Schlagwörter zuordnen. Neue Fachgebiete und Tätigkeiten zuerst in der entsprechenden Liste ergänzen.
 5. Sichtbare Grundlagen, erste Schritte, Ergebnisinterpretation und aufklappbare Theorie mit Verfahren, Annahmen, Grenzen und eingeordneten Fachquellen anbieten.
@@ -47,12 +45,12 @@ PNG, SVG und gegebenenfalls Video werden im gemeinsamen Exportmenü ausgewählt.
 
 Jede erzeugte Grafik erhält PNG- und SVG-Export. SVG enthält Pfade, Flächen und Text statt eingebetteter Rasterbilder. Achsen, Einheiten, Fitlinien, Markierungen und ausgewählte Zeitpunkte müssen dem sichtbaren Zustand entsprechen. Bei Simulationen den aktuellen Zustand für den Export einfrieren.
 
-Vorhandene SVG-Darstellungen direkt serialisieren. Canvas-Zeichenroutinen können einen optionalen Kontext erhalten und für den SVG-Export erneut ausgeführt werden. `templates/svg-context.js` ist die Referenz für die derzeit verwendeten Canvas-Operationen und wird in den unabhängigen Tool-Repositories mitgeführt. Bei neuen Zeichenoperationen den Exportkontext erweitern und prüfen.
+Vorhandene SVG-Darstellungen direkt serialisieren. Canvas-Zeichenroutinen können einen optionalen Kontext erhalten und für den SVG-Export erneut ausgeführt werden. `templates/svg-context.js` ist die Referenz für die derzeit verwendeten Canvas-Operationen und wird in den Tool-Ordnern mitgeführt. Bei neuen Zeichenoperationen den Exportkontext erweitern und prüfen.
 
 SVG-Dateien auf gültiges XML, eigenständige Darstellung, Beschriftungen und fehlende Rastereinbettungen testen. PNG weiterhin prüfen. Neue Exportdateien in die Asset-Liste und gegebenenfalls den eigenständigen Tool-Build aufnehmen.
 
 ## Neue Version veröffentlichen
 
-Änderungen im Tool-Repository committen und pushen. Danach `revision` im Katalog aktualisieren und die gemeinsame Website bauen. So bleibt nachvollziehbar, welche Tool-Version veröffentlicht wird.
+Änderungen im Tool-Ordner, Katalog und Fachtheorie gemeinsam prüfen und committen. Lokal Modelltests, npm test, npm run build und die passenden Chromium-Browserprüfungen ausführen. Den geprüften vollständigen dist/-Ordner direkt im bestehenden Cloudflare-Pages-Free-Projekt veröffentlichen und anschließend den Live-Stand prüfen. GitHub Actions bleibt deaktiviert; keine Workflows hinzufügen.
 
 Vorhandene Adressen in `aliases` eintragen. Daraus erzeugt der Build Cloudflare-Weiterleitungen zur festen Tool-Adresse.

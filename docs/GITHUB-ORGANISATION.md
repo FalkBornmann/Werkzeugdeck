@@ -1,44 +1,25 @@
-# GitHub Organisation für Werkzeugdeck
+# Gemeinsames Repository und Organisationsarchiv
 
-Neue Werkzeugdeck-Anwendungen werden in einer gemeinsamen GitHub-Organisation entwickelt. Das persönliche Konto verwaltet die Organisation, ist aber nicht mehr der Ziel-Eigentümer neuer Tool-Repositories. Verbindliche Konfiguration: `github-organization.json`.
+## Aktiver Aufbau seit 28. November 2026
 
-## Einrichtungsstand am 21. November 2026
+Verbindliches Entwicklungsziel: [FalkBornmann/Werkzeugdeck](https://github.com/FalkBornmann/Werkzeugdeck). Die Konfiguration steht in project-repository.json. Alle Werkzeuge liegen als normale Themenordner in diesem Repository. Neue Tools bekommen keinen eigenen Git-Eigentümer, kein separates Repository, kein Submodul und keine eigene .git-Verwaltung. Die bisherige Organisationsvorgabe ist durch den ausdrücklichen Nutzerauftrag vom 28. November 2026 ersetzt.
 
-Organisation: [`Werkzeugdeck`](https://github.com/Werkzeugdeck). Tarif: GitHub Free. Status: aktiv. Die acht öffentlichen Tool-Repositories und das Website-Repository wurden am 21. November 2026 übertragen; ihre Repository-IDs und Historien blieben erhalten. Der GitHub-Connector kann die neue Organisation mit Administratorrechten erreichen.
+AGENTS.md und templates/tool-AGENTS.md enthalten die Regeln; jedes neue Tool übernimmt sie in seine eigene AGENTS.md. Katalog und Build prüfen das gemeinsame Repository und sichere, eindeutige Quellordner. Die Veröffentlichung verwendet keine entfernten Tool-Klone oder getrennten Revisionspins mehr.
 
-Das Website-Repository heißt `website`. Tool-Repositories verwenden kurze, dauerhafte Namen wie `eis-fitting`, `potentialkurven`, `keks-und-tee`, `kaffee-und-milch`, `winand-diagramm`, `gefuegerechner`, `legierungsatlas` und `abluftrechner`. Tool-IDs und öffentliche `/tools/<id>/`-Adressen bleiben erhalten.
+## Was mit der Organisation passiert
 
-## Neue Tools durch Agenten
+Die Organisation [Werkzeugdeck](https://github.com/Werkzeugdeck) bleibt im kostenlosen Tarif als historisches Archiv erhalten. Die bisherigen Tool-Repositories werden nach dem geprüften Umzug mit einem Weiterleitungshinweis versehen und archiviert; ihre Originalhistorien und alten Links bleiben erreichbar. Das bisherige Website-Repository wird unter Erhalt seiner Repository-ID und Historie in das persönliche Konto zurückübertragen und Werkzeugdeck genannt. Die Organisationsprofilseite verweist auf den neuen Entwicklungsort.
 
-1. Konfiguration und Organisationszugriff prüfen. Bei fehlendem Zugriff lokal weiterarbeiten und die Einschränkung melden. Kein persönliches Ersatz-Repository erstellen.
-2. Vor einem neuen Repository prüfen, ob die Anwendung bereits in der Organisation existiert. Ein geplantes Tool ohne Quellcode benötigt noch kein Repository.
-3. Eigenes öffentliches Repository unter dem konfigurierten Organisationsnamen anlegen. Die bisherige Erlaubnis für öffentliche Werkzeugdeck-Tools gilt weiter; private Arbeitsdaten und unabhängige persönliche Projekte gehören nicht hinein.
-4. Eigene `AGENTS.md` aus `templates/tool-AGENTS.md` übernehmen und den bestätigten Organisationsnamen eintragen. Fachtheorie, Gestaltung, Exporte und Hinweise nach den Werkzeugdeck-Projektregeln ergänzen.
-5. Tool in `tools.json` mit `Organisation/Repository` und einer geprüften vollständigen Commit-ID aufnehmen. Der Katalog prüft den Eigentümer verfügbarer Tools. Nach dem abgeschlossenen Umzug gibt es keine persönlichen Ausnahmen.
-6. Organisationsübersicht und Fachgebietszuordnung ergänzen; Tests, Build und Browserprüfung durchführen. Downloads werden weiterhin ausschließlich gezielt freigegeben.
-
-## Bestehende Repositories übertragen
-
-- Lokale Git-Bundles aller acht Tools und des Website-Repositories wurden unter `Archiv/GitHub-Organisation-2026-11-21/` erstellt und mit `git bundle verify` geprüft. Das Manifest dokumentiert Quelladressen und Commitstände; eine Kopie des Katalogs und ein Patch lokaler Änderungen liegen daneben. Neue Commits seit der Sicherung vor dem Transfer berücksichtigen.
-- Zuerst ein kleines Tool übertragen, Git-Commit und Zugriff prüfen und die entsprechende Ausnahme aus `legacyRepositories` entfernen. Erst danach weitere Tools umziehen. Git-Remotes, README-/Quellcodeverweise und Katalog aktualisieren.
-- Das Website-Repository zuletzt übertragen. Alle festgeschriebenen Tool-Revisionsstände müssen nach dem Umzug abrufbar sein. GitHub-Anbindungen, Actions und Veröffentlichungszugriff auf die neue Organisation prüfen.
-- Bestehendes Cloudflare-Pages-Projekt und Website-Adressen erhalten. Erst den vollständigen geprüften Build veröffentlichen. Keine alte GitHub-Adresse wieder mit einem neuen Repository belegen, solange deren Weiterleitung gebraucht wird.
-- Archivierte Weiterleitungs-Repositories `EIS-Fitting-Web` und `Eintunken` bleiben vorerst beim persönlichen Konto, damit ihre GitHub-Pages-Adressen erhalten bleiben. Unabhängige private Projekte werden nicht übertragen.
-- Der aktive Stand verwendet `status: active` und eine leere Liste `legacyRepositories`. Das Organisationsprofil liegt in `Werkzeugdeck/.github` unter `profile/README.md`. Bei neuen Tools dessen Übersicht aktualisieren.
+Die Organisation wird nicht gelöscht. Ein Löschen würde historische Verweise und Weiterleitungen gefährden und benötigt einen ausdrücklichen separaten Auftrag. Für neue Entwicklung wird die Organisation nicht mehr verwendet. GitHub Actions wurde in allen bisherigen Repositories deaktiviert und bleibt auch im persönlichen Ziel-Repository deaktiviert.
 
 ## Verbindliche Kostenregel: 0 USD Zusatzkosten
 
-Werkzeugdeck bleibt bei kostenlosen Diensten. Agenten dürfen keine Zahlungsmethode hinterlegen, kostenpflichtige Tarife oder Abonnements aktivieren, Ausgabenbudgets erhöhen oder kostenpflichtige Testangebote mit automatischer Verlängerung beginnen. Das gilt auch für Runner, Codespaces, zusätzlichen Speicher, Copilot-/KI-Lizenzen und Credits, Models, Spark, Sandbox, Marketplace-Apps und externe APIs. Bei ausgeschöpften Freigrenzen stoppen oder lokal weiterarbeiten. Bestehende Ausgabensperren niemals für eine Veröffentlichung umgehen. Diese Regel steht zusätzlich in der zentralen und jeder Tool-AGENTS.md sowie der Vorlage für neue Tools.
+GitHub Free beibehalten. GitHub ist ausschließlich Quellcodeablage. Keine Actions-Workflows, Codespaces, Packages oder Git LFS verwenden. Tests, Browserprüfungen und Builds lokal ausführen; nur den geprüften statischen Build auf das bestehende Cloudflare Pages Free hochladen. Keine neuen kostenpflichtigen Dienste, Abonnements, Testangebote mit anschließender Zahlung, Zahlungsmethoden, Budgeterhöhungen, Speicherzukäufe oder KI-/API-Kontingente aktivieren. Bestehende 0-Dollar-Budgets und Nutzungssperren erhalten. Bei ausgeschöpften Freigrenzen stoppen oder die kostenlose Umsetzung anpassen.
 
-Am 22. November 2026 in den Organisationseinstellungen geprüft:
+Die GitHub-Budgets gelten nur für die jeweiligen Produkte und sind keine universelle Sperre für Abonnements oder externe Anbieter. Die letzte Abrechnungsprüfung am 22. November 2026 ergab 0,15 USD Bruttonutzung, vollständig rabattiert, 0 USD abrechenbar und eine fehlende Zahlungsmethode. Historische Bruttonutzung wird durch den Umzug nicht entfernt; deaktivierte Actions erzeugen keine neuen Workflow-Läufe.
 
-- GitHub Free ist aktiv; die Lizenzseite bietet Copilot Business zur Anmeldung an, ohne ein bestehendes entsprechendes Abonnement anzuzeigen.
-- Actions, Packages, Codespaces und Git LFS haben jeweils ein organisationsweites Budget von 0 USD und den Status **Usage blocked**. Warnungen für enthaltene Nutzung sind eingeschaltet. Diese Sperren waren bereits eingerichtet.
-- GitHub meldet eine fehlende Zahlungsmethode. Neue oder geänderte Budgets verlangen dort zuerst eine Zahlungsmethode; hierfür wird keine hinterlegt.
-- Die angezeigten 0,08 USD Bruttonutzung sind durch 0,08 USD Rabatt gedeckt; der abrechenbare Betrag ist 0 USD. Bruttonutzung allein ist keine Rechnung.
+Kostenlose Dienste haben technische Grenzen und ihre Anbieter können Bedingungen ändern. Deshalb vor neuen Funktionen und Veröffentlichungen deren kostenlose Nutzbarkeit prüfen; keine automatische kostenpflichtige Ausweichlösung.
 
-Kostenlose Standard-Runner für öffentliche Repositories bleiben zulässig. Größere Runner sind auch bei öffentlichen Repositories kostenpflichtig und werden nicht eingesetzt. Der Website-Workflow lädt keine vollständigen Builds mehr als CI-Artefakt hoch; Fehler-Screenshots werden höchstens einen Tag aufbewahrt. Die Veröffentlichung verwendet weiterhin den lokal geprüften Build. Bestehende Artefakte werden nicht rückwirkend gelöscht.
+## Nachvollziehbarkeit
 
-Budgets gelten für ihre jeweiligen Produkte und ersetzen keine Kontrolle von Abonnements. Diese Prüfung ist eine Momentaufnahme; Administratoren könnten Einstellungen später ändern. Vor neuen Diensten sowie Änderungen an Tarifen, Sichtbarkeit oder Workflows die kostenlose Nutzbarkeit erneut prüfen. Keine automatischen Upgrades oder Nachkäufe.
-
-Offizielle Erläuterungen: [GitHub-Budgets und Nutzungssperren](https://docs.github.com/en/billing/concepts/budgets-and-alerts), [Abrechnung von GitHub Actions](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+Die ursprünglichen Tool-Historien sind als Merge-Eltern im gemeinsamen Repository erhalten. docs/monorepo-imports.json dokumentiert die zuvor veröffentlichten Tool-Revisionsstände. Zusätzliche geprüfte Git-Bundles liegen lokal im ignorierten Archiv/Monorepo-2026-11-28/. Unabhängige private Projekte bleiben unberührt. Die öffentlichen Werkzeugdeck-Adressen unter https://werkzeugdeck.pages.dev/tools/ bleiben gleich.

@@ -71,7 +71,7 @@ export const theory = {
       {id:'mit',title:'MIT OpenCourseWare · Diffusion',url:'https://ocw.mit.edu/courses/3-091sc-introduction-to-solid-state-chemistry-fall-2010/pages/reactions-and-kinetics/24-diffusion/',role:'Universitärer Einstieg in Fluss, Diffusionskoeffizient und Fick’sche Gesetze.'},
       {id:'comsol',title:'COMSOL · Diffusion Equation',url:'https://www.comsol.com/multiphysics/diffusion-equation',role:'Technische Darstellung der Diffusionsgleichung und ihrer Modellannahmen.'},
       {id:'timescale',title:'COMSOL · Diffusion Length and Timescales',url:'https://www.comsol.com/multiphysics/diffusion-length-and-time-scales',role:'Vertiefung zum Zusammenhang von Diffusionslänge, Diffusionskoeffizient und Zeit.'},
-      {id:'model',title:'Keks und Tee · Modell und Implementierung',url:'https://github.com/Werkzeugdeck/keks-und-tee',role:'Offene Implementierung und Tests der illustrativen Sättigungs- und Bruchrechnung. Keine unabhängige experimentelle Validierung.'},
+      {id:'model',title:'Keks und Tee · Modell und Implementierung',url:'https://github.com/FalkBornmann/Werkzeugdeck/tree/main/Theoretische%20Spielereien/KeksUndTee',role:'Offene Implementierung und Tests der illustrativen Sättigungs- und Bruchrechnung. Keine unabhängige experimentelle Validierung.'},
       {id:'fisher',title:'Len Fisher · The art and science of dunking',url:'https://www.lenfisherscience.com/92-the-art-and-science-of-dunking/',role:'Anschaulicher Bezug zwischen porösem Gebäck und kapillarer Flüssigkeitsaufnahme. Keine Parameterquelle für alle Speisen.'}
     ],
     chapters:[

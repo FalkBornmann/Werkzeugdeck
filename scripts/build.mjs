@@ -1,7 +1,7 @@
 import {readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, rmSync} from 'node:fs';
 import {resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {execFileSync} from 'node:child_process';
+import {copyToolAssets} from './tool-sources.mjs';
 import {validateCatalog, renderPage} from './site.mjs';
 import {theory} from '../content/theory.mjs';
 import {validateTheory, renderTheoryPage} from './theory.mjs';
@@ -34,29 +34,13 @@ const downloads = prepareDownloads(JSON.parse(readFileSync(join(root,'content','
 writeFileSync(join(downloadDirectory,'index.html'),renderDownloads(catalog,downloads));
 const redirects = [];
 for (const tool of catalog.tools.filter(tool => tool.status === 'available')) {
-  let source = resolve(root, tool.sourceDirectory);
-  if (!existsSync(join(source, '.git'))) {
-    source = join(root, '.build-sources', tool.id);
-    if (!existsSync(join(source, '.git'))) {
-      mkdirSync(join(root, '.build-sources'), {recursive: true});
-      execFileSync('git', ['clone', '--no-checkout', `https://github.com/${tool.repository}.git`, source], {stdio: 'inherit'});
-    }
-  }
-  try {
-    execFileSync('git', ['-C', source, 'cat-file', '-e', `${tool.revision}^{commit}`]);
-  } catch {
-    execFileSync('git', ['-C', source, 'fetch', 'origin', tool.revision], {stdio: 'inherit'});
-  }
   const destination = join(output, 'tools', tool.id);
-  mkdirSync(destination, {recursive: true});
-  for (const asset of tool.assets) {
-    let content = execFileSync('git', ['-C', source, 'show', `${tool.revision}:${asset}`], {maxBuffer: 32 * 1024 * 1024});
-    if (asset === 'index.html' && tool.browserRuntime) {
-      let html = content.toString('utf8');
-      if (!/<meta\b[^>]*name=["']eis-runtime["']/i.test(html)) html = html.replace('<title>', '<meta name="eis-runtime" content="browser">\n<title>');
-      content = Buffer.from(html);
-    }
-    writeFileSync(join(destination, asset), content);
+  copyToolAssets(root, tool, destination);
+  if (tool.browserRuntime) {
+    const entry = join(destination, 'index.html');
+    let html = readFileSync(entry, 'utf8');
+    if (!/<meta\b[^>]*name=["']eis-runtime["']/i.test(html)) html=html.replace('<title>', '<meta name="eis-runtime" content="browser">\n<title>');
+    writeFileSync(entry, html);
   }
   for (const asset of tool.assets.filter(asset => asset.endsWith('.js'))) {
     const script = readFileSync(join(destination, asset), 'utf8');

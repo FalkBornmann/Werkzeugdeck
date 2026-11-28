@@ -4,16 +4,20 @@ import {readFileSync} from 'node:fs';
 import {validateCatalog, renderPage} from '../scripts/site.mjs';
 
 const catalog = JSON.parse(readFileSync(new URL('../tools.json', import.meta.url), 'utf8').replace(/^\uFEFF/, ''));
-test('catalog references are consistent and sources pinned', () => validateCatalog(catalog));
+test('catalog references and monorepo sources are consistent', () => validateCatalog(catalog));
 
-test('new available tools must belong to the configured organization', () => {
-  const modified = structuredClone(catalog);
-  modified.tools.push({...catalog.tools[0],id:'neues-tool',repository:'FalkBornmann/neues-tool'});
-  assert.throws(()=>validateCatalog(modified), /Create tool repositories in organization/);
-  const policy = JSON.parse(readFileSync(new URL('../github-organization.json', import.meta.url),'utf8'));
-  modified.tools.at(-1).repository=policy.organization+'/neues-tool';
-  assert.doesNotThrow(()=>validateCatalog(modified));
+test('available tools must use the shared repository and safe unique directories', () => {
+  const modified=structuredClone(catalog);
+  modified.tools[0].repository='Werkzeugdeck/another-tool';
+  assert.throws(()=>validateCatalog(modified), /shared Werkzeugdeck repository/);
+  modified.tools[0]={...catalog.tools[0],sourceDirectory:'../private'};
+  assert.throws(()=>validateCatalog(modified), /Invalid source directory/);
+  modified.tools[0]={...catalog.tools[0],sourceDirectory:'C:\\private'};
+  assert.throws(()=>validateCatalog(modified), /Invalid source directory/);
+  modified.tools[0]={...catalog.tools[0],sourceDirectory:catalog.tools[1].sourceDirectory};
+  assert.throws(()=>validateCatalog(modified), /Duplicate source directory/);
 });
+
 test('planned tools never receive launch links', () => {
   const modified = structuredClone(catalog);
   modified.tools.push({id:'test-vorhaben',title:'Testvorhaben',description:'Test',status:'planned',domains:['beschichtungen'],activity:'bildanalyse',collections:[],tags:[]});

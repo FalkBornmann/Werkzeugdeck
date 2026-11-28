@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-28",
+  "tools": [
+    {
+      "id": "eis-fitting",
+      "directory": "Elektrochemie/Datenauswertung/EIS-Fitting",
+      "repository": "Werkzeugdeck/eis-fitting",
+      "revision": "c87837298fd2c6da34c6d62508b563d7dec90d21"
+    },
+    {
+      "id": "potentialkurven",
+      "directory": "Elektrochemie/Datenauswertung/Potentialkurven",
+      "repository": "Werkzeugdeck/potentialkurven",
+      "revision": "713f36326360d862dda981acee3df7532473addc"
+    },
+    {
+      "id": "keks-und-tee",
+      "directory": "Theoretische Spielereien/KeksUndTee",
+      "repository": "Werkzeugdeck/keks-und-tee",
+      "revision": "877bed9ee3fbb1eb8c61fd24e2964557e2111098"
+    },
+    {
+      "id": "kaffee-und-milch",
+      "directory": "Theoretische Spielereien/KaffeeUndMilch",
+      "repository": "Werkzeugdeck/kaffee-und-milch",
+      "revision": "2d623404113f82332ea72833fdac2903bd4eb884"
+    },
+    {
+      "id": "winand-diagramm",
+      "directory": "Elektrochemie/Simulation/Winand-Diagramm",
+      "repository": "Werkzeugdeck/winand-diagramm",
+      "revision": "9b7d3bb9907f7fc9e80b0b63de020fb682e70a10"
+    },
+    {
+      "id": "gefuegerechner",
+      "directory": "Werkstofftechnik/Simulation/Gefuegerechner",
+      "repository": "Werkzeugdeck/gefuegerechner",
+      "revision": "4c841f147cf8575e48414cc2d1a002730a33b011"
+    },
+    {
+      "id": "legierungsatlas",
+      "directory": "Werkstofftechnik/Simulation/Legierungsatlas",
+      "repository": "Werkzeugdeck/legierungsatlas",
+      "revision": "a4a99bf111c426efeee4572f13b624c5863d5bb1"
+    },
+    {
+      "id": "abluftrechner",
+      "directory": "Beschichtungen/Abluftrechner",
+      "repository": "Werkzeugdeck/abluftrechner",
+      "revision": "77ab12184ee08db4167ce2040f86503707572aea"
+    },
+    {
+      "id": "aluminiumgefuegerechner",
+      "directory": "Werkstofftechnik/Simulation/Aluminiumgefuegerechner",
+      "repository": "Werkzeugdeck/aluminiumgefuegerechner",
+      "revision": "a7eb4383eb3e1cae1e5d302b006697a7a0cd425c"
+    }
+  ]
+}
