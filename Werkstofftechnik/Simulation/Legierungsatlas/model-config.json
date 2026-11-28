@@ -1,0 +1,480 @@
+{
+  "agcu": {
+    "components": [
+      "AG",
+      "CU"
+    ],
+    "masses": [
+      107.87,
+      63.546
+    ],
+    "range": [
+      100,
+      1120,
+      5
+    ],
+    "extra": [
+      779.1
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)"
+    }
+  },
+  "agsn": {
+    "components": [
+      "AG",
+      "SN"
+    ],
+    "masses": [
+      107.87,
+      118.69
+    ],
+    "range": [
+      40,
+      1000,
+      5
+    ],
+    "extra": [
+      220.3,
+      479.9,
+      723.7
+    ],
+    "fine": [
+      200,
+      240,
+      2
+    ]
+  },
+  "pbsn": {
+    "components": [
+      "PB",
+      "SN"
+    ],
+    "masses": [
+      207.2,
+      118.69
+    ],
+    "range": [
+      20,
+      350,
+      2
+    ],
+    "extra": [
+      182.2
+    ],
+    "labels": {
+      "FCC_A1": "α-Pb",
+      "BCT_A5": "β-Sn"
+    }
+  },
+  "bipb": {
+    "components": [
+      "BI",
+      "PB"
+    ],
+    "masses": [
+      208.98,
+      207.2
+    ],
+    "range": [
+      20,
+      350,
+      2
+    ],
+    "extra": [
+      125.9,
+      185
+    ],
+    "labels": {
+      "FCC_A1": "α-Pb",
+      "HCP_A3": "ε-Pb",
+      "RHOMBO_A7": "Bi"
+    }
+  },
+  "agbisn": {
+    "components": [
+      "AG",
+      "BI",
+      "SN"
+    ],
+    "masses": [
+      107.87,
+      208.98,
+      118.69
+    ],
+    "range": [
+      40,
+      1000,
+      10
+    ],
+    "extra": [
+      137.1,
+      251.9,
+      263.4
+    ],
+    "fine": [
+      120,
+      280,
+      2
+    ]
+  },
+  "bicusn": {
+    "components": [
+      "BI",
+      "CU",
+      "SN"
+    ],
+    "masses": [
+      208.98,
+      63.546,
+      118.69
+    ],
+    "range": [
+      40,
+      1120,
+      10
+    ],
+    "extra": [
+      138.8,
+      195.9,
+      270.2,
+      270.3,
+      518.7,
+      582.5,
+      585.9,
+      590
+    ],
+    "fine": [
+      120,
+      280,
+      2
+    ]
+  },
+  "alsi": {
+    "components": [
+      "AL",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      577,
+      660.32,
+      1414
+    ],
+    "fine": [
+      560,
+      590,
+      1
+    ],
+    "database": "sources/AlSi-14Lia.tdb",
+    "source": "Liang & Schmid-Fetzer (2014), SGTE/Hallstedt (2025), CC BY 4.0",
+    "labels": {
+      "FCC_A1": "α-Al",
+      "DIAMOND_A4": "Si"
+    }
+  },
+  "alcu": {
+    "components": [
+      "AL",
+      "CU"
+    ],
+    "masses": [
+      26.98154,
+      63.546
+    ],
+    "range": [
+      25,
+      1120,
+      5
+    ],
+    "extra": [
+      548,
+      660.32,
+      1084.62
+    ],
+    "fine": [
+      535,
+      560,
+      1
+    ],
+    "database": "sources/AlCu-04Wit.tdb",
+    "source": "Witusiewicz et al. (2004), SGTE/Hallstedt (2025), CC BY 4.0",
+    "excludePhases": [
+      "AL2CU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "AL2CU_C16": "θ-Al₂Cu",
+      "ALCU_ETA": "η-AlCu",
+      "AL9CU11": "Al₉Cu₁₁",
+      "ALCU_B82": "AlCu (B82)",
+      "AL2CU3": "Al₂Cu₃",
+      "AL4CU9_D83": "γ-Al₄Cu₉ (D83)",
+      "AL4CU9_D82": "γ-Al₄Cu₉ (D82)",
+      "HCP_A3": "Al–Cu-MK (hdp)",
+      "BCC_A2": "β-Al–Cu (krz)"
+    }
+  },
+  "cuni": {
+    "components": [
+      "CU",
+      "NI"
+    ],
+    "masses": [
+      63.546,
+      58.69
+    ],
+    "range": [
+      25,
+      1515,
+      10
+    ],
+    "extra": [
+      1084.62,
+      1455
+    ],
+    "database": "sources/CuNi-92Mey-LB.tdb",
+    "source": "an Mey (1992), SGTE/Hallstedt (2025), CC BY 4.0",
+    "labels": {
+      "FCC_A1": "α (kfz)"
+    }
+  },
+  "almgsi": {
+    "components": [
+      "AL",
+      "MG",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      24.305,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      1500
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; ternär bewertet",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALMG_BETA",
+      "ALMG_EPS",
+      "ALMG_GAMMA",
+      "DIAMOND_A4",
+      "MG2SI"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "DIAMOND_A4": "Si",
+      "MG2SI": "Mg₂Si",
+      "ALMG_BETA": "β-Al₃Mg₂",
+      "ALMG_EPS": "ε-Al–Mg",
+      "ALMG_GAMMA": "γ-Al₁₂Mg₁₇"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "alcusi": {
+    "components": [
+      "AL",
+      "CU",
+      "SI"
+    ],
+    "masses": [
+      26.98154,
+      63.546,
+      28.0855
+    ],
+    "range": [
+      25,
+      1500,
+      10
+    ],
+    "extra": [
+      1500
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; binär extrapoliert",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALCU_DELTA",
+      "ALCU_EPSILON",
+      "ALCU_ETA",
+      "ALCU_THETA",
+      "ALCU_ZETA",
+      "GAMMA_D83",
+      "GAMMA_H",
+      "BCC_A2",
+      "DIAMOND_A4",
+      "CU19SI6_ETA",
+      "CU33SI7_DELTA",
+      "CU4SI_EPSILON",
+      "CU56SI11_GAMMA"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "BCC_A2": "β (krz)",
+      "DIAMOND_A4": "Si",
+      "ALCU_THETA": "θ-Al₂Cu",
+      "ALCU_DELTA": "δ-Al₂Cu₃",
+      "ALCU_EPSILON": "ε-AlCu",
+      "ALCU_ETA": "η-AlCu",
+      "ALCU_ZETA": "ζ-Al₉Cu₁₁",
+      "GAMMA_D83": "γ-Al₄Cu₉ (D83)",
+      "GAMMA_H": "γ-Al–Cu (hdp)",
+      "CU19SI6_ETA": "η-Cu₁₉Si₆",
+      "CU33SI7_DELTA": "δ-Cu₃₃Si₇",
+      "CU4SI_EPSILON": "ε-Cu₄Si",
+      "CU56SI11_GAMMA": "γ-Cu₅₆Si₁₁"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "alcumg": {
+    "components": [
+      "AL",
+      "CU",
+      "MG"
+    ],
+    "masses": [
+      26.98154,
+      63.546,
+      24.305
+    ],
+    "range": [
+      25,
+      1120,
+      10
+    ],
+    "extra": [
+      1120
+    ],
+    "fine": [
+      430,
+      610,
+      5
+    ],
+    "database": "sources/COST507-compatible.tdb",
+    "source": "COST507 Round II (1999), OpenCalphad; ternär bewertet",
+    "phases": [
+      "LIQUID",
+      "FCC_A1",
+      "HCP_A3",
+      "ALMG_BETA",
+      "ALMG_EPS",
+      "ALMG_GAMMA",
+      "ALCU_DELTA",
+      "ALCU_EPSILON",
+      "ALCU_ETA",
+      "ALCU_THETA",
+      "ALCU_ZETA",
+      "GAMMA_D83",
+      "GAMMA_H",
+      "BCC_A2",
+      "LAVES_C14",
+      "LAVES_C15",
+      "LAVES_C36",
+      "CUMG2",
+      "SPHASE",
+      "QPHASE",
+      "VPHASE",
+      "TAU"
+    ],
+    "excludePhases": [
+      "GAS",
+      "ALCU_PRIME"
+    ],
+    "labels": {
+      "FCC_A1": "α (kfz)",
+      "HCP_A3": "MK (hdp)",
+      "BCC_A2": "β (krz)",
+      "ALMG_BETA": "β-Al₃Mg₂",
+      "ALMG_EPS": "ε-Al–Mg",
+      "ALMG_GAMMA": "γ-Al₁₂Mg₁₇",
+      "ALCU_THETA": "θ-Al₂Cu",
+      "ALCU_DELTA": "δ-Al₂Cu₃",
+      "ALCU_EPSILON": "ε-AlCu",
+      "ALCU_ETA": "η-AlCu",
+      "ALCU_ZETA": "ζ-Al₉Cu₁₁",
+      "GAMMA_D83": "γ-Al₄Cu₉ (D83)",
+      "GAMMA_H": "γ-Al–Cu (hdp)",
+      "LAVES_C14": "Laves C14",
+      "LAVES_C15": "Laves C15",
+      "LAVES_C36": "Laves C36",
+      "CUMG2": "CuMg₂",
+      "SPHASE": "S-Al₂CuMg",
+      "QPHASE": "Q-Al₇Cu₃Mg₆",
+      "VPHASE": "V-Al₅Cu₆Mg₂",
+      "TAU": "T-(Al,Cu)₄₉Mg₃₂"
+    },
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  },
+  "agpbsn": {
+    "components": [
+      "AG",
+      "PB",
+      "SN"
+    ],
+    "masses": [
+      107.87,
+      207.2,
+      118.69
+    ],
+    "range": [
+      40,
+      1000,
+      10
+    ],
+    "extra": [
+      177.3,
+      307.2,
+      307.8
+    ],
+    "fine": [
+      160,
+      330,
+      2
+    ],
+    "source": "NIST solder database (2017), ternary extrapolation from binary assessments",
+    "phaseTolerance": 0.002,
+    "directBoundaries": true
+  }
+}

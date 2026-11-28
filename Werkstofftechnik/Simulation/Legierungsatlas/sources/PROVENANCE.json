@@ -1,0 +1,50 @@
+[
+  {
+    "file": "AlSi-14Lia.tdb",
+    "sha256": "256542a28352f7562c47a15d334016301e88d508dc1cb7ba80d35b97dc3618a9",
+    "assessment": "S.-M. Liang and R. Schmid-Fetzer (2014)",
+    "assessment_doi": "10.1016/j.actamat.2014.02.042",
+    "collection_doi": "10.1016/j.calphad.2025.102833",
+    "license": "CC-BY-4.0",
+    "mirror": "https://orchid-project.org/data/databases/sgte-binary/AlSi-14Lia.tdb",
+    "modified": false
+  },
+  {
+    "file": "AlCu-04Wit.tdb",
+    "sha256": "7239fc4da5e79f401db2a379dc38258c2554f6de7a1fc7d74b57bf391fba19f9",
+    "assessment": "V. T. Witusiewicz, U. Hecht, S. G. Fries and S. Rex (2004)",
+    "assessment_doi": "10.1016/j.jallcom.2004.04.126",
+    "collection_doi": "10.1016/j.calphad.2025.102833",
+    "license": "CC-BY-4.0",
+    "mirror": "https://orchid-project.org/data/databases/sgte-binary/AlCu-04Wit.tdb",
+    "modified": false
+  },
+  {
+    "file": "CuNi-92Mey-LB.tdb",
+    "sha256": "7e52adda858e302168ae26b5abfe17f4726ccbfaaff0880abcad5b38e3f559e1",
+    "assessment": "S. an Mey (1992)",
+    "assessment_doi": "10.1016/0364-5916(92)90022-P",
+    "collection_doi": "10.1016/j.calphad.2025.102833",
+    "license": "CC-BY-4.0",
+    "mirror": "https://orchid-project.org/data/databases/sgte-binary/CuNi-92Mey-LB.tdb",
+    "modified": false
+  },
+  {
+    "file": "COST507-original.tdb",
+    "sha256": "80363e1de4aa1ee0750df28ef48e1524ef64b7988d6517649fff1c991e3ed641",
+    "assessment": "COST 507, Round II January 1999, I. Ansara, A.T. Dinsdale, M.H. Rand (eds.)",
+    "source": "https://www.opencalphad.com/databases/COST507.zip",
+    "license": "Freely usable according to original DATABASE_INFO; no CC license asserted",
+    "modified": false,
+    "adapter": null
+  },
+  {
+    "file": "COST507-compatible.tdb",
+    "sha256": "6673e92947761ab4a3198eb4c5a22552272e678e5ce9b1245c910cc1c879afb5",
+    "assessment": "COST 507, Round II January 1999, I. Ansara, A.T. Dinsdale, M.H. Rand (eds.)",
+    "source": "https://www.opencalphad.com/databases/COST507.zip",
+    "license": "Freely usable according to original DATABASE_INFO; no CC license asserted",
+    "modified": true,
+    "adapter": "build-cost507-source.py"
+  }
+]
